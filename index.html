@@ -29,7 +29,7 @@
     if (!idCode) {
       document.getElementById("dish-container").innerHTML = "<p class='error'>No ID code provided.</p>";
     } else {
-      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code?id_code=${idCode}`)
+      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code_v2?id_code=${idCode}`)
         .then(res => res.json())
         .then(data => {
           if (!data || !data.dish_name_en) {
