@@ -37,12 +37,14 @@
             return;
           }
 
+          const d = data[0];
           const html = `
-            <h2>${data[0].dish_name_en}</h2>
-            <p><strong>Japanese Name:</strong> ${data[0].dish_name_ja || "N/A"}</p>
-            <p><strong>Description:</strong><br>${data[0].description_en || "No description available."}</p>
-            <p><strong>Ingredients:</strong><br>${data[0].ingredients_en || "N/A"}</p>
-            <p><strong>Allergens:</strong><br>${data[0].allergens_en || "None listed"}</p>
+            <h2>${d.dish_name_en} ${d.subtitle_en || ""}</h2>
+            <p><strong>Japanese Name:</strong> ${d.dish_name_ja} ${d.subtitle_ja || ""}</p>
+            <p><strong>Reading:</strong> ${d.reading_en || "N/A"}</p>
+            <p><strong>Description:</strong><br>${d.description_en || "N/A"}</p>
+            <p><strong>Ingredients:</strong><br>${d.ingredients_en || "N/A"}</p>
+            <p><strong>Allergens:</strong><br>${d.allergens_en || "None listed"}</p>
           `;
 
           document.getElementById("dish-container").innerHTML = html;
