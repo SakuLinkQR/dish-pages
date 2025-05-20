@@ -1,31 +1,57 @@
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const idCode = params.get("id_code");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SakuLink - Dish Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    .loading { color: gray; }
+    .error { color: red; }
+    h1 { color: #ff4081; }
+  </style>
+</head>
+<body>
+  <h1>🍱 SakuLink - Dish Details</h1>
+  <div id="dish-container">
+    <p class="loading">Loading...</p>
+  </div>
 
-  if (!idCode) {
-    document.getElementById("dish-container").innerHTML = "<p class='error'>No ID code provided.</p>";
-  } else {
-    fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code_v2?id_code=${idCode}`)
-      .then(res => res.json())
-      .then(data => {
-        if (!data || !data[0] || !data[0].dish_name_en) {
-          document.getElementById("dish-container").innerHTML = "<p class='error'>Dish not found.</p>";
-          return;
-        }
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const idCode = params.get("id_code");
 
-        const html = `
-          <h2>${data[0].dish_name_en}</h2>
-          <p><strong>Japanese Name:</strong> ${data[0].dish_name_ja || "N/A"}</p>
-          <p><strong>Description:</strong><br>${data[0].description_en}</p>
-          <p><strong>Ingredients:</strong><br>${data[0].ingredients_en || "N/A"}</p>
-          <p><strong>Allergens:</strong><br>${data[0].allergens_en || "None listed"}</p>
-        `;
+    if (!idCode) {
+      document.getElementById("dish-container").innerHTML = "<p class='error'>No ID code provided.</p>";
+    } else {
+      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code_v2?id_code=${idCode}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data || !data[0] || !data[0].dish_name_en) {
+            document.getElementById("dish-container").innerHTML = "<p class='error'>Dish not found.</p>";
+            return;
+          }
 
-        document.getElementById("dish-container").innerHTML = html;
-      })
-      .catch(error => {
-        console.error("Error fetching dish:", error);
-        document.getElementById("dish-container").innerHTML = "<p class='error'>Failed to load data.</p>";
-      });
-  }
-</script>
+          const html = `
+            <h2>${data[0].dish_name_en}</h2>
+            <p><strong>Japanese Name:</strong> ${data[0].dish_name_ja || "N/A"}</p>
+            <p><strong>Description:</strong><br>${data[0].description_en}</p>
+            <p><strong>Ingredients:</strong><br>${data[0].ingredients_en || "N/A"}</p>
+            <p><strong>Allergens:</strong><br>${data[0].allergens_en || "None listed"}</p>
+          `;
+
+          document.getElementById("dish-container").innerHTML = html;
+        })
+        .catch(error => {
+          console.error("Error fetching dish:", error);
+          document.getElementById("dish-container").innerHTML = "<p class='error'>Failed to load data.</p>";
+        });
+    }
+  </script>
+</body>
+</html>
