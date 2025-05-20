@@ -40,7 +40,7 @@
           const html = `
             <h2>${data[0].dish_name_en}</h2>
             <p><strong>Japanese Name:</strong> ${data[0].dish_name_ja || "N/A"}</p>
-            <p><strong>Description:</strong><br>${data[0].description_en}</p>
+            <p><strong>Description:</strong><br>${data[0].description_en || "No description available."}</p>
             <p><strong>Ingredients:</strong><br>${data[0].ingredients_en || "N/A"}</p>
             <p><strong>Allergens:</strong><br>${data[0].allergens_en || "None listed"}</p>
           `;
