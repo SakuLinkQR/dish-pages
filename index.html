@@ -1,13 +1,52 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SakuLink Dish Viewer</title>
+  <meta charset="UTF-8">
+  <title>SakuLink - Dish Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .loading { color: gray; }
+    .error { color: red; }
+  </style>
 </head>
 <body>
-    <h1>SakuLink Dish Viewer</h1>
-    <p>This page will display dish information based on scanned QR code data.</p>
-    <p>API endpoint is ready. This page will be linked to it soon.</p>
+  <h1>🍱 Dish Details</h1>
+  <div id="dish-container">
+    <p class="loading">Loading...</p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const dishId = params.get("dish_id");
+
+    if (!dishId) {
+      document.getElementById("dish-container").innerHTML = "<p class='error'>No dish ID provided.</p>";
+    } else {
+      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code?dish_id=${dishId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data || !data.dish_name_en) {
+            document.getElementById("dish-container").innerHTML = "<p class='error'>Dish not found.</p>";
+            return;
+          }
+
+          // 表示の組み立て
+          const html = `
+            <h2>${data.dish_name_en}</h2>
+            <p><strong>Japanese Name:</strong> ${data.dish_name_jp || "N/A"}</p>
+            <p><strong>Description:</strong> ${data.description_en}</p>
+            <p><strong>Ingredients:</strong> ${data.ingredients_en || "N/A"}</p>
+            <p><strong>Allergens:</strong> ${data.allergens_en || "None listed"}</p>
+          `;
+
+          document.getElementById("dish-container").innerHTML = html;
+        })
+        .catch(error => {
+          console.error("Error fetching dish:", error);
+          document.getElementById("dish-container").innerHTML = "<p class='error'>Failed to load data.</p>";
+        });
+    }
+  </script>
 </body>
 </html>
