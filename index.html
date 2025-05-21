@@ -1,60 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>SakuLink - Dish Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
       padding: 20px;
-      max-width: 700px;
+      max-width: 600px;
       margin: auto;
     }
-
-    .title {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      color: #ff4081;
-      font-size: 1.8rem;
-      line-height: 1.3;
-    }
-
-    .title .icon {
-      font-size: 2rem;
-    }
-
-    .title .text {
-      flex: 1;
-    }
-
     .loading { color: gray; }
     .error { color: red; }
-
+    h1 {
+      color: #ff4081;
+      font-size: 1.8em;
+      line-height: 1.2em;
+      text-align: center;
+      margin-bottom: 20px;
+    }
     h2 {
-      margin-top: 30px;
-      font-size: 1.4rem;
+      font-size: 1.4em;
+      margin-top: 20px;
     }
-
-    p {
-      margin: 6px 0;
-    }
-
     strong {
-      display: inline-block;
-      margin-top: 12px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-
-  <h1 class="title">
-    <span class="icon">🍱</span>
-    <span class="text">SakuLink - Dish Details</span>
-  </h1>
-
+  <h1>🌸 SakuLink 🌸<br>Dish Details</h1>
   <div id="dish-container">
     <p class="loading">Loading...</p>
   </div>
@@ -64,34 +40,33 @@
     const idCode = params.get("id_code");
 
     if (!idCode) {
-      document.getElementById("dish-container").innerHTML =
-        "<p class='error'>No ID code provided.</p>";
+      document.getElementById("dish-container").innerHTML = "<p class='error'>No ID code provided.</p>";
     } else {
       fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code_v2?id_code=${idCode}`)
         .then(res => res.json())
         .then(data => {
           if (!data || !data[0] || !data[0].dish_name_en) {
-            document.getElementById("dish-container").innerHTML =
-              "<p class='error'>Dish not found.</p>";
+            document.getElementById("dish-container").innerHTML = "<p class='error'>Dish not found.</p>";
             return;
           }
 
           const dish = data[0];
+
           const html = `
             <h2>${dish.dish_name_en} ${dish.subtitle_en || ""}</h2>
             <p><strong>Japanese Name:</strong> ${dish.dish_name_ja || ""} ${dish.subtitle_ja || ""}</p>
             <p><strong>Reading:</strong> ${dish.reading_en || "N/A"}</p>
-            <p><strong>Description:</strong><br>${dish.description_en || "N/A"}</p>
+            <p><strong>Description:</strong><br>${dish.description_en || "No description available."}</p>
             <p><strong>Ingredients:</strong><br>${dish.ingredients_en || "N/A"}</p>
-            <p><strong>Allergens:</strong><br>${dish.allergens_en || "None listed"}</p>
+            <p><strong>Allergens:</strong><br>⚠️ ${dish.allergens_en || "None listed"}</p>
+            <p style="font-size: 0.9em; color: gray;"><em>Note: Allergen information is based on general preparation and may vary by restaurant. Please confirm with the restaurant directly.</em></p>
           `;
 
           document.getElementById("dish-container").innerHTML = html;
         })
         .catch(error => {
           console.error("Error fetching dish:", error);
-          document.getElementById("dish-container").innerHTML =
-            "<p class='error'>Failed to load data.</p>";
+          document.getElementById("dish-container").innerHTML = "<p class='error'>Failed to load data.</p>";
         });
     }
   </script>
