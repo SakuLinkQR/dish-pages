@@ -1,78 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SakuLink - Dish Details</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SakuLink QR Scanner</title>
   <style>
     body {
       font-family: sans-serif;
+      text-align: center;
       padding: 20px;
-      max-width: 600px;
-      margin: auto;
     }
-    .loading { color: gray; }
-    .error { color: red; }
     h1 {
       color: #ff4081;
-      font-size: 1.8em;
-      line-height: 1.2em;
-      text-align: center;
-      margin-bottom: 20px;
+      font-size: 2em;
     }
-    h2 {
-      font-size: 1.4em;
+    #preview {
+      width: 300px;
+      height: 350px;
+      border: 1px solid #ccc;
+      margin: 20px auto;
+    }
+    #result {
+      font-size: 1.2em;
       margin-top: 20px;
-    }
-    strong {
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>🌸 SakuLink 🌸<br>Dish Details</h1>
-  <div id="dish-container">
-    <p class="loading">Loading...</p>
-  </div>
+  <h1>🌸 SakuLink<br>QR Code Scanner 🌸</h1>
+  <div id="preview"></div>
+  <p>Waiting for QR code...</p>
+  <div id="result">Scanned result: <span id="output"></span></div>
 
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const idCode = params.get("id_code");
+    const resultContainer = document.getElementById("output");
+    const html5QrCode = new Html5Qrcode("preview");
 
-    const container = document.getElementById("dish-container");
+    function onScanSuccess(decodedText, decodedResult) {
+      console.log("Raw QR code text:", decodedText);
+      let idCode = decodedText.trim();
 
-    if (!idCode) {
-      container.innerHTML = "<p class='error'>No ID code provided.</p>";
-    } else {
-      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code_v2?id_code=${idCode}`)
-        .then(res => res.json())
-        .then(data => {
-          // 配列形式かオブジェクト形式の両方に対応
-          const dish = Array.isArray(data) ? data[0] : data;
+      try {
+        if (decodedText.startsWith("http")) {
+          const url = new URL(decodedText);
+          idCode = url.searchParams.get("id_code") || url.searchParams.get("id") || "";
+        }
 
-          if (!dish || !dish.dish_name_en) {
-            container.innerHTML = "<p class='error'>Dish not found.</p>";
-            return;
-          }
+        if (!idCode) {
+          resultContainer.innerText = "QRコードにIDが含まれていません。";
+          return;
+        }
 
-          const html = `
-            <h2>${dish.dish_name_en} ${dish.subtitle_en || ""}</h2>
-            <p><strong>Japanese Name:</strong> ${dish.dish_name_ja || ""} ${dish.subtitle_ja || ""}</p>
-            <p><strong>Reading:</strong> ${dish.reading_en || "N/A"}</p>
-            <p><strong>Description:</strong><br>${dish.description_en || "No description available."}</p>
-            <p><strong>Ingredients:</strong><br>${dish.ingredients_en || "N/A"}</p>
-            <p><strong>Allergens:</strong><br>⚠️ ${dish.allergens_en || "None listed"}</p>
-            <p style="font-size: 0.9em; color: gray;"><em>Note: Allergen information is based on general preparation and may vary by restaurant. Please confirm with the restaurant directly.</em></p>
-            <p><a href="../qr-scanner2/qr-scanner.html">🔄 Scan another dish</a></p>
-          `;
+        resultContainer.innerText = idCode;
 
-          container.innerHTML = html;
-        })
-        .catch(error => {
-          console.error("Error fetching dish:", error);
-          container.innerHTML = "<p class='error'>Failed to load data.</p>";
+        html5QrCode.stop().then(() => {
+          window.location.href = `https://sakulinkqr.github.io/dish-pages/index.html?id_code=${encodeURIComponent(idCode)}`;
+        }).catch(err => {
+          resultContainer.innerText = "カメラの停止に失敗しました: " + err;
         });
+      } catch (e) {
+        console.error("URL解析エラー:", e);
+        resultContainer.innerText = "QRコードの解析に失敗しました。";
+      }
     }
+
+    function onScanFailure(error) {
+      // 読み取り失敗時は何もしない（静かに待つ）
+    }
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      onScanSuccess,
+      onScanFailure
+    ).catch(err => {
+      document.getElementById("result").textContent = "カメラエラー: " + err;
+    });
   </script>
 </body>
 </html>
