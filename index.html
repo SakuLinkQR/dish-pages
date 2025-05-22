@@ -44,13 +44,11 @@
     } else {
       fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code_v2?id_code=${idCode}`)
         .then(res => res.json())
-        .then(data => {
-          if (!data || !data[0] || !data[0].dish_name_en) {
+        .then(dish => {
+          if (!dish || !dish.dish_name_en) {
             document.getElementById("dish-container").innerHTML = "<p class='error'>Dish not found.</p>";
             return;
           }
-
-          const dish = data[0];
 
           const html = `
             <h2>${dish.dish_name_en} ${dish.subtitle_en || ""}</h2>
