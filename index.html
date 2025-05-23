@@ -17,6 +17,9 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
     header h1 {
       font-size: 1.5em;
@@ -25,6 +28,12 @@
     .menu-icon {
       font-size: 1.5em;
       cursor: pointer;
+    }
+    .page-title {
+      text-align: center;
+      font-size: 1.6em;
+      color: #ff4081;
+      margin: 12px auto 0;
     }
     .content {
       padding: 20px;
@@ -72,7 +81,8 @@
     <h1>SakuLink</h1>
     <div class="menu-icon">☰</div>
   </header>
-    <div class="content">
+  <div class="page-title">Dish Details</div>
+  <div class="content">
     <div id="dish-container">
       <p class="loading">Loading...</p>
     </div>
