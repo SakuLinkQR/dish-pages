@@ -1,90 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SakuLink QR Scanner</title>
+  <meta charset="UTF-8">
+  <title>SakuLink - Dish Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
       padding: 20px;
+      max-width: 600px;
+      margin: auto;
     }
+    .loading { color: gray; }
+    .error { color: red; }
     h1 {
       color: #ff4081;
-      font-size: 2em;
+      font-size: 1.8em;
+      line-height: 1.2em;
+      text-align: center;
+      margin-bottom: 20px;
     }
-    #preview {
-      width: 300px;
-      height: 350px;
-      border: 1px solid #ccc;
-      margin: 20px auto;
-    }
-    #status {
-      font-size: 1em;
-      color: gray;
-      margin-top: 10px;
-    }
-    #result {
-      font-size: 1.2em;
+    h2 {
+      font-size: 1.4em;
       margin-top: 20px;
+    }
+    strong {
+      font-weight: bold;
+    }
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 24px 0 12px;
+    }
+    .btn {
+      padding: 10px 18px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      text-decoration: none;
+    }
+    .btn-home {
+      background-color: #4fc3f7;
+    }
+    .btn-scan {
+      background-color: #fbc02d;
+      color: black;
     }
   </style>
 </head>
 <body>
-  <h1>🌸 SakuLink<br>QR Code Scanner 🌸</h1>
-  <div id="preview"></div>
-  <p id="status">カメラの起動を準備しています...</p>
-  <div id="result">Scanned result: <span id="output"></span></div>
+  <h1>🌸 SakuLink 🌸<br>Dish Details</h1>
+  <div id="dish-container">
+    <p class="loading">Loading...</p>
+  </div>
 
-  <script src="https://unpkg.com/html5-qrcode"></script>
   <script>
-    const resultContainer = document.getElementById("output");
-    const statusText = document.getElementById("status");
-    const html5QrCode = new Html5Qrcode("preview");
-    let hasRedirected = false;
+    const params = new URLSearchParams(window.location.search);
+    const idCode = params.get("id_code");
+    const container = document.getElementById("dish-container");
 
-    function onScanSuccess(decodedText, decodedResult) {
-      if (hasRedirected) return;
-      console.log("Raw QR code text:", decodedText);
-      let idCode = decodedText.trim();
+    if (!idCode) {
+      container.innerHTML = "<p class='error'>No ID code provided.</p>";
+    } else {
+      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code_v2?id_code=${idCode}`)
+        .then(res => res.json())
+        .then(data => {
+          const dish = Array.isArray(data) ? data[0] : data;
 
-      try {
-        if (decodedText.startsWith("http")) {
-          const url = new URL(decodedText);
-          idCode = url.searchParams.get("id_code") || url.searchParams.get("id") || "";
-        }
+          if (!dish || !dish.dish_name_en) {
+            container.innerHTML = "<p class='error'>Dish not found.</p>";
+            return;
+          }
 
-        if (!idCode) {
-          resultContainer.innerText = "QRコードにIDが含まれていません。";
-          return;
-        }
+          const html = `
+            <h2>${dish.dish_name_en} ${dish.subtitle_en || ""}</h2>
+            <p><strong>Japanese Name:</strong> ${dish.dish_name_ja || ""} ${dish.subtitle_ja || ""}</p>
+            <p><strong>Reading:</strong> ${dish.reading_en || "N/A"}</p>
+            <p><strong>Description:</strong><br>${dish.description_en || "No description available."}</p>
+            <p><strong>Ingredients:</strong><br>${dish.ingredients_en || "N/A"}</p>
+            <p><strong>Allergens:</strong><br>⚠️ ${dish.allergens_en || "None listed"}</p>
+            <p style="font-size: 0.9em; color: gray;"><em>Note: Allergen information is based on general preparation and may vary by restaurant. Please confirm with the restaurant directly.</em></p>
 
-        resultContainer.innerText = idCode;
-        hasRedirected = true;
-        window.location.href = `https://sakulinkqr.github.io/dish-pages/index.html?id_code=${encodeURIComponent(idCode)}`;
+            <div class="button-row">
+              <a class="btn btn-home" href="../index_top.html">Go Home</a>
+              <a class="btn btn-scan" href="../qr-scanner2/qr-scanner.html">Scan Another</a>
+            </div>
+            <div style="margin-top: 20px;">
+              <img src="../images/sample.jpg" alt="Sample Dish Image" style="width: 100%; max-width: 560px;">
+            </div>
+          `;
 
-      } catch (e) {
-        console.error("URL解析エラー:", e);
-        resultContainer.innerText = "QRコードの解析に失敗しました。";
-      }
+          container.innerHTML = html;
+        })
+        .catch(error => {
+          console.error("Error fetching dish:", error);
+          container.innerHTML = "<p class='error'>Failed to load data.</p>";
+        });
     }
-
-    function onScanFailure(error) {
-      // 読み取り失敗時は静かに無視
-    }
-
-    html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      onScanSuccess,
-      onScanFailure
-    ).then(() => {
-      statusText.innerText = "カメラ起動中。QRコードを枠内にかざしてください。";
-    }).catch(err => {
-      console.error("カメラエラー:", err);
-      statusText.innerText = "カメラの起動に失敗しました。ブラウザの設定でカメラ許可を確認してください。";
-    });
   </script>
 </body>
 </html>
