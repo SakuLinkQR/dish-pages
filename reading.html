@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SakuLink Reading</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      color: #ff4081;
+      font-size: 1.5em;
+    }
+    #content {
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">Loading...</h1>
+  <div id="content">Please wait...</div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const storyId = params.get("story_id");
+
+    if (storyId) {
+      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_reading_by_story_id?story_id=${storyId}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("title").innerText = data.title_en;
+          document.getElementById("content").innerHTML = data.content_en;
+        })
+        .catch(err => {
+          document.getElementById("title").innerText = "Error";
+          document.getElementById("content").innerText = "Could not load story.";
+        });
+    } else {
+      document.getElementById("title").innerText = "No story ID provided";
+      document.getElementById("content").innerText = "";
+    }
+  </script>
+</body>
+</html>
