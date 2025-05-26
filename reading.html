@@ -33,8 +33,13 @@
       fetch(`https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_by_story_id?story_id=${storyId}`)
         .then(res => res.json())
         .then(data => {
-          document.getElementById("title").innerText = data.title_en || "No Title";
-          document.getElementById("content").innerHTML = data.content_en || "No content available.";
+          if (data && data.title_en && data.content_en) {
+            document.getElementById("title").innerText = data.title_en;
+            document.getElementById("content").innerHTML = data.content_en;
+          } else {
+            document.getElementById("title").innerText = "No Title";
+            document.getElementById("content").innerText = "No content available.";
+          }
         })
         .catch(err => {
           document.getElementById("title").innerText = "Error";
