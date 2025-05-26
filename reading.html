@@ -33,8 +33,9 @@
       fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_reading_by_story_id?story_id=${storyId}`)
         .then(res => res.json())
         .then(data => {
-          document.getElementById("title").innerText = data.title_en;
-          document.getElementById("content").innerHTML = data.content_en;
+          const reading = data.readings_db_v2;
+          document.getElementById("title").innerText = reading.title_en;
+          document.getElementById("content").innerHTML = reading.content_en;
         })
         .catch(err => {
           document.getElementById("title").innerText = "Error";
