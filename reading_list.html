@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SakuLink Readings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      color: #ff4081;
+      font-size: 1.5em;
+      text-align: center;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin: 15px 0;
+    }
+    a {
+      text-decoration: none;
+      color: #007BFF;
+      font-size: 1.1em;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>SakuLink Readings</h1>
+  <ul id="reading-list">
+    <li>Loading...</li>
+  </ul>
+
+  <script>
+    fetch('https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_list')
+      .then(res => res.json())
+      .then(data => {
+        const listEl = document.getElementById("reading-list");
+        listEl.innerHTML = "";
+
+        if (Array.isArray(data) && data.length > 0) {
+          data.forEach(item => {
+            if (item.visible) {
+              const li = document.createElement("li");
+              const link = document.createElement("a");
+              link.href = `reading.html?story_id=${item.story_id}`;
+              link.textContent = item.title_en;
+              li.appendChild(link);
+              listEl.appendChild(li);
+            }
+          });
+        } else {
+          listEl.innerHTML = "<li>No readings available yet.</li>";
+        }
+      })
+      .catch(error => {
+        document.getElementById("reading-list").innerHTML = "<li>Error loading list.</li>";
+      });
+  </script>
+</body>
+</html>
