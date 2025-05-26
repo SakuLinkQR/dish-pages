@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SakuLink Readings</title>
+  <title>Reading List</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -13,20 +13,14 @@
     }
     h1 {
       color: #ff4081;
-      font-size: 1.5em;
       text-align: center;
     }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      margin: 15px 0;
-    }
     a {
-      text-decoration: none;
-      color: #007BFF;
+      display: block;
+      margin: 10px 0;
       font-size: 1.1em;
+      color: #007bff;
+      text-decoration: none;
     }
     a:hover {
       text-decoration: underline;
@@ -34,36 +28,31 @@
   </style>
 </head>
 <body>
-  <h1>SakuLink Readings</h1>
-  <ul id="reading-list">
-    <li>Loading...</li>
-  </ul>
+  <h1>📖 Readings</h1>
+  <div id="readingList">
+    Loading...
+  </div>
 
   <script>
     fetch('https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_list')
-      .then(res => res.json())
+      .then(response => response.json())
       .then(data => {
-        const listEl = document.getElementById("reading-list");
-        listEl.innerHTML = "";
-
-        if (Array.isArray(data) && data.length > 0) {
-          data.forEach(item => {
-            if (item.visible) {
-              const li = document.createElement("li");
-              const link = document.createElement("a");
-              link.href = `reading.html?story_id=${item.story_id}`;
-              link.textContent = item.title_en;
-              li.appendChild(link);
-              listEl.appendChild(li);
-            }
-          });
+        const container = document.getElementById("readingList");
+        container.innerHTML = "";
+        if (data.length === 0) {
+          container.textContent = "No readings available yet.";
         } else {
-          listEl.innerHTML = "<li>No readings available yet.</li>";
+          data.forEach((item) => {
+            const link = document.createElement("a");
+            link.href = `reading.html?id=${item.story_id}`; // ← あなたの本文表示ページ
+            link.textContent = `📖 ${item.title_en}`;
+            container.appendChild(link);
+          });
         }
       })
-      .catch(error => {
-        document.getElementById("reading-list").innerHTML = "<li>Error loading list.</li>";
+      .catch(() => {
+        document.getElementById("readingList").textContent = "Failed to load readings.";
       });
   </script>
-</body> 
+</body>
 </html>
