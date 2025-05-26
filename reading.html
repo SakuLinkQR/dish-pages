@@ -30,12 +30,11 @@
     const storyId = params.get("story_id");
 
     if (storyId) {
-      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_reading_by_story_id?story_id=${storyId}`)
+      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_by_story_id?story_id=${storyId}`)
         .then(res => res.json())
         .then(data => {
-          const reading = data.readings_db_v2;
-          document.getElementById("title").innerText = reading.title_en;
-          document.getElementById("content").innerHTML = reading.content_en;
+          document.getElementById("title").innerText = data.title_en || "No Title";
+          document.getElementById("content").innerHTML = data.content_en || "No content available.";
         })
         .catch(err => {
           document.getElementById("title").innerText = "Error";
