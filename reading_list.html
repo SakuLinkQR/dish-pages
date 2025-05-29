@@ -13,18 +13,21 @@
       position: relative;
       z-index: 1;
     }
+
     h1 {
       color: #ff4081;
       font-size: 2em;
       margin-bottom: 30px;
       text-align: center;
     }
+
     #readingList {
       max-width: 700px;
       margin: 0 auto;
       position: relative;
       z-index: 2;
     }
+
     .story-card {
       background-color: #ffffff;
       border: 1px solid #ffc0cb;
@@ -35,16 +38,19 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       transition: transform 0.2s ease, background-color 0.2s ease;
     }
+
     .story-card:hover {
       background-color: #fff0f5;
       transform: translateY(-2px);
     }
+
     .story-card a {
       text-decoration: none;
       color: #004499;
       font-size: 1.1em;
       display: block;
     }
+
     .home-button {
       display: inline-block;
       margin: 40px auto 0;
@@ -57,7 +63,7 @@
       box-shadow: 0 4px 10px rgba(255, 64, 129, 0.3);
     }
 
-    /* 🌸 桜の花びら */
+    /* 🌸 桜の花びらアニメーション */
     .sakura-container {
       position: fixed;
       top: 0;
@@ -74,7 +80,7 @@
       top: -10px;
       width: 20px;
       height: 20px;
-      background-image: url('https://cdn.jsdelivr.net/gh/saekee/sakura-falling/sakura.png');
+      background-image: url('https://raw.githubusercontent.com/saekee/sakura-falling/main/sakura.png');
       background-size: cover;
       opacity: 0.7;
       animation: fall 10s linear infinite;
@@ -96,7 +102,8 @@
   </style>
 </head>
 <body>
-  <!-- 🌸 花びら表示 -->
+
+  <!-- 🌸 花びら表示用 -->
   <div class="sakura-container">
     <div class="sakura"></div>
     <div class="sakura"></div>
