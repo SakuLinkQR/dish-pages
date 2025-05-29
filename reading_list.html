@@ -6,35 +6,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: sans-serif;
-      padding: 40px;
-      text-align: center;
-      background-color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 40px 20px;
+      background: linear-gradient(to bottom, #fff6f9, #ffffff);
+      background-attachment: fixed;
     }
     h1 {
       color: #ff4081;
       font-size: 2em;
       margin-bottom: 30px;
+      text-align: center;
     }
-    a {
-      display: block;
-      margin: 10px auto;
-      font-size: 1.1em;
+    #readingList {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .story-card {
+      background-color: #fef2f6;
+      border: 1px solid #ffd1e6;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin: 15px 0;
+      text-align: left;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .story-card:hover {
+      background-color: #ffe7f0;
+      transform: translateY(-2px);
+    }
+    .story-card a {
       text-decoration: none;
       color: #007bff;
-      text-align: left;        /* ← 左揃え */
-      max-width: 600px;        /* ← 幅制限で読みやすく */
-      padding-left: 10px;      /* ← 左余白 */
+      font-size: 1.1em;
+      display: block;
     }
     .home-button {
       display: inline-block;
-      margin-top: 40px;
-      padding: 10px 20px;
+      margin: 40px auto 0;
+      padding: 12px 24px;
       background-color: #ff4081;
       color: white;
-      border-radius: 8px;
-      text-decoration: none;
+      border-radius: 10px;
       font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(255, 64, 129, 0.3);
     }
   </style>
 </head>
@@ -49,21 +65,29 @@
         const container = document.getElementById("readingList");
         container.innerHTML = "";
 
-        // ✅ display_orderの昇順に並び替え
         data.sort((a, b) => a.display_order - b.display_order);
 
         if (data.length === 0) {
           container.textContent = "No readings available yet.";
         } else {
           data.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "story-card";
+
             const link = document.createElement("a");
             link.href = `reading.html?id=${item.story_id}`;
-            link.textContent = `📖 Story ${item.display_order}: ${item.title_en}`;
-            container.appendChild(link);
+
+            // ジャンルに応じてアイコン変更（簡易条件分岐）
+            let icon = "📖";
+            if (item.title_en.toLowerCase().includes("sushi")) icon = "🍣";
+            else if (item.title_en.toLowerCase().includes("noodle") || item.title_en.toLowerCase().includes("ramen")) icon = "🍜";
+
+            link.textContent = `${icon} Story ${item.display_order}: ${item.title_en}`;
+            card.appendChild(link);
+            container.appendChild(card);
           });
         }
 
-        // ← 🏠 Back to Home ボタン
         const backBtn = document.createElement("a");
         backBtn.href = "home.html";
         backBtn.className = "home-button";
