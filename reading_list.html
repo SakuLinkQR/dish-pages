@@ -46,6 +46,9 @@
         const container = document.getElementById("readingList");
         container.innerHTML = "";
 
+        // ✅ display_orderで昇順に並べる
+        data.sort((a, b) => a.display_order - b.display_order);
+
         if (data.length === 0) {
           container.textContent = "No readings available yet.";
         } else {
@@ -57,7 +60,7 @@
           });
         }
 
-        // ← 🏠 Back to Home ボタンの追加
+        // ← 🏠 Back to Home ボタン
         const backBtn = document.createElement("a");
         backBtn.href = "home.html";
         backBtn.className = "home-button";
