@@ -1,17 +1,63 @@
-const params = new URLSearchParams(window.location.search);
-const storyId = params.get("id");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reading Detail</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #ff4081;
+      font-size: 1.6em;
+      margin-bottom: 20px;
+    }
+    .back-button {
+      margin-top: 30px;
+      display: inline-block;
+      background-color: #ff4081;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">Loading...</h1>
+  <div id="content"></div>
 
-if (storyId) {
-  fetch(`https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_by_id?story_id=${storyId}`)
-    .then((res) => res.json())
-    .then((data) => {
-      document.getElementById("title").textContent = data.title_en;
-      document.getElementById("content").innerHTML = data.content_en;
-    })
-    .catch(() => {
-      document.getElementById("title").textContent = "Not found";
-      document.getElementById("content").textContent = "This reading could not be loaded.";
-    });
-} else {
-  document.getElementById("title").textContent = "No story ID provided";
-}
+  <a href="reading_list.html" class="back-button">← Back to Readings</a>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const storyId = params.get("id");
+
+    if (storyId) {
+      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_by_id?story_id=${storyId}`)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("API error");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          document.getElementById("title").textContent = data.title_en || "Untitled";
+          document.getElementById("content").innerHTML = data.content_en || "<p>No content available.</p>";
+        })
+        .catch(() => {
+          document.getElementById("title").textContent = "Error loading story";
+          document.getElementById("content").textContent = "Please try again later.";
+        });
+    } else {
+      document.getElementById("title").textContent = "No story ID provided";
+      document.getElementById("content").textContent = "This page requires a valid story ID.";
+    }
+  </script>
+</body>
+</html>
