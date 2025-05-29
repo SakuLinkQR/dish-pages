@@ -1,49 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SakuLink - Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>🌸 SakuLink - Home 🌸</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
       padding: 40px;
+      max-width: 600px;
+      margin: auto;
+      background-color: #fffdf9;
     }
+
     h1 {
       font-size: 2em;
       color: #ff4081;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
-    .scan-button {
-      font-size: 1.2em;
-      padding: 15px 30px;
-      background-color: #ff4081;
-      color: white;
+
+    .button {
+      display: block;
+      width: 70%;
+      margin: 15px auto;
+      padding: 14px 20px;
+      font-size: 1.1em;
+      background-color: #ffcc00;
+      color: #333;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      margin: 10px;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      background-color: #f0b700;
+    }
+
+    .secondary-button {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .secondary-button:hover {
+      background-color: #388E3C;
     }
   </style>
 </head>
 <body>
-  <h1>
-    🌸 SakuLink 🌸<br>
-    <span style="font-size: 0.7em; line-height: 1.4; display: inline-block;">
-      Your Menu Guide<br>in Japan
-    </span>
-  </h1>
-  <p>Tap the button below to scan a QR code!</p>
+  <h1>🌸 SakuLink 🌸</h1>
 
-  <!-- 📷 QRスキャンボタン -->
-  <button class="scan-button" onclick="location.href='https://sakulinkqr.github.io/qr-scanner2/qr-scanner.html'">
-    📷 Scan QR
-  </button>
+  <a class="button" href="qr-scanner2.html">📷 Scan QR</a>
+  <a class="button secondary-button" href="start_here.html">📖 Start Here</a>
 
-  <!-- 📖 読み物リンクボタン -->
-  <button class="scan-button" onclick="location.href='https://sakulinkqr.github.io/dish-pages/reading_list.html'">
-    📖 Readings
-  </button>
 </body>
 </html>
