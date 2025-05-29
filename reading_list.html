@@ -2,36 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Reading List</title>
+  <title>SakuLink Readings</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
+      padding: 40px;
+      text-align: center;
+      background-color: #fff;
     }
     h1 {
       color: #ff4081;
-      text-align: center;
+      font-size: 2em;
+      margin-bottom: 30px;
     }
     a {
       display: block;
       margin: 10px 0;
       font-size: 1.1em;
-      color: #007bff;
       text-decoration: none;
+      color: #007bff;
     }
-    a:hover {
-      text-decoration: underline;
+    .home-button {
+      display: inline-block;
+      margin-top: 40px;
+      padding: 10px 20px;
+      background-color: #ff4081;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <h1>📖 Readings</h1>
-  <div id="readingList">
-    Loading...
-  </div>
+  <div id="readingList">Loading...</div>
 
   <script>
     fetch('https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_list')
@@ -39,35 +45,28 @@
       .then(data => {
         const container = document.getElementById("readingList");
         container.innerHTML = "";
+
         if (data.length === 0) {
           container.textContent = "No readings available yet.";
         } else {
           data.forEach((item) => {
             const link = document.createElement("a");
-            link.href = `reading.html?id=${item.story_id}`; // ← あなたの本文表示ページ
-            link.textContent = `📖 ${item.title_en}`;
+            link.href = `reading.html?id=${item.story_id}`;
+            link.textContent = `📖 Story ${item.display_order}: ${item.title_en}`;
             container.appendChild(link);
           });
         }
+
+        // ← 🏠 Back to Home ボタンの追加
+        const backBtn = document.createElement("a");
+        backBtn.href = "home.html";
+        backBtn.className = "home-button";
+        backBtn.textContent = "← 🏠 Back to Home";
+        container.appendChild(backBtn);
       })
       .catch(() => {
-        document.getElementById("readingList").textContent = "Failed to load readings.";
+        document.getElementById("readingList").textContent = "Error loading readings.";
       });
   </script>
-  <a href="home.html" class="home-button">← Back to Home</a>
-
-<style>
-  .home-button {
-    display: inline-block;
-    margin-top: 30px;
-    padding: 10px 20px;
-    background-color: #ff4081;
-    color: white;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-  }
-</style>
-
 </body>
 </html>
