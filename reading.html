@@ -39,7 +39,7 @@
     const storyId = params.get("id");
 
     if (storyId) {
-      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_by_id?story_id=${storyId}`)
+      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_by_story_id?story_id=${storyId}`)
         .then((res) => {
           if (!res.ok) {
             throw new Error("API error");
