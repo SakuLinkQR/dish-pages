@@ -23,28 +23,18 @@
       font-size: 1.2em;
       color: #333;
     }
-
-    .start-button {
-      margin-top: 30px;
-      padding: 12px 24px;
-      font-size: 1.1em;
-      background-color: #ff4081;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .start-button:hover {
-      background-color: #e03570;
-    }
   </style>
+
+  <script>
+    // 2秒後に自動で notice.html に遷移
+    setTimeout(() => {
+      window.location.href = "notice.html";
+    }, 2000);
+  </script>
 </head>
 <body>
   <h1>🌸 SakuLink 🌸<br>Welcome!</h1>
   <p>This app helps you understand Japanese dishes using QR codes.<br>
      Let’s begin your food adventure!</p>
-
-  <button class="start-button" onclick="location.href='login.html'">Start</button>
 </body>
 </html>
