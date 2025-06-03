@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add SakuLink to Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- アイコン・マニフェスト（再利用） -->
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 1.8em;
+      color: #ff4081;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.1em;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .instruction {
+      background-color: #fff3f8;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+
+    .next-button {
+      padding: 12px 24px;
+      font-size: 1.1em;
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .next-button:hover {
+      background-color: #e03570;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌸 SakuLink 🌸</h1>
+  <p>To use this app like a native one, please add it to your home screen.</p>
+
+  <div class="instruction">
+    <p><strong>📱 iPhone (Safari):</strong><br>
+    Tap the <strong>share icon</strong> <span style="font-size: 1.2em;">🔗</span> below, then select<br>
+    <strong>“Add to Home Screen”</strong></p>
+
+    <p><strong>📱 Android (Chrome):</strong><br>
+    Tap the <strong>⋮ menu</strong> (top-right), then choose<br>
+    <strong>“Add to Home screen”</strong></p>
+  </div>
+
+  <button class="next-button" onclick="location.href='intro.html'">Continue without adding</button>
+</body>
+</html>
