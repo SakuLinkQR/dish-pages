@@ -10,10 +10,34 @@
       font-size: 16px;
       line-height: 1.6;
       max-width: 700px;
-      margin: 40px auto;
+      margin: 60px auto 40px;
       padding: 20px;
       background-color: #fffdf9;
       color: #333;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: pink;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+    }
+
+    .header-title {
+      font-weight: bold;
+    }
+
+    .home-link {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
     }
 
     h1 {
@@ -27,6 +51,12 @@
   </style>
 </head>
 <body>
+
+  <div class="header">
+    <div class="header-title">🌸 SakuLink 🌸</div>
+    <a class="home-link" href="home.html">🏠 Home</a>
+  </div>
+
   <h1>About SakuLink</h1>
 
   <p>
