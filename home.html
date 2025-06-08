@@ -39,7 +39,8 @@
 
     .hamburger {
       cursor: pointer;
-      font-size: 24px;
+      font-size: 20px;
+      color: #333;
     }
 
     .menu {
@@ -73,7 +74,7 @@
     }
 
     .tagline {
-      font-size: 1.1em;
+      font-size: 1em;
       color: #666;
       margin-bottom: 30px;
     }
@@ -120,11 +121,11 @@
 </head>
 <body>
 
-  <!-- 🌸 固定ヘッダー -->
+  <!-- 🌸 ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
-      <div class="hamburger" onclick="toggleMenu()">☰</div>
+      <div class="hamburger" onclick="toggleMenu()">📖 MENU ☰</div>
     </div>
   </div>
 
@@ -141,13 +142,13 @@
 
   <!-- 🏠 メイン画面 -->
   <h1>🌸 SakuLink 🌸</h1>
-  <p class="tagline">🍱 Discover the heart of Japan through food 🍣</p>
+  <p class="tagline">🍱 Discover the heart of Japan through food 🍣🍔</p>
 
   <a class="button scan-button" href="../qr-scanner2/qr-scanner.html">📷 Scan QR</a>
   <a class="button start-button" href="start_here.html">📖 Start Here</a>
   <a class="button read-button" href="reading_list.html">📚 Readings</a>
 
-  <!-- JS -->
+  <!-- 🔁 メニュー制御 -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("menu");
