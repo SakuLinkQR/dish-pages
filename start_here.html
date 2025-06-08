@@ -12,6 +12,47 @@
       max-width: 700px;
       margin: auto;
       background-color: #fffdf9;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 2em;
+      color: #ff4081;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-size: 1.3em;
+      margin-top: 30px;
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    p, ul {
+      font-size: 1.05em;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    ul {
+      text-align: left;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .home-button {
+      margin-top: 40px;
+      padding: 12px 24px;
+      font-size: 1.1em;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .home-button:hover {
+      background-color: #388E3C;
     }
 
     .header-bar {
@@ -72,40 +113,6 @@
     .dropdown-menu a:hover {
       color: #ff4081;
     }
-
-    h1 {
-      font-size: 2em;
-      color: #ff4081;
-      margin-bottom: 20px;
-    }
-
-    h2 {
-      font-size: 1.3em;
-      color: #333;
-      margin-top: 30px;
-      margin-bottom: 10px;
-    }
-
-    p {
-      font-size: 1.1em;
-      color: #444;
-      line-height: 1.6;
-    }
-
-    .home-button {
-      margin-top: 40px;
-      padding: 12px 24px;
-      font-size: 1.1em;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .home-button:hover {
-      background-color: #388E3C;
-    }
   </style>
 </head>
 <body>
@@ -131,17 +138,31 @@
   <h1>🌸 Welcome to SakuLink 🌸</h1>
 
   <h2>What is SakuLink?</h2>
-  <p>SakuLink is a helpful app for international travelers in Japan.<br>
-     Just scan a QR code at a restaurant, and get a clear explanation of each dish in English.</p>
+  <p>
+    SakuLink is a helpful app for international travelers in Japan.<br>
+    Just scan a QR code at a restaurant, and get a clear explanation of each dish in English.
+  </p>
+  <p><em>🧭 It's like having a menu guide in your pocket—no Japanese required!</em></p>
 
-  <h2>How to Use It?</h2>
-  <p>Simply tap "Scan QR" on the home screen and hold your camera over the code on the menu.<br>
-     You’ll be guided to a page with photos, descriptions, ingredients, and helpful tips.</p>
+  <h2>What You Can Do</h2>
+  <ul>
+    <li>📷 Scan QR codes to read dish details in English</li>
+    <li>🥢 Learn how to pronounce Japanese dish names</li>
+    <li>📚 Explore articles on Japanese culture and food</li>
+    <li>⚠️ Check main ingredients and possible allergens</li>
+  </ul>
+
+  <h2>What SakuLink Cannot Do</h2>
+  <ul>
+    <li>❌ It doesn't include full menus for every restaurant</li>
+    <li>❌ It can't place orders or make reservations</li>
+    <li>❌ Some translations or photos may be simplified or symbolic</li>
+  </ul>
 
   <h2>Important Notes</h2>
   <p>
     SakuLink provides general explanations of typical ingredients, cooking methods, and background for Japanese dishes as they are commonly prepared in Japan.<br>
-    However, the actual ingredients, preparation, and set menu combinations may vary depending on the restaurant.<br>
+    However, actual ingredients, preparation, and set menu combinations may vary depending on the restaurant.<br>
     We encourage you to enjoy tasting and discovering the unique flavors each place has to offer.
   </p>
 
@@ -153,5 +174,6 @@
       menu.style.display = menu.style.display === "block" ? "none" : "block";
     }
   </script>
+
 </body>
 </html>
