@@ -1,189 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SakuLink Readings</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Reading List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      padding: 40px 20px;
-      background: linear-gradient(to bottom, #fff6f9, #ffffff);
-      background-attachment: fixed;
-      position: relative;
-      z-index: 1;
-      margin-top: 60px; /* ヘッダー分の余白 */
-    }
-
-    /* 🌸 共通ヘッダー */
-    .header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: pink;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
-
-    .header-title {
-      font-weight: bold;
-    }
-
-    .home-link {
-      text-decoration: none;
-      color: #333;
-      font-weight: bold;
-    }
-
-    h1 {
-      color: #ff4081;
-      font-size: 2em;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
-    #readingList {
+      font-family: sans-serif;
+      padding: 120px 20px 40px;
       max-width: 700px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 2;
+      margin: auto;
+      background-color: #fffdf9;
     }
 
-    .story-card {
-      background-color: #ffffff;
-      border: 1px solid #ffc0cb;
-      border-radius: 12px;
-      padding: 15px 20px;
-      margin: 15px 0;
-      text-align: left;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-      transition: transform 0.2s ease, background-color 0.2s ease;
-    }
-
-    .story-card:hover {
-      background-color: #fff0f5;
-      transform: translateY(-2px);
-    }
-
-    .story-card a {
-      text-decoration: none;
-      color: #004499;
-      font-size: 1.1em;
-      display: block;
-    }
-
-    .home-button {
-      display: inline-block;
-      margin: 40px auto 0;
-      padding: 12px 24px;
-      background-color: #ff4081;
-      color: white;
-      border-radius: 10px;
-      font-weight: bold;
-      text-decoration: none;
-      box-shadow: 0 4px 10px rgba(255, 64, 129, 0.3);
-    }
-
-    /* 🌸 桜の花びらアニメーション */
-    .sakura-container {
+    header {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 0;
+      background-color: #ffe4ec;
+      color: #ff4081;
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+      padding: 15px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      z-index: 999;
     }
 
-    .sakura {
-      position: absolute;
-      top: -10px;
-      width: 20px;
-      height: 20px;
-      background-image: url('https://raw.githubusercontent.com/saekee/sakura-falling/main/sakura.png');
-      background-size: cover;
-      opacity: 0.7;
-      animation: fall 10s linear infinite;
+    h2 {
+      font-size: 1.4em;
+      color: #333;
+      margin-bottom: 20px;
     }
 
-    .sakura:nth-child(2) { left: 20%; animation-delay: 2s; }
-    .sakura:nth-child(3) { left: 40%; animation-delay: 4s; }
-    .sakura:nth-child(4) { left: 60%; animation-delay: 1s; }
-    .sakura:nth-child(5) { left: 80%; animation-delay: 3s; }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
 
-    @keyframes fall {
-      0% {
-        transform: translateY(0) rotate(0deg);
-      }
-      100% {
-        transform: translateY(100vh) rotate(360deg);
-      }
+    li {
+      margin-bottom: 15px;
+    }
+
+    a {
+      text-decoration: none;
+      color: #ff4081;
+      font-size: 1.1em;
+    }
+
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
+  <header>🌸 SakuLink 🌸</header>
 
-  <!-- 🌸 ヘッダー -->
-  <div class="header">
-    <div class="header-title">🌸 SakuLink 🌸</div>
-    <a class="home-link" href="home.html">🏠 Home</a>
-  </div>
-
-  <!-- 🌸 花びら表示 -->
-  <div class="sakura-container">
-    <div class="sakura"></div>
-    <div class="sakura"></div>
-    <div class="sakura"></div>
-    <div class="sakura"></div>
-    <div class="sakura"></div>
-  </div>
-
-  <h1>📖 Readings</h1>
-  <div id="readingList">Loading...</div>
+  <h2>Reading Articles</h2>
+  <ul id="reading-list">
+    <!-- JavaScript will populate here -->
+  </ul>
 
   <script>
-    fetch('https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_list')
-      .then(response => response.json())
-      .then(data => {
-        const container = document.getElementById("readingList");
-        container.innerHTML = "";
-
-        data.sort((a, b) => a.display_order - b.display_order);
-
-        if (data.length === 0) {
-          container.textContent = "No readings available yet.";
-        } else {
-          data.forEach((item) => {
-            const card = document.createElement("div");
-            card.className = "story-card";
-
-            const link = document.createElement("a");
-            link.href = `reading.html?id=${item.story_id}`;
-
-            let icon = "📖";
-            if (item.title_en.toLowerCase().includes("sushi")) icon = "🍣";
-            else if (item.title_en.toLowerCase().includes("noodle") || item.title_en.toLowerCase().includes("ramen")) icon = "🍜";
-
-            link.textContent = `${icon} Story ${item.display_order}: ${item.title_en}`;
-            card.appendChild(link);
-            container.appendChild(card);
-          });
-        }
-
-        const backBtn = document.createElement("a");
-        backBtn.href = "home.html";
-        backBtn.className = "home-button";
-        backBtn.textContent = "← 🏠 Back to Home";
-        container.appendChild(backBtn);
+    fetch("https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_all_readings")
+      .then((res) => {
+        if (!res.ok) throw new Error("API error");
+        return res.json();
+      })
+      .then((data) => {
+        const list = document.getElementById("reading-list");
+        data.forEach((item) => {
+          if (item.visible) {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            a.href = `reading.html?id=${item.story_id}`;
+            a.textContent = item.title_en || "Untitled";
+            li.appendChild(a);
+            list.appendChild(li);
+          }
+        });
       })
       .catch(() => {
-        document.getElementById("readingList").textContent = "Error loading readings.";
+        document.getElementById("reading-list").innerHTML = "<li>Error loading readings.</li>";
       });
   </script>
 </body>
