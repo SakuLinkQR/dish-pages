@@ -26,12 +26,14 @@
     }
 
     .header-inner {
+      width: 100%;
       max-width: 600px;
       margin: auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 20px;
+      padding: 0 16px;
+      box-sizing: border-box;
       font-size: 20px;
     }
 
@@ -118,7 +120,7 @@
 </head>
 <body>
 
-  <!-- 🌸 ヘッダー（画面全体幅） -->
+  <!-- 🌸 固定ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
@@ -137,7 +139,7 @@
     </ul>
   </div>
 
-  <!-- 🏠 メイン -->
+  <!-- 🏠 メイン画面 -->
   <h1>🌸 SakuLink 🌸</h1>
   <p class="tagline">🍱 Discover the heart of Japan through food 🍣</p>
 
@@ -145,7 +147,7 @@
   <a class="button start-button" href="start_here.html">📖 Start Here</a>
   <a class="button read-button" href="reading_list.html">📚 Readings</a>
 
-  <!-- スクリプト -->
+  <!-- JS -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("menu");
