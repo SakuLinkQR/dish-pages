@@ -14,19 +14,25 @@
       background-color: #fffdf9;
     }
 
-    .header {
+    .header-bar {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
+      background-color: pink;
+      padding: 10px 0;
+      z-index: 9999;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-inner {
+      max-width: 600px;
+      margin: auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: pink;
-      padding: 10px 20px;
+      padding: 0 20px;
       font-size: 20px;
-      z-index: 9999;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .hamburger {
@@ -41,9 +47,6 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       margin-top: 10px;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
     }
 
     .menu ul {
@@ -115,13 +118,15 @@
 </head>
 <body>
 
-  <!-- 🌸 固定ヘッダー -->
-  <div class="header">
-    <div class="header-title">🌸 SakuLink 🌸</div>
-    <div class="hamburger" onclick="toggleMenu()">☰</div>
+  <!-- 🌸 ヘッダー（画面全体幅） -->
+  <div class="header-bar">
+    <div class="header-inner">
+      <div class="header-title">🌸 SakuLink 🌸</div>
+      <div class="hamburger" onclick="toggleMenu()">☰</div>
+    </div>
   </div>
 
-  <!-- 📋 ハンバーガーメニュー -->
+  <!-- 📋 メニュー -->
   <div id="menu" class="menu">
     <ul>
       <li><a href="home.html">Home</a></li>
@@ -132,7 +137,7 @@
     </ul>
   </div>
 
-  <!-- 🏠 メインコンテンツ -->
+  <!-- 🏠 メイン -->
   <h1>🌸 SakuLink 🌸</h1>
   <p class="tagline">🍱 Discover the heart of Japan through food 🍣</p>
 
@@ -140,7 +145,7 @@
   <a class="button start-button" href="start_here.html">📖 Start Here</a>
   <a class="button read-button" href="reading_list.html">📚 Readings</a>
 
-  <!-- メニュー開閉スクリプト -->
+  <!-- スクリプト -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("menu");
