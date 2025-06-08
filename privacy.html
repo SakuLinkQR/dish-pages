@@ -2,41 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Privacy Policy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: sans-serif;
       font-size: 16px;
       line-height: 1.6;
       max-width: 700px;
-      margin: 60px auto 40px;
-      padding: 20px;
+      margin: 120px auto 40px;
+      padding: 0 20px;
       background-color: #fffdf9;
       color: #333;
     }
 
-    .header {
+    .header-bar {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       background-color: pink;
+      padding: 10px 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+    }
+
+    .header-inner {
+      max-width: 700px;
+      margin: auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 20px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      z-index: 999;
+      padding: 0 20px;
+      font-size: 20px;
+      box-sizing: border-box;
     }
 
     .header-title {
       font-weight: bold;
     }
 
-    .home-link {
-      text-decoration: none;
+    .menu-button {
+      font-size: 16px;
       color: #333;
+      text-decoration: none;
       font-weight: bold;
     }
 
@@ -56,9 +65,11 @@
 </head>
 <body>
 
-  <div class="header">
-    <div class="header-title">🌸 SakuLink 🌸</div>
-    <a class="home-link" href="home.html">🏠 Home</a>
+  <div class="header-bar">
+    <div class="header-inner">
+      <div class="header-title">🌸 SakuLink 🌸</div>
+      <a class="menu-button" href="home.html">📖 MENU ☰</a>
+    </div>
   </div>
 
   <h1>Privacy Policy</h1>
@@ -75,5 +86,6 @@
   <p>For questions, please contact:  
     <a href="mailto:sakulink.contact@example.com">sakulink.contact@example.com</a>
   </p>
+
 </body>
 </html>
