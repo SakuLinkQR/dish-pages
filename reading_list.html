@@ -13,7 +13,6 @@
       margin: auto;
     }
 
-    /* ✅ 共通ヘッダー */
     .header-bar {
       position: fixed;
       top: 0;
@@ -22,7 +21,7 @@
       background-color: pink;
       padding: 10px 0;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      z-index: 9999;
+      z-index: 1000;
     }
 
     .header-inner {
@@ -40,11 +39,37 @@
       font-weight: bold;
     }
 
-    .menu-button {
+    .menu-toggle {
       font-size: 16px;
       color: #333;
-      text-decoration: none;
       font-weight: bold;
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: fixed;
+      top: 58px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 1001;
+      padding: 10px 15px;
+      width: 180px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      text-decoration: none;
+      color: #333;
+      padding: 8px 0;
+      font-size: 0.95em;
+    }
+
+    .dropdown-menu a:hover {
+      color: #ff4081;
     }
 
     h1 {
@@ -128,15 +153,25 @@
 </head>
 <body>
 
-  <!-- ✅ ヘッダー -->
+  <!-- ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
-      <a class="menu-button" href="home.html">📖 MENU ☰</a>
+      <div class="menu-toggle" onclick="toggleMenu()">📖 MENU ☰</div>
     </div>
   </div>
 
-  <!-- 🌸 花びら背景 -->
+  <!-- ドロップダウンメニュー -->
+  <div class="dropdown-menu" id="dropdownMenu">
+    <a href="home.html">🏠 Home</a>
+    <a href="reading_list.html">📚 Readings</a>
+    <a href="start_here.html">📖 Start Here</a>
+    <a href="about.html">❓ About</a>
+    <a href="terms.html">📄 Terms</a>
+    <a href="privacy.html">🔐 Privacy</a>
+  </div>
+
+  <!-- 花びら -->
   <div class="sakura-container">
     <div class="sakura"></div>
     <div class="sakura"></div>
@@ -149,6 +184,11 @@
   <div id="readingList">Loading...</div>
 
   <script>
+    function toggleMenu() {
+      const menu = document.getElementById("dropdownMenu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
     fetch('https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_list')
       .then(response => response.json())
       .then(data => {
