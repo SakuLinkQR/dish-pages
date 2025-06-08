@@ -65,7 +65,7 @@
       background-color: #1976D2;
     }
 
-    /* 🌟 追加：ハンバーガーとメニュー表示用CSS */
+    /* ハンバーガーヘッダー */
     .header {
       display: flex;
       justify-content: space-between;
@@ -73,7 +73,6 @@
       background-color: pink;
       padding: 10px;
       font-size: 20px;
-      margin-bottom: 20px;
     }
 
     .hamburger {
@@ -107,14 +106,42 @@
 </head>
 <body>
 
-  <!-- 🌸 ヘッダーとハンバーガー -->
+  <!-- 🌸 ヘッダー -->
   <div class="header">
     <div class="header-title">🌸 SakuLink 🌸</div>
     <div class="hamburger" onclick="toggleMenu()">☰</div>
   </div>
 
-  <!-- 📋 ハンバーガーメニューの中身 -->
+  <!-- 🔽 メニュー（初期は非表示） -->
   <div id="menu" class="menu">
     <ul>
       <li><a href="home.html">Home</a></li>
-      <li><a h
+      <li><a href="reading_list.html">Readings</a></li>
+      <li><a href="about.html">About SakuLink</a></li>
+      <li><a href="terms.html">Terms of Use</a></li>
+      <li><a href="privacy.html">Privacy Policy</a></li>
+    </ul>
+  </div>
+
+  <!-- 🏠 ホーム画面の本体 -->
+  <h1>🌸 SakuLink 🌸</h1>
+  <p class="tagline">🍱 Discover the heart of Japan through food 🍣</p>
+
+  <a class="button scan-button" href="qr-scanner2.html">📷 Scan QR</a>
+  <a class="button start-button" href="start_here.html">📖 Start Here</a>
+  <a class="button read-button" href="reading_list.html">📚 Readings</a>
+
+  <!-- JS for menu toggle -->
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("menu");
+      if (menu.style.display === "block") {
+        menu.style.display = "none";
+      } else {
+        menu.style.display = "block";
+      }
+    }
+  </script>
+
+</body>
+</html>
