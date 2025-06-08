@@ -8,10 +8,53 @@
     body {
       font-family: sans-serif;
       text-align: center;
-      padding: 40px;
+      padding: 100px 20px 40px; /* ヘッダーの分だけ上に余白 */
       max-width: 600px;
       margin: auto;
       background-color: #fffdf9;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: pink;
+      padding: 10px 20px;
+      font-size: 20px;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .hamburger {
+      cursor: pointer;
+    }
+
+    .menu {
+      display: none;
+      background-color: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .menu li {
+      margin: 8px 0;
+    }
+
+    .menu a {
+      text-decoration: none;
+      color: #333;
     }
 
     h1 {
@@ -64,55 +107,17 @@
     .read-button:hover {
       background-color: #1976D2;
     }
-
-    /* ハンバーガーヘッダー */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: pink;
-      padding: 10px;
-      font-size: 20px;
-    }
-
-    .hamburger {
-      cursor: pointer;
-    }
-
-    .menu {
-      display: none;
-      background-color: #f9f9f9;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-
-    .menu ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .menu li {
-      margin: 8px 0;
-    }
-
-    .menu a {
-      text-decoration: none;
-      color: #333;
-    }
   </style>
 </head>
 <body>
 
-  <!-- 🌸 ヘッダー -->
+  <!-- 🌸 固定ヘッダー -->
   <div class="header">
     <div class="header-title">🌸 SakuLink 🌸</div>
     <div class="hamburger" onclick="toggleMenu()">☰</div>
   </div>
 
-  <!-- 🔽 メニュー（初期は非表示） -->
+  <!-- 📋 メニュー -->
   <div id="menu" class="menu">
     <ul>
       <li><a href="home.html">Home</a></li>
@@ -123,7 +128,7 @@
     </ul>
   </div>
 
-  <!-- 🏠 ホーム画面の本体 -->
+  <!-- 🏠 メイン画面 -->
   <h1>🌸 SakuLink 🌸</h1>
   <p class="tagline">🍱 Discover the heart of Japan through food 🍣</p>
 
@@ -131,15 +136,11 @@
   <a class="button start-button" href="start_here.html">📖 Start Here</a>
   <a class="button read-button" href="reading_list.html">📚 Readings</a>
 
-  <!-- JS for menu toggle -->
+  <!-- メニュー開閉スクリプト -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("menu");
-      if (menu.style.display === "block") {
-        menu.style.display = "none";
-      } else {
-        menu.style.display = "block";
-      }
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
     }
   </script>
 
