@@ -12,6 +12,32 @@
       background-attachment: fixed;
       position: relative;
       z-index: 1;
+      margin-top: 60px; /* ヘッダー分の余白 */
+    }
+
+    /* 🌸 共通ヘッダー */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: pink;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .header-title {
+      font-weight: bold;
+    }
+
+    .home-link {
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
     }
 
     h1 {
@@ -103,7 +129,13 @@
 </head>
 <body>
 
-  <!-- 🌸 花びら表示用 -->
+  <!-- 🌸 ヘッダー -->
+  <div class="header">
+    <div class="header-title">🌸 SakuLink 🌸</div>
+    <a class="home-link" href="home.html">🏠 Home</a>
+  </div>
+
+  <!-- 🌸 花びら表示 -->
   <div class="sakura-container">
     <div class="sakura"></div>
     <div class="sakura"></div>
