@@ -8,24 +8,44 @@
     body {
       font-family: sans-serif;
       text-align: center;
-      padding: 100px 20px 40px;
-      max-width: 600px;
+      padding: 120px 20px 40px;
+      max-width: 700px;
       margin: auto;
       background-color: #fffdf9;
     }
 
-    header {
+    /* ✅ 共通ヘッダー */
+    .header-bar {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      background-color: #ffe4ec;
-      color: #ff4081;
-      font-size: 1.5em;
+      background-color: pink;
+      padding: 10px 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+    }
+
+    .header-inner {
+      max-width: 700px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 20px;
+      box-sizing: border-box;
+    }
+
+    .header-title {
       font-weight: bold;
-      padding: 15px 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      z-index: 1000;
+    }
+
+    .menu-button {
+      font-size: 16px;
+      color: #333;
+      text-decoration: none;
+      font-weight: bold;
     }
 
     h1 {
@@ -64,7 +84,14 @@
   </style>
 </head>
 <body>
-  <header>🌸 SakuLink 🌸</header>
+
+  <!-- ✅ ヘッダー -->
+  <div class="header-bar">
+    <div class="header-inner">
+      <div class="header-title">🌸 SakuLink 🌸</div>
+      <a class="menu-button" href="home.html">📖 MENU ☰</a>
+    </div>
+  </div>
 
   <h1>🌸 Welcome to SakuLink 🌸</h1>
 
@@ -84,5 +111,6 @@
   </p>
 
   <button class="home-button" onclick="location.href='home.html'">🏡 Home</button>
+
 </body>
 </html>
