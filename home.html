@@ -64,15 +64,57 @@
     .read-button:hover {
       background-color: #1976D2;
     }
+
+    /* 🌟 追加：ハンバーガーとメニュー表示用CSS */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: pink;
+      padding: 10px;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hamburger {
+      cursor: pointer;
+    }
+
+    .menu {
+      display: none;
+      background-color: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .menu li {
+      margin: 8px 0;
+    }
+
+    .menu a {
+      text-decoration: none;
+      color: #333;
+    }
   </style>
 </head>
 <body>
-  <h1>🌸 SakuLink 🌸</h1>
-  <p class="tagline">🍱 Discover the heart of Japan through food 🍣</p>
 
-  <a class="button scan-button" href="qr-scanner2.html">📷 Scan QR</a>
-  <a class="button start-button" href="start_here.html">📖 Start Here</a>
-  <a class="button read-button" href="reading_list.html">📚 Readings</a>
+  <!-- 🌸 ヘッダーとハンバーガー -->
+  <div class="header">
+    <div class="header-title">🌸 SakuLink 🌸</div>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+  </div>
 
-</body>
-</html>
+  <!-- 📋 ハンバーガーメニューの中身 -->
+  <div id="menu" class="menu">
+    <ul>
+      <li><a href="home.html">Home</a></li>
+      <li><a h
