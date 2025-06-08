@@ -14,6 +14,7 @@
       line-height: 1.6;
     }
 
+    /* ヘッダー */
     .header-bar {
       position: fixed;
       top: 0;
@@ -22,7 +23,7 @@
       background-color: pink;
       padding: 10px 0;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      z-index: 9999;
+      z-index: 1000;
     }
 
     .header-inner {
@@ -40,11 +41,39 @@
       font-weight: bold;
     }
 
-    .menu-button {
+    .menu-toggle {
       font-size: 16px;
       color: #333;
-      text-decoration: none;
       font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* メニュー（初期は非表示） */
+    .dropdown-menu {
+      display: none;
+      position: fixed;
+      top: 58px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 1001;
+      padding: 10px 15px;
+      width: 180px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      text-decoration: none;
+      color: #333;
+      padding: 8px 0;
+      font-size: 0.95em;
+    }
+
+    .dropdown-menu a:hover {
+      color: #ff4081;
     }
 
     h1 {
@@ -70,8 +99,18 @@
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
-      <a class="menu-button" href="home.html">📖 MENU ☰</a>
+      <div class="menu-toggle" onclick="toggleMenu()">📖 MENU ☰</div>
     </div>
+  </div>
+
+  <!-- 展開メニュー -->
+  <div class="dropdown-menu" id="dropdownMenu">
+    <a href="home.html">🏠 Home</a>
+    <a href="reading_list.html">📚 Readings</a>
+    <a href="start_here.html">📖 Start Here</a>
+    <a href="about.html">❓ About</a>
+    <a href="terms.html">📄 Terms</a>
+    <a href="privacy.html">🔐 Privacy</a>
   </div>
 
   <h1 id="title">Loading...</h1>
@@ -80,6 +119,13 @@
   <a href="reading_list.html" class="back-button">← Back to Readings</a>
 
   <script>
+    // 展開メニュー開閉処理
+    function toggleMenu() {
+      const menu = document.getElementById("dropdownMenu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    // 読み物データ取得
     const params = new URLSearchParams(window.location.search);
     const storyId = params.get("id");
 
