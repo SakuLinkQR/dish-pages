@@ -2,125 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Terms of Use</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Terms of Use | SakuLink</title>
   <style>
     body {
       font-family: sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
-      max-width: 700px;
-      margin: 120px auto 40px;
-      padding: 0 20px;
-      background-color: #fffdf9;
-      color: #333;
+      margin: 20px;
+      line-height: 1.7;
     }
-
-    .header-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: pink;
-      padding: 10px 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
-
-    .header-inner {
-      max-width: 700px;
-      margin: auto;
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0 20px;
-      font-size: 20px;
-      box-sizing: border-box;
+      background-color: #ffe4e1;
+      padding: 10px 20px;
+      border-bottom: 1px solid #ccc;
     }
-
-    .header-title {
-      font-weight: bold;
+    header h1 {
+      margin: 0;
     }
-
-    .menu-toggle {
-      font-size: 16px;
-      color: #333;
-      font-weight: bold;
+    .menu {
       cursor: pointer;
     }
-
-    .dropdown-menu {
-      display: none;
-      position: fixed;
-      top: 58px;
-      right: 20px;
-      background-color: white;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      z-index: 1001;
-      padding: 10px 15px;
-      width: 180px;
-    }
-
-    .dropdown-menu a {
-      display: block;
-      text-decoration: none;
-      color: #333;
-      padding: 8px 0;
-      font-size: 0.95em;
-    }
-
-    .dropdown-menu a:hover {
-      color: #ff4081;
-    }
-
-    h1 {
-      font-size: 1.6em;
-      color: #222;
-    }
-
-    ul {
-      padding-left: 20px;
+    h2 {
+      color: #b22222;
     }
   </style>
+  <script>
+    function goHome() {
+      window.location.href = 'index.html';
+    }
+    function toggleMenu() {
+      alert('※ Menu toggle coming soon.');
+    }
+  </script>
 </head>
 <body>
 
-  <!-- ヘッダー -->
-  <div class="header-bar">
-    <div class="header-inner">
-      <div class="header-title">🌸 SakuLink 🌸</div>
-      <div class="menu-toggle" onclick="toggleMenu()">📖 MENU ☰</div>
-    </div>
-  </div>
+<header>
+  <div><strong>🌸 SakuLink 🌸</strong></div>
+  <div class="menu" onclick="toggleMenu()">📖 MENU ☰</div>
+</header>
 
-  <!-- 展開メニュー -->
-  <div class="dropdown-menu" id="dropdownMenu">
-    <a href="home.html">🏠 Home</a>
-    <a href="reading_list.html">📚 Readings</a>
-    <a href="start_here.html">📖 Start Here</a>
-    <a href="about.html">❓ About</a>
-    <a href="terms.html">📄 Terms</a>
-    <a href="privacy.html">🔐 Privacy</a>
-  </div>
-
+<main>
   <h1>Terms of Use</h1>
 
-  <p>By using SakuLink, you agree to the following terms:</p>
+  <p>SakuLink (hereinafter referred to as "the Service") is an information service designed to help foreign travelers understand Japanese cuisine more easily. Please read and agree to the following terms before using the Service.</p>
 
+  <h2>1. Disclaimer (Limitation of Liability)</h2>
+  <p>While we strive to provide accurate and complete information, we do not guarantee the accuracy, reliability, or completeness of all content. We shall not be liable for any damages resulting from the use of the Service, including loss of data, misunderstandings, service unavailability, or disputes with third parties.</p>
+
+  <h2>2. No Warranty</h2>
+  <p>The Service is provided “as is.” We make no warranties regarding stability, absence of errors, or compatibility with any specific device or environment. Users assume full responsibility for using the Service.</p>
+
+  <h2>3. Prohibited Conduct</h2>
+  <p>The following actions are prohibited:</p>
   <ul>
-    <li>SakuLink provides general explanations of Japanese dishes, but we do not guarantee 100% accuracy of all content.</li>
-    <li>Please confirm ingredients, allergens, and preparation methods directly with each restaurant.</li>
-    <li>We may update or change the app and its content without notice.</li>
-    <li>All content is owned by the developer. Unauthorized reproduction is prohibited.</li>
+    <li>Illegal or unethical behavior</li>
+    <li>Disruption of the Service or its operations</li>
+    <li>Unauthorized access or attempts to tamper with the system</li>
+    <li>Acts that harm or disadvantage other users or third parties</li>
+    <li>Commercial use of our content without permission</li>
   </ul>
 
-  <script>
-    function toggleMenu() {
-      const menu = document.getElementById("dropdownMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
-    }
-  </script>
+  <h2>4. Suspension or Termination of Use</h2>
+  <p>We reserve the right to suspend or terminate accounts or refuse use of the Service without prior notice if users violate these terms or cause significant disruption to the operation of the Service.</p>
+
+  <h2>5. Governing Law and Jurisdiction</h2>
+  <p>These terms are governed by Japanese law. Any disputes shall be subject to the exclusive jurisdiction of the Kagoshima District Court in Japan as the court of first instance.</p>
+
+  <h2>6. Changes to the Terms</h2>
+  <p>We reserve the right to change these Terms at any time without prior notice. Updates will be posted within the app or on our official website. Continued use of the Service will be regarded as acceptance of the revised Terms.</p>
+
+  <p>Last updated: June 2025</p>
+
+  <p><button onclick="goHome()">🏠 Back to Home</button></p>
+</main>
+
 </body>
 </html>
