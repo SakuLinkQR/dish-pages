@@ -2,82 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Terms of Use | SakuLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service</title>
+  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
       font-family: sans-serif;
-      margin: 20px;
-      line-height: 1.7;
+      margin: 0;
+      padding: 0;
+      background-color: #fff9f9;
     }
     header {
+      background-color: #ffe4ec;
+      padding: 10px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: #ffe4e1;
-      padding: 10px 20px;
-      border-bottom: 1px solid #ccc;
     }
     header h1 {
       margin: 0;
+      font-size: 20px;
     }
-    .menu {
+    header button {
+      background: none;
+      border: none;
+      font-size: 20px;
       cursor: pointer;
     }
+    main {
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
     h2 {
-      color: #b22222;
+      color: #c71585;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+      color: #888;
     }
   </style>
-  <script>
-    function goHome() {
-      window.location.href = 'index.html';
-    }
-    function toggleMenu() {
-      alert('※ Menu toggle coming soon.');
-    }
-  </script>
 </head>
 <body>
+  <header>
+    <h1>🌸 SakuLink 🌸</h1>
+    <button id="menu-toggle">📖 MENU ☰</button>
+  </header>
+  <main>
+    <h2>Terms of Service</h2>
+    <p>Welcome to SakuLink. By using this app, you agree to the following terms and conditions.</p>
 
-<header>
-  <div><strong>🌸 SakuLink 🌸</strong></div>
-  <div class="menu" onclick="toggleMenu()">📖 MENU ☰</div>
-</header>
+    <h3>1. Scope of Service</h3>
+    <p>SakuLink provides descriptions of Japanese dishes and cultural information. We strive for accuracy, but information may vary by restaurant or region.</p>
 
-<main>
-  <h1>Terms of Use</h1>
+    <h3>2. Content Accuracy</h3>
+    <p>Descriptions are provided as general references and may not reflect exact ingredients, preparation methods, or allergens. Always check with the restaurant directly.</p>
 
-  <p>SakuLink (hereinafter referred to as "the Service") is an information service designed to help foreign travelers understand Japanese cuisine more easily. Please read and agree to the following terms before using the Service.</p>
+    <h3>3. Limitation of Liability</h3>
+    <p>We are not responsible for any damages caused by the use or inability to use this app, including system errors, data loss, or decisions based on content presented.</p>
 
-  <h2>1. Disclaimer (Limitation of Liability)</h2>
-  <p>While we strive to provide accurate and complete information, we do not guarantee the accuracy, reliability, or completeness of all content. We shall not be liable for any damages resulting from the use of the Service, including loss of data, misunderstandings, service unavailability, or disputes with third parties.</p>
+    <h3>4. Prohibited Conduct</h3>
+    <ul>
+      <li>Illegal or offensive behavior</li>
+      <li>Attempts to hack, disrupt, or tamper with the system</li>
+      <li>Actions that harm other users or the developer</li>
+      <li>Unauthorized commercial use of our content</li>
+    </ul>
 
-  <h2>2. No Warranty</h2>
-  <p>The Service is provided “as is.” We make no warranties regarding stability, absence of errors, or compatibility with any specific device or environment. Users assume full responsibility for using the Service.</p>
+    <h3>5. Termination of Access</h3>
+    <p>We reserve the right to suspend or terminate user access if the terms are violated or if behavior disrupts the service.</p>
 
-  <h2>3. Prohibited Conduct</h2>
-  <p>The following actions are prohibited:</p>
-  <ul>
-    <li>Illegal or unethical behavior</li>
-    <li>Disruption of the Service or its operations</li>
-    <li>Unauthorized access or attempts to tamper with the system</li>
-    <li>Acts that harm or disadvantage other users or third parties</li>
-    <li>Commercial use of our content without permission</li>
-  </ul>
+    <h3>6. Warranty Disclaimer</h3>
+    <p>The app is provided “as is” without any guarantees. We do not guarantee uninterrupted service, device compatibility, or the absence of errors.</p>
 
-  <h2>4. Suspension or Termination of Use</h2>
-  <p>We reserve the right to suspend or terminate accounts or refuse use of the Service without prior notice if users violate these terms or cause significant disruption to the operation of the Service.</p>
+    <h3>7. Changes to Terms</h3>
+    <p>Terms may change at any time. Updates will be posted in the app or on our website. Continued use of the app constitutes acceptance of revised terms.</p>
 
-  <h2>5. Governing Law and Jurisdiction</h2>
-  <p>These terms are governed by Japanese law. Any disputes shall be subject to the exclusive jurisdiction of the Kagoshima District Court in Japan as the court of first instance.</p>
+    <h3>8. Governing Law</h3>
+    <p>These terms are governed by Japanese law. Legal disputes shall be resolved under the jurisdiction of Japanese courts.</p>
+  </main>
 
-  <h2>6. Changes to the Terms</h2>
-  <p>We reserve the right to change these Terms at any time without prior notice. Updates will be posted within the app or on our official website. Continued use of the Service will be regarded as acceptance of the revised Terms.</p>
+  <footer>
+    &copy; 2025 SakuLink. All rights reserved.
+  </footer>
 
-  <p>Last updated: June 2025</p>
-
-  <p><button onclick="goHome()">🏠 Back to Home</button></p>
-</main>
-
+  <script>
+    document.getElementById('menu-toggle').addEventListener('click', function () {
+      window.location.href = 'menu.html';
+    });
+  </script>
 </body>
 </html>
