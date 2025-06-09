@@ -2,96 +2,162 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>SakuLink Terms</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Terms of Service</title>
-  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
       font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #fff9f9;
+      padding: 120px 20px 40px;
+      background: linear-gradient(to bottom, #fff6f9, #ffffff);
+      max-width: 700px;
+      margin: auto;
     }
-    header {
-      background-color: #ffe4ec;
-      padding: 10px 20px;
+
+    .header-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: pink;
+      padding: 10px 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .header-inner {
+      max-width: 700px;
+      margin: auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    header h1 {
-      margin: 0;
+      padding: 0 20px;
       font-size: 20px;
+      box-sizing: border-box;
     }
-    header button {
-      background: none;
-      border: none;
-      font-size: 20px;
+
+    .header-title {
+      font-weight: bold;
+    }
+
+    .menu-toggle {
+      font-size: 16px;
+      color: #333;
+      font-weight: bold;
       cursor: pointer;
     }
-    main {
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
+
+    .dropdown-menu {
+      display: none;
+      position: fixed;
+      top: 58px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 1001;
+      padding: 10px 15px;
+      width: 180px;
     }
-    h2 {
-      color: #c71585;
+
+    .dropdown-menu a {
+      display: block;
+      text-decoration: none;
+      color: #333;
+      padding: 8px 0;
+      font-size: 0.95em;
     }
-    footer {
+
+    .dropdown-menu a:hover {
+      color: #ff4081;
+    }
+
+    h1 {
+      color: #ff4081;
+      font-size: 2em;
+      margin-bottom: 30px;
       text-align: center;
-      padding: 20px;
-      font-size: 14px;
-      color: #888;
+    }
+
+    .sakura-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .sakura {
+      position: absolute;
+      top: -10px;
+      width: 20px;
+      height: 20px;
+      background-image: url('https://raw.githubusercontent.com/saekee/sakura-falling/main/sakura.png');
+      background-size: cover;
+      opacity: 0.7;
+      animation: fall 10s linear infinite;
+    }
+
+    .sakura:nth-child(2) { left: 20%; animation-delay: 2s; }
+    .sakura:nth-child(3) { left: 40%; animation-delay: 4s; }
+    .sakura:nth-child(4) { left: 60%; animation-delay: 1s; }
+    .sakura:nth-child(5) { left: 80%; animation-delay: 3s; }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(100vh) rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🌸 SakuLink 🌸</h1>
-    <button id="menu-toggle">📖 MENU ☰</button>
-  </header>
-  <main>
-    <h2>Terms of Service</h2>
-    <p>Welcome to SakuLink. By using this app, you agree to the following terms and conditions.</p>
 
-    <h3>1. Scope of Service</h3>
-    <p>SakuLink provides descriptions of Japanese dishes and cultural information. We strive for accuracy, but information may vary by restaurant or region.</p>
+  <!-- ヘッダー -->
+  <div class="header-bar">
+    <div class="header-inner">
+      <div class="header-title">🌸 SakuLink 🌸</div>
+      <div class="menu-toggle" onclick="toggleMenu()">📖 MENU ☰</div>
+    </div>
+  </div>
 
-    <h3>2. Content Accuracy</h3>
-    <p>Descriptions are provided as general references and may not reflect exact ingredients, preparation methods, or allergens. Always check with the restaurant directly.</p>
+  <!-- ドロップダウンメニュー -->
+  <div class="dropdown-menu" id="dropdownMenu">
+    <a href="home.html">🏠 Home</a>
+    <a href="reading_list.html">📚 Readings</a>
+    <a href="start_here.html">📖 Start Here</a>
+    <a href="about.html">❓ About</a>
+    <a href="terms.html">📄 Terms</a>
+    <a href="privacy.html">🔐 Privacy</a>
+  </div>
 
-    <h3>3. Limitation of Liability</h3>
-    <p>We are not responsible for any damages caused by the use or inability to use this app, including system errors, data loss, or decisions based on content presented.</p>
+  <!-- 花びら -->
+  <div class="sakura-container">
+    <div class="sakura"></div>
+    <div class="sakura"></div>
+    <div class="sakura"></div>
+    <div class="sakura"></div>
+    <div class="sakura"></div>
+  </div>
 
-    <h3>4. Prohibited Conduct</h3>
-    <ul>
-      <li>Illegal or offensive behavior</li>
-      <li>Attempts to hack, disrupt, or tamper with the system</li>
-      <li>Actions that harm other users or the developer</li>
-      <li>Unauthorized commercial use of our content</li>
-    </ul>
-
-    <h3>5. Termination of Access</h3>
-    <p>We reserve the right to suspend or terminate user access if the terms are violated or if behavior disrupts the service.</p>
-
-    <h3>6. Warranty Disclaimer</h3>
-    <p>The app is provided “as is” without any guarantees. We do not guarantee uninterrupted service, device compatibility, or the absence of errors.</p>
-
-    <h3>7. Changes to Terms</h3>
-    <p>Terms may change at any time. Updates will be posted in the app or on our website. Continued use of the app constitutes acceptance of revised terms.</p>
-
-    <h3>8. Governing Law</h3>
-    <p>These terms are governed by Japanese law. Legal disputes shall be resolved under the jurisdiction of Japanese courts.</p>
-  </main>
-
-  <footer>
-    &copy; 2025 SakuLink. All rights reserved.
-  </footer>
+  <h1>📄 Terms of Use</h1>
+  <p>Welcome to SakuLink! These Terms of Use outline the rules and conditions for using our service.</p>
+  <ul>
+    <li><strong>1. Purpose:</strong> SakuLink provides food information and guidance for foreign visitors in Japan.</li>
+    <li><strong>2. Free and Paid Functions:</strong> Some features, such as the QR scanner, may require payment after a trial period.</li>
+    <li><strong>3. Content Accuracy:</strong> We strive for accuracy, but dish details may vary by store. Please confirm with staff.</li>
+    <li><strong>4. Liability:</strong> We are not liable for issues arising from use of this app or decisions made based on its content.</li>
+    <li><strong>5. Intellectual Property:</strong> All content is protected by copyright and may not be reused without permission.</li>
+    <li><strong>6. Changes:</strong> We may update these terms as needed. Please check periodically for updates.</li>
+  </ul>
+  <p>By using SakuLink, you agree to these terms. Thank you for your understanding!</p>
 
   <script>
-    document.getElementById('menu-toggle').addEventListener('click', function () {
-      window.location.href = 'menu.html';
-    });
+    function toggleMenu() {
+      const menu = document.getElementById("dropdownMenu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
   </script>
 </body>
 </html>
