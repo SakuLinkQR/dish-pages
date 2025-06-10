@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SakuLink - Sign Up</title>
+  <title>SakuLink - Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -19,11 +19,6 @@
       margin-bottom: 20px;
     }
 
-    p {
-      font-size: 1.1em;
-      color: #555;
-    }
-
     input {
       width: 80%;
       max-width: 300px;
@@ -34,52 +29,70 @@
       border-radius: 6px;
     }
 
-    .start-button {
+    .button {
       padding: 12px 24px;
       font-size: 1.1em;
-      background-color: #ff4081;
-      color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      color: white;
+      margin-top: 20px;
     }
 
-    .start-button:hover {
-      background-color: #e03570;
+    .login {
+      background-color: #2196F3;
+    }
+
+    .login:hover {
+      background-color: #1976D2;
+    }
+
+    .signup-link {
+      margin-top: 20px;
+      display: block;
+      font-size: 0.95em;
     }
 
     .error {
       color: red;
-      margin-top: 10px;
+      margin-top: 15px;
+    }
+
+    .message {
+      color: green;
+      margin-top: 15px;
     }
   </style>
 </head>
 <body>
-  <h1>🌸 SakuLink 🌸</h1>
-  <p>Please enter your details to sign up.</p>
+  <h1>🌸 SakuLink - Login 🌸</h1>
+  <input type="email" id="email" placeholder="Email address" />
+  <br>
+  <input type="password" id="password" placeholder="Password" />
+  <br>
+  <button class="button login" onclick="login()">🔑 Log In</button>
+  <a class="signup-link" href="signup.html">🆕 First Time? Create Account</a>
 
-  <input type="text" id="name" placeholder="Your name or nickname" /><br>
-  <input type="email" id="email" placeholder="Email address" required /><br>
-  <input type="password" id="password" placeholder="Password" required /><br>
-
-  <button class="start-button" onclick="signup()">Sign Up</button>
-
-  <p class="error" id="error"></p>
+  <div class="error" id="error"></div>
+  <div class="message" id="message"></div>
 
   <script>
-    async function signup() {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const errorEl = document.getElementById('error');
+    async function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      const errorDiv = document.getElementById("error");
+      const msgDiv = document.getElementById("message");
+      errorDiv.textContent = "";
+      msgDiv.textContent = "";
 
       if (!email || !password) {
-        errorEl.textContent = "Email and password are required.";
+        errorDiv.textContent = "Please enter both email and password.";
         return;
       }
 
       try {
-        const response = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/auth/signup', {
+        const response = await fetch('https://x8ki-letl-twmt.n7.xano.io/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -88,19 +101,17 @@
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || 'Signup failed.');
+          throw new Error(data.message || "Login failed.");
         }
 
-        // トークン保存（必要なら）
-        localStorage.setItem('authToken', data.authToken);
-        localStorage.setItem('userEmail', email);
-        localStorage.setItem('userName', name);
+        localStorage.setItem("token", data.authToken);
+        msgDiv.textContent = "Login successful! Redirecting...";
+        setTimeout(() => {
+          window.location.href = "home.html";
+        }, 1500);
 
-        // ホーム画面へ遷移
-        window.location.href = "home.html";
-
-      } catch (error) {
-        errorEl.textContent = error.message;
+      } catch (err) {
+        errorDiv.textContent = err.message;
       }
     }
   </script>
