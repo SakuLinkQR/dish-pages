@@ -153,6 +153,14 @@
 </head>
 <body>
 
+  <!-- 🔐 トークンチェック（未ログインなら login.html へ） -->
+  <script>
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+  </script>
+
   <!-- ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
