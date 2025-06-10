@@ -95,6 +95,14 @@
 </head>
 <body>
 
+  <!-- 🔐 トークンチェック -->
+  <script>
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+  </script>
+
   <!-- ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
