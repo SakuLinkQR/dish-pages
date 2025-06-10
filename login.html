@@ -2,63 +2,41 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SakuLink - Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - SakuLink</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      padding: 40px;
-      max-width: 600px;
-      margin: auto;
+      background-color: #fff;
+      padding: 2em;
     }
-
     h1 {
-      font-size: 2em;
-      color: #ff4081;
-      margin-bottom: 20px;
+      color: #e91e63;
     }
-
     input {
       display: block;
+      margin: 1em auto;
+      padding: 0.5em;
+      font-size: 1em;
       width: 80%;
       max-width: 300px;
-      margin: 10px auto;
-      padding: 12px;
-      font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 6px;
     }
-
     button {
-      background-color: #2196F3;
+      padding: 0.6em 1.2em;
+      font-size: 1em;
+      background-color: #2196f3;
       color: white;
       border: none;
-      padding: 12px 24px;
-      font-size: 1.1em;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
-      margin-top: 20px;
     }
-
     button:hover {
-      background-color: #1976D2;
+      background-color: #1976d2;
     }
-
-    #error {
+    #errorMessage {
       color: red;
-      margin-top: 15px;
-    }
-
-    .signup-link {
-      margin-top: 30px;
-      font-size: 0.95em;
-    }
-
-    .signup-link a {
-      color: #2196F3;
-      font-weight: bold;
-      text-decoration: none;
+      margin-top: 1em;
     }
   </style>
 </head>
@@ -66,52 +44,41 @@
   <h1>🌸 SakuLink 🌸</h1>
   <p>Login to your account</p>
 
-  <input type="email" id="email" placeholder="Email address" required />
-  <input type="password" id="password" placeholder="Password" required />
-  <button onclick="login()">🔓 Login</button>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="e.g. your@email.com" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">🔓 Login</button>
+  </form>
 
-  <div id="error"></div>
-
-  <div class="signup-link">
-    First time here? <a href="signup.html">Sign up</a>
-  </div>
+  <p id="errorMessage"></p>
+  <p>First time here? <a href="signup.html">Sign up</a></p>
 
   <script>
-    async function login() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const errorDiv = document.getElementById("error");
-      errorDiv.textContent = "";
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-      if (!email || !password) {
-        errorDiv.textContent = "Please enter both email and password.";
-        return;
-      }
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-      try {
-        const response = await fetch("https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
+      const response = await fetch("https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      });
 
+      if (response.ok) {
         const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Login failed. Please try again.");
-        }
-
-        // Save token to localStorage
         localStorage.setItem("authToken", data.authToken);
-
-        // Redirect to home
-        window.location.href = "home.html";
-      } catch (error) {
-        errorDiv.textContent = error.message;
+        window.location.href = "home.html"; // ログイン後に移動するページ
+      } else {
+        document.getElementById("errorMessage").innerText = "Unauthorized - Authentication Required";
       }
-    }
+    });
   </script>
 </body>
 </html>
