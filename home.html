@@ -117,6 +117,15 @@
     .read-button:hover {
       background-color: #1976D2;
     }
+
+    .logout-button {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .logout-button:hover {
+      background-color: #d32f2f;
+    }
   </style>
 </head>
 <body>
@@ -137,6 +146,7 @@
       <li><a href="about.html">About SakuLink</a></li>
       <li><a href="terms.html">Terms of Use</a></li>
       <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="#" onclick="logout()">🔓 Logout</a></li>
     </ul>
   </div>
 
@@ -148,11 +158,22 @@
   <a class="button start-button" href="start_here.html">📖 Start Here</a>
   <a class="button read-button" href="reading_list.html">📚 Readings</a>
 
-  <!-- 🔁 メニュー制御 -->
+  <!-- 🔁 メニュー制御と認証処理 -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("menu");
       menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+
+    function logout() {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
+    }
+
+    // 🔐 認証チェック（トークンがなければログインへ）
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      window.location.href = "login.html";
     }
   </script>
 
