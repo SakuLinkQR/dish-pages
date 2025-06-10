@@ -49,6 +49,21 @@
       color: red;
       margin-top: 15px;
     }
+
+    .signup-link {
+      margin-top: 25px;
+      font-size: 0.95em;
+    }
+
+    .signup-link a {
+      color: #2196F3;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -60,6 +75,10 @@
   <button onclick="login()">🔓 Login</button>
 
   <div id="error"></div>
+
+  <p class="signup-link">
+    First time here? <a href="signup.html">Sign up</a>
+  </p>
 
   <script>
     async function login() {
