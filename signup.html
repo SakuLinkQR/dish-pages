@@ -55,21 +55,23 @@
   <h1>🌸 SakuLink 🌸</h1>
   <p>Create a new account to get started.</p>
 
+  <input type="text" id="name" placeholder="Your name or nickname" required />
   <input type="email" id="email" placeholder="Email address" required />
   <input type="password" id="password" placeholder="Password" required />
-  <button onclick="signUp()">🆕 Sign Up</button>
+  <button onclick="signup()">🆕 Sign Up</button>
 
   <div id="error"></div>
 
   <script>
-    async function signUp() {
+    async function signup() {
+      const name = document.getElementById("name").value.trim();
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
       const errorDiv = document.getElementById("error");
       errorDiv.textContent = "";
 
-      if (!email || !password) {
-        errorDiv.textContent = "Please enter both email and password.";
+      if (!name || !email || !password) {
+        errorDiv.textContent = "Please fill in all fields.";
         return;
       }
 
@@ -79,19 +81,16 @@
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ name, email, password }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Sign-up failed. Please try again.");
+          throw new Error(data.message || "Signup failed. Please try again.");
         }
 
-        // Save token to localStorage
         localStorage.setItem("authToken", data.authToken);
-        
-        // Redirect to home page
         window.location.href = "home.html";
       } catch (error) {
         errorDiv.textContent = error.message;
