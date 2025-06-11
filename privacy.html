@@ -39,11 +39,11 @@
       font-weight: bold;
     }
 
-    .menu-toggle {
+    .hamburger {
       font-size: 16px;
-      color: #333;
       font-weight: bold;
       cursor: pointer;
+      color: #333;
     }
 
     .dropdown-menu {
@@ -57,7 +57,7 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       z-index: 1001;
       padding: 10px 15px;
-      width: 180px;
+      width: 200px;
     }
 
     .dropdown-menu a {
@@ -81,13 +81,15 @@
   </style>
 </head>
 <body>
+  <!-- ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
-      <div class="menu-toggle" onclick="toggleMenu()">📖 MENU ☰</div>
+      <div class="hamburger" onclick="toggleMenu()">📖 MENU ☰</div>
     </div>
   </div>
 
+  <!-- ドロップダウンメニュー -->
   <div class="dropdown-menu" id="dropdownMenu">
     <a href="home.html">🏠 Home</a>
     <a href="reading_list.html">📚 Readings</a>
@@ -95,8 +97,10 @@
     <a href="about.html">❓ About</a>
     <a href="terms.html">📄 Terms</a>
     <a href="privacy.html">🔐 Privacy</a>
+    <a href="#" onclick="logout()">🚪 Logout</a>
   </div>
 
+  <!-- 本文 -->
   <h1>🔐 Privacy Policy</h1>
   <p>SakuLink respects your privacy and does not collect personal data without your consent.</p>
   <ul>
@@ -110,10 +114,16 @@
   <p>If you have any questions, please contact us at:<br>
   <a href="mailto:sakulink.contact@example.com">sakulink.contact@example.com</a></p>
 
+  <!-- スクリプト -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("dropdownMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+
+    function logout() {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
     }
   </script>
 </body>
