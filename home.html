@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>🌸 SakuLink - Home 🌸</title>
+  <title>SakuLink QR Scanner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -11,7 +11,7 @@
       padding: 100px 20px 40px;
       max-width: 600px;
       margin: auto;
-      background-color: #fffdf9;
+      background-color: #fff7fa;
     }
 
     .header-bar {
@@ -70,67 +70,67 @@
     h1 {
       font-size: 2em;
       color: #ff4081;
-      margin-bottom: 10px;
+      margin-top: 30px;
     }
 
-    .tagline {
+    #preview {
+      width: 300px;
+      height: 350px;
+      border: 1px solid #ccc;
+      margin: 20px auto;
+      background: black;
+    }
+
+    #preview video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #status {
       font-size: 1em;
-      color: #666;
-      margin-bottom: 30px;
+      color: gray;
+      margin-top: 10px;
     }
 
-    .button {
-      display: block;
-      width: 70%;
-      margin: 15px auto;
-      padding: 14px 20px;
-      font-size: 1.1em;
+    #result {
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: bold;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      border-radius: 10px;
       text-decoration: none;
+      text-align: center;
+      min-width: 180px;
+      box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+      display: inline-block;
     }
 
-    .scan-button {
-      background-color: #ffcc00;
-      color: #333;
-    }
-
-    .scan-button:hover {
-      background-color: #f0b700;
-    }
-
-    .start-button {
-      background-color: #4CAF50;
+    .btn-home {
+      background-color: #ff4081;
       color: white;
     }
 
-    .start-button:hover {
-      background-color: #388E3C;
-    }
-
-    .read-button {
-      background-color: #2196F3;
-      color: white;
-    }
-
-    .read-button:hover {
-      background-color: #1976D2;
-    }
-
-    .logout-button {
-      background-color: #f44336;
-      color: white;
-    }
-
-    .logout-button:hover {
-      background-color: #d32f2f;
+    .btn-rescan {
+      background-color: #FFEB3B;
+      color: black;
     }
   </style>
 </head>
 <body>
-
-  <!-- 🌸 ヘッダー -->
+  <!-- 🌸 正規ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
@@ -141,25 +141,34 @@
   <!-- 📋 メニュー -->
   <div id="menu" class="menu">
     <ul>
-      <li><a href="home.html">Home</a></li>
-      <li><a href="reading_list.html">Readings</a></li>
-      <li><a href="about.html">About SakuLink</a></li>
-      <li><a href="terms.html">Terms of Use</a></li>
-      <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="../dish-pages/home.html">Home</a></li>
+      <li><a href="../dish-pages/reading_list.html">Readings</a></li>
       <li><a href="#" onclick="logout()">🔓 Logout</a></li>
     </ul>
   </div>
 
-  <!-- 🏠 メイン画面 -->
-  <h1>🌸 SakuLink 🌸</h1>
-  <p class="tagline">🍱 Discover the heart of Japan through food 🍣</p>
+  <h1>QR Code Scanner</h1>
 
-  <a class="button scan-button" href="../qr-scanner2/qr-scanner.html">📷 Scan QR</a>
-  <a class="button start-button" href="start_here.html">📖 Start Here</a>
-  <a class="button read-button" href="reading_list.html">📚 Readings</a>
+  <div id="preview"></div>
 
-  <!-- 🔁 メニュー制御と認証処理 -->
+  <p id="status">
+    Preparing camera...<br>
+    <small style="color:gray">*It may take a few seconds to start scanning.</small>
+  </p>
+  <div id="result">Scanned result: <span id="output"></span></div>
+
+  <div class="button-container">
+    <button onclick="goHome()" class="btn btn-home">🏠 Back to Home</button>
+    <button onclick="rescan()" class="btn btn-rescan">🔄 Rescan</button>
+  </div>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <script>
+    const resultContainer = document.getElementById("output");
+    const statusText = document.getElementById("status");
+    const html5QrCode = new Html5Qrcode("preview");
+    let hasRedirected = false;
+
     function toggleMenu() {
       const menu = document.getElementById("menu");
       menu.style.display = (menu.style.display === "block") ? "none" : "block";
@@ -167,15 +176,72 @@
 
     function logout() {
       localStorage.removeItem("authToken");
-      window.location.href = "login.html";
+      window.location.href = "../login.html";
     }
 
-    // 🔐 認証チェック（トークンがなければログインへ）
     const token = localStorage.getItem("authToken");
     if (!token) {
-      window.location.href = "login.html";
+      window.location.href = "../login.html";
     }
-  </script>
 
+    function onScanSuccess(decodedText) {
+      if (hasRedirected) return;
+      let idCode = decodedText.trim();
+
+      try {
+        if (decodedText.startsWith("http")) {
+          const url = new URL(decodedText);
+          idCode = url.searchParams.get("id_code") || url.searchParams.get("id") || "";
+        }
+
+        if (!idCode) {
+          resultContainer.innerText = "No valid ID found in QR code.";
+          return;
+        }
+
+        resultContainer.innerText = idCode;
+        hasRedirected = true;
+        window.location.href = `https://sakulinkqr.github.io/dish-pages/index.html?id_code=${encodeURIComponent(idCode)}`;
+      } catch (e) {
+        console.error("URL parsing error:", e);
+        resultContainer.innerText = "Failed to parse QR code.";
+      }
+    }
+
+    function onScanFailure(error) {
+      // Ignore errors
+    }
+
+    function goHome() {
+      window.location.href = "../dish-pages/home.html";
+    }
+
+    function rescan() {
+      hasRedirected = false;
+      resultContainer.innerText = "";
+      html5QrCode.stop().then(() => {
+        html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: 250 },
+          onScanSuccess,
+          onScanFailure
+        );
+        statusText.innerHTML = "Restarting camera. Please hold QR code steady.";
+      }).catch(err => {
+        statusText.textContent = "Camera restart error: " + err;
+      });
+    }
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      onScanSuccess,
+      onScanFailure
+    ).then(() => {
+      statusText.innerHTML = "Camera active. Please hold the QR code within the frame.";
+    }).catch(err => {
+      statusText.textContent = "Camera error: " + err;
+    });
+  </script>
 </body>
 </html>
