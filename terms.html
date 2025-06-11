@@ -87,6 +87,21 @@
     ul {
       padding-left: 1.2em;
     }
+
+    @media screen and (max-width: 600px) {
+      .header-inner {
+        font-size: 18px;
+      }
+
+      .dropdown-menu {
+        width: 160px;
+        right: 10px;
+      }
+
+      body {
+        padding: 110px 15px 30px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -104,6 +119,7 @@
     <a href="about.html">❓ About</a>
     <a href="terms.html">📄 Terms</a>
     <a href="privacy.html">🔐 Privacy</a>
+    <a href="#" onclick="logout()">🚪 Log Out</a>
   </div>
 
   <h1>📄 Terms of Use</h1>
@@ -139,7 +155,12 @@
   <script>
     function toggleMenu() {
       const menu = document.getElementById("dropdownMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+
+    function logout() {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
     }
   </script>
 </body>
