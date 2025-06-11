@@ -103,6 +103,7 @@
     <a href="about.html">❓ About</a>
     <a href="terms.html">📄 Terms</a>
     <a href="privacy.html">🔐 Privacy</a>
+    <a href="#" onclick="logout()">🔓 Logout</a>
   </div>
 
   <h1>About SakuLink</h1>
@@ -125,6 +126,17 @@
     function toggleMenu() {
       const menu = document.getElementById("dropdownMenu");
       menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    function logout() {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
+    }
+
+    // トークンチェック
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      window.location.href = "login.html";
     }
   </script>
 </body>
