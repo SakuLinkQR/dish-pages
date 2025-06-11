@@ -14,7 +14,7 @@
       line-height: 1.6;
     }
 
-    /* ヘッダー */
+    /* 共通ヘッダー */
     .header-bar {
       position: fixed;
       top: 0;
@@ -49,7 +49,6 @@
       user-select: none;
     }
 
-    /* メニュー（初期は非表示） */
     .dropdown-menu {
       display: none;
       position: fixed;
@@ -119,21 +118,26 @@
     <a href="about.html">❓ About</a>
     <a href="terms.html">📄 Terms</a>
     <a href="privacy.html">🔐 Privacy</a>
+    <a href="#" onclick="logout()">🚪 Logout</a>
   </div>
 
+  <!-- 本文 -->
   <h1 id="title">Loading...</h1>
   <div id="content"></div>
-
   <a href="reading_list.html" class="back-button">← Back to Readings</a>
 
+  <!-- スクリプト -->
   <script>
-    // 展開メニュー開閉処理
     function toggleMenu() {
       const menu = document.getElementById("dropdownMenu");
       menu.style.display = menu.style.display === "block" ? "none" : "block";
     }
 
-    // 読み物データ取得
+    function logout() {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
+    }
+
     const params = new URLSearchParams(window.location.search);
     const storyId = params.get("id");
 
