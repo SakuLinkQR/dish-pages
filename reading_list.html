@@ -2,19 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Reading Detail</title>
+  <title>SakuLink Readings</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: sans-serif;
       padding: 120px 20px 40px;
+      background: linear-gradient(to bottom, #fff6f9, #ffffff);
       max-width: 700px;
       margin: auto;
-      background-color: #fffdf9;
-      line-height: 1.6;
     }
 
-    /* ヘッダー */
     .header-bar {
       position: fixed;
       top: 0;
@@ -22,8 +20,8 @@
       width: 100%;
       background-color: pink;
       padding: 10px 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
     }
 
     .header-inner {
@@ -42,54 +40,115 @@
     }
 
     .menu-toggle {
-      font-size: 16px;
+      font-size: 18px;
       color: #333;
       font-weight: bold;
       cursor: pointer;
-      user-select: none;
     }
 
-    /* メニュー */
-    .dropdown-menu {
+    .menu {
       display: none;
-      position: fixed;
-      top: 58px;
-      right: 20px;
-      background-color: white;
+      background-color: #f9f9f9;
+      padding: 10px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      z-index: 1001;
-      padding: 10px 15px;
-      width: 180px;
+      margin-top: 10px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
-    .dropdown-menu a {
-      display: block;
+    .menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .menu li {
+      margin: 8px 0;
+    }
+
+    .menu a {
       text-decoration: none;
       color: #333;
-      padding: 8px 0;
-      font-size: 0.95em;
-    }
-
-    .dropdown-menu a:hover {
-      color: #ff4081;
     }
 
     h1 {
       color: #ff4081;
-      font-size: 1.6em;
-      margin-bottom: 20px;
+      font-size: 2em;
+      margin-bottom: 30px;
+      text-align: center;
     }
 
-    .back-button {
-      margin-top: 30px;
+    #readingList {
+      margin-top: 20px;
+    }
+
+    .story-card {
+      background-color: #ffffff;
+      border: 1px solid #ffc0cb;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin: 15px 0;
+      text-align: left;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .story-card:hover {
+      background-color: #fff0f5;
+      transform: translateY(-2px);
+    }
+
+    .story-card a {
+      text-decoration: none;
+      color: #004499;
+      font-size: 1.1em;
+      display: block;
+    }
+
+    .home-button {
       display: inline-block;
+      margin: 40px auto 0;
+      padding: 12px 24px;
       background-color: #ff4081;
       color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
+      border-radius: 10px;
+      font-weight: bold;
       text-decoration: none;
+      box-shadow: 0 4px 10px rgba(255, 64, 129, 0.3);
+    }
+
+    .sakura-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .sakura {
+      position: absolute;
+      top: -10px;
+      width: 20px;
+      height: 20px;
+      background-image: url('https://raw.githubusercontent.com/saekee/sakura-falling/main/sakura.png');
+      background-size: cover;
+      opacity: 0.7;
+      animation: fall 10s linear infinite;
+    }
+
+    .sakura:nth-child(2) { left: 20%; animation-delay: 2s; }
+    .sakura:nth-child(3) { left: 40%; animation-delay: 4s; }
+    .sakura:nth-child(4) { left: 60%; animation-delay: 1s; }
+    .sakura:nth-child(5) { left: 80%; animation-delay: 3s; }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(100vh) rotate(360deg); }
     }
   </style>
 </head>
@@ -103,7 +162,7 @@
     }
   </script>
 
-  <!-- ヘッダー -->
+  <!-- 🌸 ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
@@ -111,57 +170,81 @@
     </div>
   </div>
 
-  <!-- 展開メニュー -->
-  <div class="dropdown-menu" id="dropdownMenu">
-    <a href="home.html">🏠 Home</a>
-    <a href="reading_list.html">📚 Readings</a>
-    <a href="start_here.html">📖 Start Here</a>
-    <a href="about.html">❓ About</a>
-    <a href="terms.html">📄 Terms</a>
-    <a href="privacy.html">🔐 Privacy</a>
-    <a href="#" onclick="logout()">🚪 Logout</a>
+  <!-- 📋 メニュー -->
+  <div id="menu" class="menu">
+    <ul>
+      <li><a href="home.html">🏠 Home</a></li>
+      <li><a href="reading_list.html">📚 Readings</a></li>
+      <li><a href="start_here.html">📖 Start Here</a></li>
+      <li><a href="about.html">❓ About SakuLink</a></li>
+      <li><a href="terms.html">📄 Terms of Use</a></li>
+      <li><a href="privacy.html">🔐 Privacy Policy</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
   </div>
 
-  <h1 id="title">Loading...</h1>
-  <div id="content"></div>
+  <!-- 🌸 花びら -->
+  <div class="sakura-container">
+    <div class="sakura"></div>
+    <div class="sakura"></div>
+    <div class="sakura"></div>
+    <div class="sakura"></div>
+    <div class="sakura"></div>
+  </div>
 
-  <a href="reading_list.html" class="back-button">← Back to Readings</a>
+  <!-- 📚 読み物 -->
+  <h1>📖 Readings</h1>
+  <div id="readingList">Loading...</div>
 
+  <!-- 🔧 スクリプト -->
   <script>
-    // 展開メニュー開閉処理
     function toggleMenu() {
-      const menu = document.getElementById("dropdownMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
+      const menu = document.getElementById("menu");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
     }
 
-    // ログアウト処理
     function logout() {
       localStorage.removeItem("authToken");
       window.location.href = "login.html";
     }
 
-    // 読み物データ取得
-    const params = new URLSearchParams(window.location.search);
-    const storyId = params.get("id");
+    fetch('https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_list')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById("readingList");
+        container.innerHTML = "";
 
-    if (storyId) {
-      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_by_story_id?story_id=${storyId}`)
-        .then((res) => {
-          if (!res.ok) throw new Error("API error");
-          return res.json();
-        })
-        .then((data) => {
-          document.getElementById("title").textContent = data.title_en || "Untitled";
-          document.getElementById("content").innerHTML = data.content_en || "<p>No content available.</p>";
-        })
-        .catch(() => {
-          document.getElementById("title").textContent = "Error loading story";
-          document.getElementById("content").textContent = "Please try again later.";
-        });
-    } else {
-      document.getElementById("title").textContent = "No story ID provided";
-      document.getElementById("content").textContent = "This page requires a valid story ID.";
-    }
+        data.sort((a, b) => a.display_order - b.display_order);
+
+        if (data.length === 0) {
+          container.textContent = "No readings available yet.";
+        } else {
+          data.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "story-card";
+
+            const link = document.createElement("a");
+            link.href = `reading.html?id=${item.story_id}`;
+
+            let icon = "📖";
+            if (item.title_en.toLowerCase().includes("sushi")) icon = "🍣";
+            else if (item.title_en.toLowerCase().includes("noodle") || item.title_en.toLowerCase().includes("ramen")) icon = "🍜";
+
+            link.textContent = `${icon} Story ${item.display_order}: ${item.title_en}`;
+            card.appendChild(link);
+            container.appendChild(card);
+          });
+        }
+
+        const backBtn = document.createElement("a");
+        backBtn.href = "home.html";
+        backBtn.className = "home-button";
+        backBtn.textContent = "← 🏠 Back to Home";
+        container.appendChild(backBtn);
+      })
+      .catch(() => {
+        document.getElementById("readingList").textContent = "Error loading readings.";
+      });
   </script>
 </body>
 </html>
