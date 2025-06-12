@@ -109,18 +109,18 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
-      // 🔍 1. Check if email already exists (GETリクエスト)
-      const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/check_email?email=${encodeURIComponent(email)}`;
+      // 1. Check if email already exists
+      const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
       const checkRes = await fetch(checkUrl);
-      const checkData = await checkRes.json();
+      const checkText = await checkRes.text();
 
-      if (checkData.exists) {
+      if (checkText !== "OK") {
         message.textContent = "⚠️ This email is already registered.";
         message.className = "error";
         return;
       }
 
-      // 📝 2. Create account if email is new
+      // 2. Proceed to signup
       const signupRes = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
