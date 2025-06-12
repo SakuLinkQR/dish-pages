@@ -90,29 +90,13 @@
   </form>
 
   <script>
-    // Gmail正規化関数
-    function normalizeGmail(email) {
-      email = email.trim().toLowerCase();
-      const gmailRegex = /^([^@]+)@gmail\.com$/;
-      const match = email.match(gmailRegex);
-
-      if (match) {
-        let localPart = match[1];
-        localPart = localPart.split('+')[0]; // +以降削除
-        localPart = localPart.replace(/\./g, ''); // ドット削除
-        return `${localPart}@gmail.com`;
-      }
-      return email; // Gmail以外はそのまま返す
-    }
-
     const form = document.getElementById('signup-form');
     const message = document.getElementById('message');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const rawEmail = document.getElementById('email').value.trim();
-      const email = normalizeGmail(rawEmail);
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
       // 🔍 1. Check if email already exists
