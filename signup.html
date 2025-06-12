@@ -1,97 +1,136 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>サインアップ - SakuLink</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Signup | SakuLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 120px 20px 40px;
+      background: #fffdf9;
+      max-width: 400px;
+      margin: auto;
+    }
+    .header-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: pink;
+      padding: 10px 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+    .header-inner {
+      max-width: 700px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 20px;
+      box-sizing: border-box;
+    }
+    .header-title {
+      font-weight: bold;
+    }
+    h1 {
+      text-align: center;
+      color: #ff4081;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      box-sizing: border-box;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388E3C;
+    }
+    .error {
+      color: red;
+      font-size: 0.95em;
+      margin-top: 8px;
+    }
+    .success {
+      color: green;
+      font-size: 0.95em;
+      margin-top: 8px;
+    }
+  </style>
 </head>
 <body>
   <div class="header-bar">
     <div class="header-inner">
-      <div class="logo">🌸 SakuLink 🌸</div>
-      <div class="menu-button" onclick="toggleMenu()">📖 MENU ☰</div>
+      <div class="header-title">🌸 SakuLink 🌸</div>
     </div>
   </div>
-  <div class="menu" id="menu">
-    <ul>
-      <li><a href="index.html">🏠 ホームに戻る</a></li>
-      <li><a href="login.html">🔐 ログイン</a></li>
-    </ul>
-  </div>
 
-  <main>
-    <h2>サインアップ</h2>
-    <form id="signup-form">
-      <label for="name">名前:</label>
-      <input type="text" id="name" required><br>
+  <h1>Sign Up</h1>
 
-      <label for="email">メールアドレス:</label>
-      <input type="email" id="email" required><br>
-
-      <label for="password">パスワード:</label>
-      <input type="password" id="password" required><br>
-
-      <button type="submit">登録</button>
-    </form>
-  </main>
+  <form id="signup-form">
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Sign Up</button>
+    <p id="message" class=""></p>
+  </form>
 
   <script>
-    function toggleMenu() {
-      const menu = document.getElementById("menu");
-      menu.classList.toggle("show");
-    }
+    const form = document.getElementById('signup-form');
+    const message = document.getElementById('message');
 
-    document.getElementById("signup-form").addEventListener("submit", async function (e) {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
 
-      if (!name || !email || !password) {
-        alert("すべての項目を入力してください。");
+      // ✅ 登録済みチェック
+      try {
+        const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
+        const checkRes = await fetch(checkUrl);
+        const checkText = await checkRes.text();
+
+        if (checkText !== "OK") {
+          message.textContent = "⚠️ This email is already registered.";
+          message.className = "error";
+          return;
+        }
+      } catch (err) {
+        alert("メールアドレスの確認中に問題が発生しました。");
         return;
       }
 
-      try {
-        // メールアドレスの重複チェック
-        const checkRes = await fetch("https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/check_email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
+      // ✅ サインアップ処理
+      const signupRes = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
 
-        const checkData = await checkRes.json();
-
-        if (checkData.message === "DUPLICATE") {
-          alert("このメールアドレスはすでに登録されています。");
-          return;
-        }
-
-        if (checkData.message !== "OK") {
-          alert("メールアドレスの確認中に問題が発生しました。");
-          return;
-        }
-
-        // サインアップ処理
-        const signupRes = await fetch("https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
-        });
-
-        if (!signupRes.ok) {
-          alert("登録に失敗しました。");
-          return;
-        }
-
-        alert("登録が完了しました！ログイン画面に移動します。");
-        window.location.href = "login.html";
-
-      } catch (error) {
-        console.error(error);
-        alert("通信エラーが発生しました。");
+      if (signupRes.ok) {
+        message.textContent = "✅ Account created! Redirecting...";
+        message.className = "success";
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+      } else {
+        message.textContent = "❌ Signup failed. Please try again.";
+        message.className = "error";
       }
     });
   </script>
