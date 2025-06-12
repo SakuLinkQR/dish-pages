@@ -12,6 +12,7 @@
       max-width: 400px;
       margin: auto;
     }
+
     .header-bar {
       position: fixed;
       top: 0;
@@ -22,6 +23,7 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       z-index: 1000;
     }
+
     .header-inner {
       max-width: 700px;
       margin: auto;
@@ -32,13 +34,16 @@
       font-size: 20px;
       box-sizing: border-box;
     }
+
     .header-title {
       font-weight: bold;
     }
+
     h1 {
       text-align: center;
       color: #ff4081;
     }
+
     input {
       width: 100%;
       padding: 12px;
@@ -48,6 +53,7 @@
       border: 1px solid #ccc;
       border-radius: 8px;
     }
+
     button {
       width: 100%;
       padding: 12px;
@@ -58,14 +64,17 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #388E3C;
     }
+
     .error {
       color: red;
       font-size: 0.95em;
       margin-top: 8px;
     }
+
     .success {
       color: green;
       font-size: 0.95em;
@@ -74,6 +83,7 @@
   </style>
 </head>
 <body>
+  <!-- ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
@@ -99,18 +109,18 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
-      // 🔍 1. Check if email already exists
-      const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/check_email?email=${encodeURIComponent(email)}`;
+      // 1. Check if email already exists
+      const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
       const checkRes = await fetch(checkUrl);
-      const checkData = await checkRes.json();
+      const checkText = await checkRes.text();
 
-      if (checkData.exists) {
+      if (checkText !== "OK") {
         message.textContent = "⚠️ This email is already registered.";
         message.className = "error";
         return;
       }
 
-      // 📝 2. Signup
+      // 2. Proceed to signup
       const signupRes = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
