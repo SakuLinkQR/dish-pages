@@ -2,135 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Signup | SakuLink</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 120px 20px 40px;
-      background: #fffdf9;
-      max-width: 400px;
-      margin: auto;
-    }
-    .header-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: pink;
-      padding: 10px 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
-    .header-inner {
-      max-width: 700px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-      font-size: 20px;
-      box-sizing: border-box;
-    }
-    .header-title {
-      font-weight: bold;
-    }
-    h1 {
-      text-align: center;
-      color: #ff4081;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      box-sizing: border-box;
-      font-size: 1em;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #4CAF50;
-      color: white;
-      font-size: 1em;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #388E3C;
-    }
-    .error {
-      color: red;
-      font-size: 0.95em;
-      margin-top: 8px;
-    }
-    .success {
-      color: green;
-      font-size: 0.95em;
-      margin-top: 8px;
-    }
-    .error a {
-      color: #ff4081;
-      text-decoration: underline;
-      margin-left: 4px;
-    }
+    body { font-family: sans-serif; padding: 2em; }
+    .error { color: red; margin-top: 1em; }
+    .success { color: green; margin-top: 1em; }
+    #login-link { display: none; margin-top: 1.5em; }
   </style>
 </head>
 <body>
-  <!-- ヘッダー -->
-  <div class="header-bar">
-    <div class="header-inner">
-      <div class="header-title">🌸 SakuLink 🌸</div>
-    </div>
-  </div>
-
   <h1>Sign Up</h1>
-
   <form id="signup-form">
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
+    <label>Email: <input type="email" id="email" required /></label><br /><br />
+    <label>Password: <input type="password" id="password" required /></label><br /><br />
     <button type="submit">Sign Up</button>
-    <p id="message" class=""></p>
   </form>
+  <p id="message"></p>
+  <div id="login-link">
+    <a href="login.html">🔐 Go to Login Page</a>
+  </div>
 
   <script>
     const form = document.getElementById('signup-form');
     const message = document.getElementById('message');
+    const loginLink = document.getElementById('login-link');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+      const password = document.getElementById('password').value.trim();
 
-      // 1. Check if email already exists
-      const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
-      const checkRes = await fetch(checkUrl);
-      const checkText = await checkRes.text();
+      // STEP 1: Check if email already exists
+      const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/check_email?email=${encodeURIComponent(email)}`;
+      try {
+        const checkRes = await fetch(checkUrl);
+        const checkText = await checkRes.text();
 
-      if (checkText !== "OK") {
-        message.innerHTML = "⚠️ This email is already registered. <a href='login.html'>Click here to login</a>";
+        if (checkText !== "OK") {
+          message.textContent = "⚠️ このメールアドレスはすでに登録されています。";
+          message.className = "error";
+          return;
+        }
+      } catch (err) {
+        message.textContent = "⚠️ 接続エラーが発生しました。もう一度お試しください。";
         message.className = "error";
         return;
       }
 
-      // 2. Proceed to signup
-      const signupRes = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
+      // STEP 2: Proceed to sign up
+      const signupUrl = "https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup";
+      try {
+        const res = await fetch(signupUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
 
-      if (signupRes.ok) {
-        message.textContent = "✅ Account created! Redirecting...";
-        message.className = "success";
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 1500);
-      } else {
-        message.textContent = "❌ Signup failed. Please try again.";
+        if (res.ok) {
+          message.textContent = "✅ 登録が完了しました！ログイン画面へ戻ってください。";
+          message.className = "success";
+          loginLink.style.display = 'block';
+        } else {
+          const errorData = await res.json();
+          message.textContent = `⚠️ 登録に失敗しました: ${errorData.message || '不明なエラーです'}`;
+          message.className = "error";
+        }
+      } catch (err) {
+        message.textContent = "⚠️ エラーが発生しました。もう一度お試しください。";
         message.className = "error";
       }
     });
