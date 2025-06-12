@@ -7,38 +7,17 @@
   <style>
     body {
       font-family: sans-serif;
-      padding: 120px 20px 40px;
+      padding: 40px 20px;
       background: #fffdf9;
       max-width: 400px;
       margin: auto;
     }
-    .header-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: pink;
-      padding: 10px 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
-    .header-inner {
-      max-width: 700px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-      font-size: 20px;
-      box-sizing: border-box;
-    }
-    .header-title {
-      font-weight: bold;
-    }
+
     h1 {
       text-align: center;
       color: #ff4081;
     }
+
     input {
       width: 100%;
       padding: 12px;
@@ -48,6 +27,7 @@
       border: 1px solid #ccc;
       border-radius: 8px;
     }
+
     button {
       width: 100%;
       padding: 12px;
@@ -58,14 +38,17 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #388E3C;
     }
+
     .error {
       color: red;
       font-size: 0.95em;
       margin-top: 8px;
     }
+
     .success {
       color: green;
       font-size: 0.95em;
@@ -74,15 +57,10 @@
   </style>
 </head>
 <body>
-  <div class="header-bar">
-    <div class="header-inner">
-      <div class="header-title">🌸 SakuLink 🌸</div>
-    </div>
-  </div>
-
   <h1>Sign Up</h1>
 
   <form id="signup-form">
+    <input type="text" id="name" placeholder="Name (nickname)" required />
     <input type="email" id="email" placeholder="Email" required />
     <input type="password" id="password" placeholder="Password" required />
     <button type="submit">Sign Up</button>
@@ -96,12 +74,13 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
-      // ✅ 登録済みチェック
+      // 1. Check if email already exists
+      const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
       try {
-        const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
         const checkRes = await fetch(checkUrl);
         const checkText = await checkRes.text();
 
@@ -110,27 +89,27 @@
           message.className = "error";
           return;
         }
-      } catch (err) {
+
+        // 2. Proceed to signup
+        const signupRes = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, name })
+        });
+
+        if (signupRes.ok) {
+          message.textContent = "✅ Account created! Redirecting...";
+          message.className = "success";
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 1500);
+        } else {
+          message.textContent = "❌ Signup failed. Please try again.";
+          message.className = "error";
+        }
+      } catch (error) {
         alert("メールアドレスの確認中に問題が発生しました。");
-        return;
-      }
-
-      // ✅ サインアップ処理
-      const signupRes = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-
-      if (signupRes.ok) {
-        message.textContent = "✅ Account created! Redirecting...";
-        message.className = "success";
-        setTimeout(() => {
-          window.location.href = "login.html";
-        }, 1500);
-      } else {
-        message.textContent = "❌ Signup failed. Please try again.";
-        message.className = "error";
+        console.error(error);
       }
     });
   </script>
