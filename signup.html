@@ -78,19 +78,17 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
-      // 1. Check if email already exists
       const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
       try {
         const checkRes = await fetch(checkUrl);
-        const checkText = await checkRes.text();
+        const checkData = await checkRes.json();
 
-        if (checkText !== "OK") {
+        if (checkData.exists === true) {
           message.textContent = "⚠️ This email is already registered. Please try again with a different one.";
           message.className = "error";
           return;
         }
 
-        // 2. Proceed to signup
         const signupRes = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -101,7 +99,7 @@
           message.textContent = "✅ Account created! Redirecting...";
           message.className = "success";
           setTimeout(() => {
-            window.location.href = "home.html";  // ← ここを変更
+            window.location.href = "home.html";
           }, 1500);
         } else {
           message.textContent = "❌ Signup failed. Please try again.";
