@@ -77,27 +77,20 @@
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const button = form.querySelector("button");
-      button.disabled = true;
 
+      // 1. Check if email already exists
+      const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
       try {
-        // Check if email is already registered
-        const checkRes = await fetch("https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email", {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const checkJson = await checkRes.json();
+        const checkRes = await fetch(checkUrl);
+        const checkText = await checkRes.text();
 
-        if (checkJson.exists) {
-          message.textContent = "⚠️ This email is already registered.";
+        if (checkText !== "OK") {
+          message.textContent = "⚠️ This email is already registered. Please try again with a different one.";
           message.className = "error";
-          button.disabled = false;
-          document.getElementById('email').focus();
           return;
         }
 
-        // Proceed to signup
+        // 2. Proceed to signup
         const signupRes = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -108,17 +101,16 @@
           message.textContent = "✅ Account created! Redirecting...";
           message.className = "success";
           setTimeout(() => {
-            window.location.href = "login.html";
+            window.location.href = "home.html";  // ← ここを変更
           }, 1500);
         } else {
           message.textContent = "❌ Signup failed. Please try again.";
           message.className = "error";
-          button.disabled = false;
         }
       } catch (error) {
-        alert("There was a problem while checking your email address.");
+        message.textContent = "❌ An error occurred during email verification.";
+        message.className = "error";
         console.error(error);
-        button.disabled = false;
       }
     });
   </script>
