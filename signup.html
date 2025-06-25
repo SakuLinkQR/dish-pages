@@ -77,20 +77,27 @@
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+      const button = form.querySelector("button");
+      button.disabled = true;
 
-      // 1. Check if email already exists
-      const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
       try {
-        const checkRes = await fetch(checkUrl);
-        const checkText = await checkRes.text();
+        // Check if email is already registered
+        const checkRes = await fetch("https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const checkJson = await checkRes.json();
 
-        if (checkText !== "OK") {
+        if (checkJson.exists) {
           message.textContent = "⚠️ This email is already registered.";
           message.className = "error";
+          button.disabled = false;
+          document.getElementById('email').focus();
           return;
         }
 
-        // 2. Proceed to signup
+        // Proceed to signup
         const signupRes = await fetch('https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -106,10 +113,12 @@
         } else {
           message.textContent = "❌ Signup failed. Please try again.";
           message.className = "error";
+          button.disabled = false;
         }
       } catch (error) {
-        alert("メールアドレスの確認中に問題が発生しました。");
+        alert("There was a problem while checking your email address.");
         console.error(error);
+        button.disabled = false;
       }
     });
   </script>
