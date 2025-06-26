@@ -23,13 +23,15 @@
       max-width: 300px;
     }
     button {
-      padding: 0.6em 1.2em;
-      font-size: 1em;
+      padding: 14px 28px;
+      font-size: 1.2em;
       background-color: #2196f3;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      min-width: 200px;
+      max-width: 80%;
     }
     button:hover {
       background-color: #1976d2;
@@ -74,7 +76,7 @@
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("authToken", data.authToken);
-        window.location.href = "home.html"; // ログイン後に移動するページ
+        window.location.href = "home.html";
       } else {
         document.getElementById("errorMessage").innerText = "Unauthorized - Authentication Required";
       }
