@@ -11,6 +11,7 @@
       margin: 0;
       padding: 120px 20px 40px;
       text-align: center;
+      color: #333;
     }
 
     .header-bar {
@@ -20,8 +21,8 @@
       width: 100%;
       background-color: pink;
       padding: 10px 0;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      z-index: 9999;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
     }
 
     .header-inner {
@@ -39,12 +40,37 @@
       font-weight: bold;
     }
 
-    .header-menu {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 18px;
+    .menu-toggle {
+      font-size: 16px;
+      color: #333;
+      font-weight: bold;
       cursor: pointer;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: fixed;
+      top: 58px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 1001;
+      padding: 10px 15px;
+      width: 180px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      text-decoration: none;
+      color: #333;
+      padding: 8px 0;
+      font-size: 0.95em;
+    }
+
+    .dropdown-menu a:hover {
+      color: #ff4081;
     }
 
     h1 {
@@ -61,7 +87,6 @@
       margin: 20px auto;
       max-width: 600px;
       text-align: left;
-      color: #333;
     }
 
     .warning-box strong {
@@ -104,14 +129,23 @@
 </head>
 <body>
 
-  <!-- 🌸 ヘッダー（MENU付き） -->
+  <!-- 🌸 ヘッダー（Start Hereと同じ構成） -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
-      <div class="header-menu">
-        <span>📖 MENU</span><span>≡</span>
-      </div>
+      <div class="menu-toggle" onclick="toggleMenu()">📖 MENU ☰</div>
     </div>
+  </div>
+
+  <!-- 📋 ドロップダウンメニュー -->
+  <div class="dropdown-menu" id="dropdownMenu">
+    <a href="home.html">🏠 Home</a>
+    <a href="reading_list.html">📚 Readings</a>
+    <a href="start_here.html">📖 Start Here</a>
+    <a href="about.html">❓ About</a>
+    <a href="terms.html">📄 Terms</a>
+    <a href="privacy.html">🔐 Privacy</a>
+    <a href="#" onclick="logout()">🚪 Logout</a>
   </div>
 
   <!-- 📛 エラーメッセージ -->
@@ -131,6 +165,19 @@
     <a class="btn btn-home" href="home.html">🏡 Back to Home</a>
     <a class="btn btn-scan" href="../qr-scanner2/qr-scanner.html">🔄 Try Scanning Again</a>
   </div>
+
+  <!-- 📜 メニュー動作スクリプト -->
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("dropdownMenu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+
+    function logout() {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
+    }
+  </script>
 
 </body>
 </html>
