@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SakuLink - Invalid QR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #fff7fa;
+      margin: 0;
+      padding: 120px 20px 40px;
+      text-align: center;
+    }
+
+    .header-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: pink;
+      padding: 10px 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+    }
+
+    .header-inner {
+      max-width: 700px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 20px;
+      box-sizing: border-box;
+    }
+
+    .header-title {
+      font-weight: bold;
+    }
+
+    h1 {
+      color: #ff4081;
+      font-size: 2em;
+      margin-top: 20px;
+    }
+
+    .warning-box {
+      background-color: #fff0f0;
+      border: 1px solid #f44336;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px auto;
+      max-width: 600px;
+      text-align: left;
+      color: #333;
+    }
+
+    .warning-box strong {
+      color: #f44336;
+      font-size: 1.1em;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      text-decoration: none;
+      text-align: center;
+      min-width: 180px;
+      box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .btn-home {
+      background-color: #ff4081;
+      color: white;
+    }
+
+    .btn-scan {
+      background-color: #ffeb3b;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🌸 ヘッダー -->
+  <div class="header-bar">
+    <div class="header-inner">
+      <div class="header-title">🌸 SakuLink 🌸</div>
+    </div>
+  </div>
+
+  <!-- 📛 エラーメッセージ -->
+  <h1>Scan Stopped</h1>
+
+  <div class="warning-box">
+    <p><strong>Security Alert:</strong> The QR code you scanned is attempting to connect to a site outside of the official SakuLink system.</p>
+    <p>For your safety, the scan has been stopped automatically. Please inform a member of staff that the QR code may be incorrect or outdated.</p>
+    <p>If communication is difficult, you can show them the following Japanese message:</p>
+    <p style="margin-top:1em; background-color:#f9f9f9; padding:10px; border-left:4px solid #ccc;">
+      「このQRコードはSakuLink以外の外部サイトへ接続しようとしたため、スキャンを停止しました。QRコードの貼り間違いの可能性があります。ご確認をお願いいたします。」
+    </p>
+  </div>
+
+  <!-- 🔘 ボタン -->
+  <div class="button-container">
+    <a class="btn btn-home" href="home.html">🏡 Back to Home</a>
+    <a class="btn btn-scan" href="../qr-scanner2/qr-scanner.html">🔄 Try Scanning Again</a>
+  </div>
+
+</body>
+</html>
