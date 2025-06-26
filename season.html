@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🌸 Seasonal Picks - SakuLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #fffdf9;
+      text-align: center;
+      padding: 100px 20px 40px;
+      max-width: 700px;
+      margin: auto;
+      color: #333;
+    }
+
+    .header-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: pink;
+      padding: 10px 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .header-inner {
+      max-width: 700px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 20px;
+      box-sizing: border-box;
+    }
+
+    .menu-toggle {
+      font-size: 16px;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: fixed;
+      top: 58px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      z-index: 1001;
+      padding: 10px 15px;
+      width: 180px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      text-decoration: none;
+      color: #333;
+      padding: 8px 0;
+      font-size: 0.95em;
+    }
+
+    .dropdown-menu a:hover {
+      color: #ff4081;
+    }
+
+    h1 {
+      color: #ff4081;
+      font-size: 2em;
+    }
+
+    .dish-box {
+      background-color: #fff;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 500px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .dish-box h2 {
+      color: #e91e63;
+      margin-bottom: 10px;
+    }
+
+    .dish-box p {
+      font-size: 1em;
+      margin-bottom: 5px;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 40px;
+      padding: 12px 24px;
+      background-color: #2196F3;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    .back-button:hover {
+      background-color: #1976D2;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🌸 ヘッダー -->
+  <div class="header-bar">
+    <div class="header-inner">
+      <div class="header-title">🌸 SakuLink 🌸</div>
+      <div class="menu-toggle" onclick="toggleMenu()">📖 MENU ☰</div>
+    </div>
+  </div>
+
+  <!-- 📋 メニュー -->
+  <div class="dropdown-menu" id="dropdownMenu">
+    <a href="home.html">🏠 Home</a>
+    <a href="reading_list.html">📚 Readings</a>
+    <a href="start_here.html">📖 Start Here</a>
+    <a href="about.html">❓ About</a>
+    <a href="terms.html">📄 Terms</a>
+    <a href="privacy.html">🔐 Privacy</a>
+    <a href="#" onclick="logout()">🚪 Logout</a>
+  </div>
+
+  <h1>🌟 This Month's Recommended Dishes</h1>
+
+  <div class="dish-box">
+    <h2>🍧 Cold Noodles</h2>
+    <p>Perfect for hot summer days!</p>
+    <p>Try soba, somen, or hiyashi chuka at many restaurants.</p>
+  </div>
+
+  <div class="dish-box">
+    <h2>🍈 Melon Parfait</h2>
+    <p>Cool off with this fruity, creamy treat.</p>
+    <p>Often available at cafés and dessert shops.</p>
+  </div>
+
+  <div class="dish-box">
+    <h2>🍺 Beer and Edamame</h2>
+    <p>Enjoy like the locals on a summer night!</p>
+    <p>Great with yakitori or izakaya dishes.</p>
+  </div>
+
+  <a class="back-button" href="home.html">← Back to Home</a>
+
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("dropdownMenu");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+
+    function logout() {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
+    }
+  </script>
+
+</body>
+</html>
