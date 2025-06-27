@@ -130,7 +130,7 @@
 </head>
 <body>
 
-  <!-- 🌸 ヘッダー -->
+  <!-- 🌸 Header -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
@@ -138,7 +138,7 @@
     </div>
   </div>
 
-  <!-- 📋 メニュー -->
+  <!-- 📋 Menu -->
   <div id="menu" class="menu">
     <ul>
       <li><a href="home.html">🏠 Home</a></li>
@@ -151,7 +151,7 @@
     </ul>
   </div>
 
-  <!-- 🏠 メイン画面 -->
+  <!-- 🏠 Main Content -->
   <h1>🌸 SakuLink 🌸</h1>
   <p class="tagline">🍱 Discover the heart of Japan through food 🍣</p>
 
@@ -159,10 +159,10 @@
   <a class="button start-button" href="start_here.html">📖 Start Here</a>
   <a class="button read-button" href="reading_list.html">📚 Readings</a>
 
-  <!-- 🌟 季節のおすすめ（自動表示） -->
+  <!-- 🌟 Seasonal Highlight -->
   <div id="seasonal-section" style="margin-top: 40px; font-size: 1.1em;"></div>
 
-  <!-- 🔁 メニュー制御と認証・季節表示 -->
+  <!-- 🔁 Scripts -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("menu");
@@ -174,26 +174,46 @@
       window.location.href = "login.html";
     }
 
-    // 🔐 認証チェック
+    // 🔐 Authentication Check
     const token = localStorage.getItem("authToken");
     if (!token) {
       window.location.href = "login.html";
     }
 
-    // 🌟 季節のおすすめ表示
+    // 🌟 Seasonal Highlight
     const month = new Date().getMonth() + 1;
     let seasonalHTML = "";
 
     if ([3, 4].includes(month)) {
-      seasonalHTML = "🌸 <strong>Seasonal Pick:</strong> Try a delicious <a href='season.html' style='color:#e91e63;'>sakura mochi</a> this spring!";
+      seasonalHTML = `
+        🌸 <strong>This Month’s Pick:</strong><br>
+        Spring is in the air—and in the sweets!<br>
+        👉 <a href='season.html' style='color:#e91e63;'>See our top spring dishes</a>
+      `;
     } else if ([5, 6, 7].includes(month)) {
-      seasonalHTML = "🍧 <strong>Summer Cool:</strong> Beat the heat with <a href='season.html' style='color:#007bff;'>cold noodles</a>!";
+      seasonalHTML = `
+        🍧 <strong>This Month’s Pick:</strong><br>
+        Feeling the heat? Japan cools down with these favorites!<br>
+        👉 <a href='season.html' style='color:#007bff;'>See our top summer dishes</a>
+      `;
     } else if ([9, 10].includes(month)) {
-      seasonalHTML = "🍠 <strong>Autumn Treat:</strong> Taste <a href='season.html' style='color:#9c27b0;'>sweet potato desserts</a>!";
+      seasonalHTML = `
+        🍠 <strong>This Month’s Pick:</strong><br>
+        Cozy up with warm and comforting autumn treats.<br>
+        👉 <a href='season.html' style='color:#9c27b0;'>See our top autumn dishes</a>
+      `;
     } else if ([11, 12, 1].includes(month)) {
-      seasonalHTML = "❄️ <strong>Winter Warmth:</strong> Try <a href='season.html' style='color:#f44336;'>steamy hotpot dishes</a>!";
+      seasonalHTML = `
+        ❄️ <strong>This Month’s Pick:</strong><br>
+        Nothing beats the cold like Japanese hotpot!<br>
+        👉 <a href='season.html' style='color:#f44336;'>See our top winter dishes</a>
+      `;
     } else {
-      seasonalHTML = "🍱 <strong>Discover seasonal Japanese food!</strong> <a href='season.html'>See picks</a>";
+      seasonalHTML = `
+        🍱 <strong>What’s Cooking in Japan?</strong><br>
+        Discover local favorites from season to season!<br>
+        👉 <a href='season.html'>Explore now</a>
+      `;
     }
 
     document.getElementById("seasonal-section").innerHTML = seasonalHTML;
