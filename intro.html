@@ -52,16 +52,17 @@
   <p>This app helps you understand Japanese dishes using QR codes.<br>
      Let’s begin your food adventure!</p>
 
+  <!-- ⏳ 自動遷移（3秒後に notice.html へ） -->
   <script>
     setTimeout(() => {
       window.location.href = 'notice.html';
-    }, 3000); // 3秒で遷移
+    }, 3000);
   </script>
 
-  <!-- ✅ Service Worker 登録コード -->
+  <!-- ✅ Service Worker 登録コード（修正済み） -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
+      navigator.serviceWorker.register('/dish-pages/service-worker.js')
         .then(function(reg) {
           console.log('✅ Service Worker registered!', reg);
         })
