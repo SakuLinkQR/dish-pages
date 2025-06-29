@@ -59,10 +59,10 @@
     }, 3000);
   </script>
 
-  <!-- ✅ Service Worker 登録コード（修正済み） -->
+  <!-- ✅ Service Worker 登録コード（相対パスで正しく動作） -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/dish-pages/service-worker.js')
+      navigator.serviceWorker.register('service-worker.js')
         .then(function(reg) {
           console.log('✅ Service Worker registered!', reg);
         })
