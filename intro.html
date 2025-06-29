@@ -8,7 +8,7 @@
   <!-- iPhone ホーム画面用アイコン -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 
-  <!-- Android ホーム画面用 PWA設定 -->
+  <!-- Android ホーム画面用 PWA設定：同一ディレクトリにあるmanifest.jsonを参照 -->
   <link rel="manifest" href="manifest.json" />
 
   <style>
@@ -59,7 +59,7 @@
     }, 3000);
   </script>
 
-  <!-- ✅ Service Worker 登録コード（相対パスで正しく動作） -->
+  <!-- ✅ Service Worker 登録：intro.htmlと同じディレクトリにある場合、相対パスでOK -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
