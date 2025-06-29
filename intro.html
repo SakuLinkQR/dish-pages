@@ -2,73 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>🌸 SakuLink - Welcome 🌸</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- iPhone ホーム画面用アイコン -->
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-
-  <!-- Android ホーム画面用 PWA設定：同一ディレクトリにあるmanifest.jsonを参照 -->
-  <link rel="manifest" href="manifest.json" />
-
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 40px;
-      max-width: 600px;
-      margin: auto;
-    }
-
-    h1 {
-      font-size: 2em;
-      color: #ff4081;
-      margin-bottom: 20px;
-    }
-
-    p {
-      font-size: 1.2em;
-      color: #333;
-    }
-
-    .start-button {
-      margin-top: 30px;
-      padding: 12px 24px;
-      font-size: 1.1em;
-      background-color: #ff4081;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .start-button:hover {
-      background-color: #e03570;
-    }
-  </style>
+  <title>SakuLink Intro</title>
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
 </head>
 <body>
-  <h1>🌸 SakuLink 🌸<br>Welcome!</h1>
-  <p>This app helps you understand Japanese dishes using QR codes.<br>
-     Let’s begin your food adventure!</p>
+  <h1>Welcome to SakuLink</h1>
+  <p>Discover Japanese food easily.</p>
 
-  <!-- ⏳ 自動遷移（3秒後に notice.html へ） -->
   <script>
-    setTimeout(() => {
-      window.location.href = 'notice.html';
-    }, 3000);
-  </script>
-
-  <!-- ✅ Service Worker 登録：intro.htmlと同じディレクトリにある場合、相対パスでOK -->
-  <script>
+    // Service Worker 登録
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
-        .then(function(reg) {
-          console.log('✅ Service Worker registered!', reg);
-        })
-        .catch(function(err) {
-          console.log('❌ Service Worker registration failed:', err);
-        });
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(function (registration) {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          })
+          .catch(function (error) {
+            console.log('ServiceWorker registration failed: ', error);
+          });
+      });
     }
   </script>
 </body>
