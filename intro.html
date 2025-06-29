@@ -10,6 +10,7 @@
 
   <!-- Android ホーム画面用 PWA設定 -->
   <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#ffffff" />
 
   <style>
     body {
@@ -53,9 +54,23 @@
      Let’s begin your food adventure!</p>
 
   <script>
+    // 3秒後に notice.html に遷移
     setTimeout(() => {
       window.location.href = 'notice.html';
-    }, 3000); // 3秒で遷移
+    }, 3000);
+
+    // Service Worker 登録
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => {
+            console.log('ServiceWorker registered with scope:', reg.scope);
+          })
+          .catch(err => {
+            console.log('ServiceWorker registration failed:', err);
+          });
+      });
+    }
   </script>
 </body>
 </html>
