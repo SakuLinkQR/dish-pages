@@ -68,16 +68,27 @@
 
   <button class="next-button" onclick="location.href='intro.html'">Continue without adding</button>
 
-  <!-- ✅ Service Worker 登録スクリプト -->
+  <!-- ✅ Service Worker 登録 -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
-        .then(function(registration) {
-          console.log('Service Worker registered with scope:', registration.scope);
+        .then(function(reg) {
+          console.log('Service Worker registered with scope:', reg.scope);
         })
         .catch(function(error) {
           console.log('Service Worker registration failed:', error);
         });
+    }
+  </script>
+
+  <!-- ✅ PWA起動時だけ intro.html に自動遷移 -->
+  <script>
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    if (isStandalone) {
+      setTimeout(() => {
+        window.location.href = "intro.html";
+      }, 1000); // 1秒待ってから遷移（必要に応じて調整）
     }
   </script>
 </body>
