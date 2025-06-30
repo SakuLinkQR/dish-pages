@@ -5,7 +5,7 @@
   <title>Add SakuLink to Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- アイコン・マニフェスト（再利用） -->
+  <!-- アイコン・マニフェスト -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="manifest.json" />
 
@@ -67,5 +67,18 @@
   </div>
 
   <button class="next-button" onclick="location.href='intro.html'">Continue without adding</button>
+
+  <!-- ✅ Service Worker 登録スクリプト -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(function(registration) {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(function(error) {
+          console.log('Service Worker registration failed:', error);
+        });
+    }
+  </script>
 </body>
 </html>
