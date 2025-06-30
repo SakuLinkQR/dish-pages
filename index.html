@@ -2,206 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SakuLink - Dish Details</title>
+  <title>Add SakuLink to Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
+
+  <!-- アイコン・マニフェスト（再利用） -->
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+
   <style>
     body {
-      font-family: 'M PLUS Rounded 1c', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #fff;
-    }
-
-    .header-bar {
-      background-color: #ff4081;
-      color: white;
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-inner h1 {
-      font-size: 1.4em;
-      margin: 0;
-    }
-
-    .menu-toggle {
-      font-size: 1.5em;
-      cursor: pointer;
-    }
-
-    .dropdown {
-      display: none;
-      position: absolute;
-      top: 56px;
-      right: 16px;
-      background-color: white;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      z-index: 1000;
-    }
-
-    .dropdown a {
-      display: block;
-      padding: 12px 20px;
-      text-decoration: none;
-      color: #333;
-    }
-
-    .dropdown a:hover {
-      background-color: #f2f2f2;
-    }
-
-    .section-title {
+      font-family: sans-serif;
       text-align: center;
-      font-size: 1.4em;
-      font-weight: bold;
-      margin: 24px 0 16px;
-      color: #ff4081;
-    }
-
-    .content {
-      padding: 0 20px 40px;
+      padding: 40px;
       max-width: 600px;
       margin: auto;
     }
 
-    .loading { color: gray; }
-    .error { color: red; }
-
-    h2 {
-      font-size: 1.4em;
-      margin-top: 20px;
+    h1 {
+      font-size: 1.8em;
+      color: #ff4081;
+      margin-bottom: 20px;
     }
 
-    strong {
-      font-weight: bold;
+    p {
+      font-size: 1.1em;
+      color: #333;
+      margin-bottom: 20px;
     }
 
-    .button-row {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin: 24px 0 12px;
-    }
-
-    .btn {
-      padding: 12px 20px;
-      font-size: 1em;
-      border: none;
+    .instruction {
+      background-color: #fff3f8;
+      padding: 20px;
       border-radius: 10px;
-      cursor: pointer;
-      color: white;
-      text-decoration: none;
-      min-width: 140px;
-      text-align: center;
-      display: inline-block;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
     }
 
-    .btn-home {
+    .next-button {
+      padding: 12px 24px;
+      font-size: 1.1em;
       background-color: #ff4081;
-      box-shadow: 0 4px 10px rgba(255, 64, 129, 0.3);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
 
-    .btn-scan {
-      background-color: #fbc02d;
-      color: black;
-      box-shadow: 0 4px 10px rgba(251, 192, 45, 0.3);
-    }
-
-    img {
-      width: 100%;
-      max-width: 560px;
-      margin-top: 20px;
-      border-radius: 10px;
+    .next-button:hover {
+      background-color: #e03570;
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <div class="header-bar">
-    <div class="header-inner">
-      <h1>🌸 SakuLink 🌸</h1>
-    </div>
-    <div class="menu-toggle" onclick="toggleMenu()">📖 MENU ☰</div>
-    <div class="dropdown" id="menuDropdown">
-      <a href="home.html">🏠 Home</a>
-      <a href="about.html">🌸 About</a>
-      <a href="#" onclick="logout()">🔓 Logout</a>
-    </div>
+  <h1>🌸 SakuLink 🌸</h1>
+  <p>To use this app like a native one, please add it to your home screen.</p>
+
+  <div class="instruction">
+    <p><strong>📱 iPhone (Safari):</strong><br>
+    Tap the <strong>share icon</strong> <span style="font-size: 1.2em;">🔗</span> below, then select<br>
+    <strong>“Add to Home Screen”</strong></p>
+
+    <p><strong>📱 Android (Chrome):</strong><br>
+    Tap the <strong>⋮ menu</strong> (top-right), then choose<br>
+    <strong>“Add to Home screen”</strong></p>
   </div>
 
-  <!-- Main Content -->
-  <div class="content">
-    <div class="section-title">Dish Details</div>
-    <div id="dish-container">
-      <p class="loading">Loading...</p>
-    </div>
-  </div>
-
-  <!-- JavaScript -->
-  <script>
-    // Redirect if not logged in
-    if (!localStorage.getItem("authToken")) {
-      window.location.href = "login.html";
-    }
-
-    // Dropdown toggle
-    function toggleMenu() {
-      const menu = document.getElementById("menuDropdown");
-      menu.style.display = (menu.style.display === "block") ? "none" : "block";
-    }
-
-    // Logout function
-    function logout() {
-      localStorage.removeItem("authToken");
-      window.location.href = "login.html";
-    }
-
-    // Load dish details
-    const params = new URLSearchParams(window.location.search);
-    const idCode = params.get("id_code");
-    const container = document.getElementById("dish-container");
-
-    if (!idCode) {
-      container.innerHTML = "<p class='error'>No ID code provided.</p>";
-    } else {
-      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_dish_by_id_code_v2?id_code=${idCode}`)
-        .then(res => res.json())
-        .then(data => {
-          const dish = Array.isArray(data) ? data[0] : data;
-          if (!dish || !dish.dish_name_en) {
-            container.innerHTML = "<p class='error'>Dish not found.</p>";
-            return;
-          }
-
-          const html = `
-            <h2>${dish.dish_name_en} ${dish.subtitle_en || ""}</h2>
-            <p><strong>Japanese Name:</strong> ${dish.dish_name_ja || ""} ${dish.subtitle_ja || ""}</p>
-            <p><strong>Reading:</strong> ${dish.reading_en || "N/A"}</p>
-            <p><strong>Description:</strong><br>${dish.description_en || "No description available."}</p>
-            <p><strong>Ingredients:</strong><br>${dish.ingredients_en || "N/A"}</p>
-            <p><strong>Allergens:</strong><br>⚠️ ${dish.allergens_en || "None listed"}</p>
-            <p style="font-size: 0.9em; color: gray;"><em>Note: Allergen information is based on general preparation and may vary by restaurant. Please confirm with the restaurant directly.</em></p>
-
-            <div class="button-row">
-              <a class="btn btn-home" href="home.html">← 🏠 Back to Home</a>
-              <a class="btn btn-scan" href="../qr-scanner2/qr-scanner.html">🔄 Rescan</a>
-            </div>
-
-            <img src="../images/sample.jpg" alt="Sample Dish Image">
-          `;
-          container.innerHTML = html;
-        })
-        .catch(error => {
-          console.error("Error fetching dish:", error);
-          container.innerHTML = "<p class='error'>Failed to load data.</p>";
-        });
-    }
-  </script>
+  <button class="next-button" onclick="location.href='intro.html'">Continue without adding</button>
 </body>
 </html>
