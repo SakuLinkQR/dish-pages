@@ -214,8 +214,7 @@
         const container = document.getElementById("readingList");
         container.innerHTML = "";
 
-        // 並べ替え
-        data.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+        data.sort((a, b) => a.display_order - b.display_order);
 
         if (data.length === 0) {
           container.textContent = "No readings available yet.";
@@ -228,17 +227,17 @@
             link.href = `reading.html?id=${item.story_id}`;
 
             let icon = "📖";
-            const title = item.title_en || "(Untitled)";
-            const lowerTitle = title.toLowerCase();
+            if (item.title_en.toLowerCase().includes("sushi")) icon = "🍣";
+            else if (item.title_en.toLowerCase().includes("noodle") || item.title_en.toLowerCase().includes("ramen")) icon = "🍜";
 
-            if (lowerTitle.includes("sushi")) icon = "🍣";
-            else if (lowerTitle.includes("noodle") || lowerTitle.includes("ramen")) icon = "🍜";
+            // 🛠️ 修正部分：display_order の型を安全にチェック
+            let orderLabel = "?";
+            if (!isNaN(item.display_order)) {
+              const orderNum = parseInt(item.display_order);
+              if (orderNum > 0) orderLabel = orderNum;
+            }
 
-            const orderLabel = (typeof item.display_order === "number" && item.display_order > 0)
-              ? item.display_order
-              : "?";
-
-            link.textContent = `${icon} Story ${orderLabel}: ${title}`;
+            link.textContent = `${icon} Story ${orderLabel}: ${item.title_en}`;
             card.appendChild(link);
             container.appendChild(card);
           });
