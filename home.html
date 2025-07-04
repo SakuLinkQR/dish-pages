@@ -219,5 +219,22 @@
     document.getElementById("seasonal-section").innerHTML = seasonalHTML;
   </script>
 
+  <!-- ✅ Access Log Script -->
+  <script>
+    fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/access_logs", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        page_name: "home.html",
+        access_time: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
+        device_type: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop"
+      })
+    }).catch(error => {
+      console.error("アクセスログ送信失敗:", error);
+    });
+  </script>
+
 </body>
 </html>
