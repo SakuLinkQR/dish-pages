@@ -180,6 +180,40 @@
       window.location.href = "login.html";
     }
 
+    // 📥 Send access log with user ID
+    function sendAccessLog(uid) {
+      fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/access_logs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          user_id: uid,
+          page_name: "home.html",
+          device_type: /Mobile|iPhone|Android/.test(navigator.userAgent) ? "mobile" : "desktop",
+          access_time: new Date().toISOString()
+        })
+      });
+    }
+
+    // 🎫 Get user ID from token
+    if (token) {
+      fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        const userId = data.id || 0;
+        sendAccessLog(userId);
+      })
+      .catch(error => {
+        console.error("Failed to fetch user info:", error);
+        sendAccessLog(0);
+      });
+    }
+
     // 🌟 Seasonal Highlight
     const month = new Date().getMonth() + 1;
     let seasonalHTML = "";
@@ -217,23 +251,6 @@
     }
 
     document.getElementById("seasonal-section").innerHTML = seasonalHTML;
-  </script>
-
-  <!-- ✅ Access Log Script -->
-  <script>
-    fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/access_logs", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        page_name: "home.html",
-        access_time: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
-        device_type: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop"
-      })
-    }).catch(error => {
-      console.error("アクセスログ送信失敗:", error);
-    });
   </script>
 
 </body>
