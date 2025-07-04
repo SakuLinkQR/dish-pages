@@ -181,25 +181,11 @@
       window.location.href = "login.html";
     }
 
-    // 📥 Send access log with user ID
-    function sendAccessLog(uid) {
-      fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/access_logs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          user_id: uid,
-          page_name: "home.html",
-          device_type: /Mobile|iPhone|Android/.test(navigator.userAgent) ? "mobile" : "desktop",
-          access_time: new Date().toISOString()
-        })
-      });
-    }
-
-    // 🎫 Get user ID from token - ✅ 正しいURLに修正
+    // ✅ ここでログ表示を追加（確認用）
     if (token) {
-      fetch("https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/me", {
+      console.log("✅ トークンがあります。値はこれです:", token);
+
+      fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -216,7 +202,23 @@
       });
     }
 
-    // 🌟 Seasonal Highlight
+    // 📥 アクセスログを送る関数
+    function sendAccessLog(uid) {
+      fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/access_logs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          user_id: uid,
+          page_name: "home.html",
+          device_type: /Mobile|iPhone|Android/.test(navigator.userAgent) ? "mobile" : "desktop",
+          access_time: new Date().toISOString()
+        })
+      });
+    }
+
+    // 🌟 季節の表示
     const month = new Date().getMonth() + 1;
     let seasonalHTML = "";
 
