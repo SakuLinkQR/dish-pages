@@ -197,9 +197,9 @@
       });
     }
 
-    // 🎫 Get user ID from token
+    // 🎫 Get user ID from token - ✅ 正しいURLに修正
     if (token) {
-      fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/auth/me", {
+      fetch("https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -207,7 +207,7 @@
       .then(response => response.json())
       .then(data => {
         const userId = data.id || 0;
-        localStorage.setItem("user_id", userId);  // ✅ 追加箇所
+        localStorage.setItem("user_id", userId);
         sendAccessLog(userId);
       })
       .catch(error => {
