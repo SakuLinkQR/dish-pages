@@ -79,6 +79,7 @@
       const password = document.getElementById('password').value;
 
       const checkUrl = `https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/check_email?email=${encodeURIComponent(email)}`;
+
       try {
         const checkRes = await fetch(checkUrl);
         const checkData = await checkRes.json();
@@ -96,8 +97,12 @@
         });
 
         if (signupRes.ok) {
+          const result = await signupRes.json();
+          localStorage.setItem("authToken", result.authToken);
+
           message.textContent = "✅ Account created! Redirecting...";
           message.className = "success";
+
           setTimeout(() => {
             window.location.href = "home.html";
           }, 1500);
