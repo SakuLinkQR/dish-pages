@@ -171,6 +171,7 @@
 
     function logout() {
       localStorage.removeItem("authToken");
+      localStorage.removeItem("user_id");
       window.location.href = "login.html";
     }
 
@@ -206,6 +207,7 @@
       .then(response => response.json())
       .then(data => {
         const userId = data.id || 0;
+        localStorage.setItem("user_id", userId);  // ✅ 追加箇所
         sendAccessLog(userId);
       })
       .catch(error => {
