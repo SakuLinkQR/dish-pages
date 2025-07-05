@@ -181,7 +181,7 @@
       window.location.href = "login.html";
     }
 
-    // ✅ ここでログ表示を追加（確認用）
+    // ✅ ログ表示（修正版）
     if (token) {
       console.log("✅ トークンがあります。値はこれです:", token);
 
@@ -202,7 +202,7 @@
       });
     }
 
-    // 📥 アクセスログを送る関数
+    // 📥 アクセスログ送信関数
     function sendAccessLog(uid) {
       fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/access_logs", {
         method: "POST",
@@ -218,7 +218,7 @@
       });
     }
 
-    // 🌟 季節の表示
+    // 🌟 季節表示
     const month = new Date().getMonth() + 1;
     let seasonalHTML = "";
 
