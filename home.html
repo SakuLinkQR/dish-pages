@@ -202,12 +202,15 @@
       });
     }
 
-    // 📥 アクセスログ送信関数
+    // 📥 アクセスログ送信関数（トークン付き）
     function sendAccessLog(uid) {
+      const token = localStorage.getItem("authToken");
+
       fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/access_logs", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
           user_id: uid,
@@ -256,6 +259,5 @@
 
     document.getElementById("seasonal-section").innerHTML = seasonalHTML;
   </script>
-
 </body>
 </html>
