@@ -9,16 +9,17 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 
   <!-- Android ホーム画面用 PWA設定 -->
-  <link rel="manifest" href="./manifest.json" />
+  <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#ffffff" />
 
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      padding: 40px;
+      padding: 40px 20px;
       max-width: 600px;
       margin: auto;
+      background-color: #fff7fa;
     }
 
     h1 {
@@ -30,39 +31,46 @@
     p {
       font-size: 1.2em;
       color: #333;
+      margin-bottom: 20px;
     }
 
-    .start-button {
+    .loading {
+      font-size: 1em;
+      color: gray;
       margin-top: 30px;
-      padding: 12px 24px;
-      font-size: 1.1em;
-      background-color: #ff4081;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
     }
 
-    .start-button:hover {
-      background-color: #e03570;
+    .contact-box {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #777;
     }
   </style>
 </head>
 <body>
   <h1>🌸 SakuLink 🌸<br>Welcome!</h1>
-  <p>This app helps you understand Japanese dishes using QR codes.<br>
-     Let’s begin your food adventure!</p>
 
+  <p>This app helps you explore Japanese dishes using QR codes.<br>
+     A simple English guide for your delicious journey.</p>
+
+  <p class="loading">Loading... Please wait</p>
+
+  <div class="contact-box">
+    📩 For inquiries: <strong>info@sakulink.com</strong>
+  </div>
+
+  <!-- ⏱ 自動遷移 -->
   <script>
-    // 3秒後に notice.html に遷移
     setTimeout(() => {
       window.location.href = 'notice.html';
     }, 3000);
+  </script>
 
-    // Service Worker 登録
+  <!-- 🔧 Service Worker 登録 -->
+  <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
+        navigator.serviceWorker.register('service-worker.js')
           .then(reg => {
             console.log('ServiceWorker registered with scope:', reg.scope);
           })
