@@ -7,15 +7,11 @@
   <style>
     body {
       font-family: sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
-      max-width: 700px;
-      margin: 120px auto 40px;
-      padding: 0 20px;
-      background-color: #fffdf9;
-      color: #333;
+      background-color: #fff7fa;
+      margin: 0;
+      padding: 120px 20px 40px;
+      text-align: center;
     }
-
     .header-bar {
       position: fixed;
       top: 0;
@@ -23,10 +19,9 @@
       width: 100%;
       background-color: pink;
       padding: 10px 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
     }
-
     .header-inner {
       max-width: 700px;
       margin: auto;
@@ -37,57 +32,59 @@
       font-size: 20px;
       box-sizing: border-box;
     }
-
     .header-title {
       font-weight: bold;
     }
-
     .menu-toggle {
-      font-size: 16px;
+      font-size: 18px;
       color: #333;
       font-weight: bold;
       cursor: pointer;
     }
-
-    .dropdown-menu {
+    .menu {
       display: none;
-      position: fixed;
-      top: 58px;
-      right: 20px;
-      background-color: white;
+      background-color: #f9f9f9;
+      padding: 10px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      z-index: 1001;
-      padding: 10px 15px;
-      width: 180px;
+      margin-top: 10px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
-
-    .dropdown-menu a {
-      display: block;
+    .menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .menu li {
+      margin: 8px 0;
+    }
+    .menu a {
       text-decoration: none;
       color: #333;
-      padding: 8px 0;
-      font-size: 0.95em;
     }
-
-    .dropdown-menu a:hover {
-      color: #ff4081;
-    }
-
     h1 {
-      font-size: 1.6em;
-      color: #222;
+      color: #ff4081;
+      font-size: 2em;
+      margin-bottom: 10px;
     }
-
-    a {
-      color: #007bff;
+    p {
+      font-size: 1.1em;
+      max-width: 700px;
+      margin: 10px auto 30px;
+      line-height: 1.6;
+    }
+    .contact-box {
+      background-color: #ffeef2;
+      padding: 15px;
+      margin-top: 20px;
+      display: inline-block;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-
-  <!-- ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
@@ -95,47 +92,41 @@
     </div>
   </div>
 
-  <!-- 展開メニュー -->
-  <div class="dropdown-menu" id="dropdownMenu">
-    <a href="home.html">🏠 Home</a>
-    <a href="reading_list.html">📚 Readings</a>
-    <a href="start_here.html">📖 Start Here</a>
-    <a href="about.html">❓ About</a>
-    <a href="terms.html">📄 Terms</a>
-    <a href="privacy.html">🔐 Privacy</a>
-    <a href="#" onclick="logout()">🔓 Logout</a>
+  <div id="menu" class="menu">
+    <ul>
+      <li><a href="home.html">🏠 Home</a></li>
+      <li><a href="reading_list.html">📚 Readings</a></li>
+      <li><a href="start_here.html">📖 Start Here</a></li>
+      <li><a href="qr-scanner.html">📷 QR Scanner</a></li>
+      <li><a href="terms.html">📄 Terms of Use</a></li>
+      <li><a href="privacy.html">🔐 Privacy Policy</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
   </div>
 
   <h1>About SakuLink</h1>
 
   <p>
-    SakuLink is a guide app designed to help international visitors enjoy Japanese food culture by providing simple dish explanations in English.
-    It was developed by a local creator with a passion for cross-cultural understanding and hospitality.
+    SakuLink is a mobile-friendly web app designed to help international travelers in Japan easily understand Japanese dishes.
+    By scanning a QR code provided by participating restaurants, users can view simple descriptions of meals in English and other languages.
   </p>
-
-  <h2>Developer</h2>
   <p>
-    Eiichi Nishi (西 栄一)<br />
-    Based in Kagoshima, Japan<br />
-    Contact: <a href="mailto:sakulink.contact@example.com">sakulink.contact@example.com</a>
+    Our goal is to make Japanese food culture more accessible and enjoyable for everyone—without language barriers.
   </p>
 
-  <p>* This is an independent project and is not affiliated with any government or corporate entity.</p>
+  <div class="contact-box">
+    📩 For inquiries, please contact us at:<br />
+    <strong>info@sakulink.com</strong>
+  </div>
 
   <script>
     function toggleMenu() {
-      const menu = document.getElementById("dropdownMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
+      const menu = document.getElementById("menu");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
     }
 
     function logout() {
       localStorage.removeItem("authToken");
-      window.location.href = "login.html";
-    }
-
-    // トークンチェック
-    const token = localStorage.getItem("authToken");
-    if (!token) {
       window.location.href = "login.html";
     }
   </script>
