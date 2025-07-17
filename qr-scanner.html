@@ -123,7 +123,7 @@
   <script>
     const token = localStorage.getItem("authToken");
     if (!token) {
-      window.location.href = "../dish-pages/login.html";
+      window.location.href = "login.html";
     }
   </script>
 
@@ -136,12 +136,12 @@
 
   <div id="menu" class="menu">
     <ul>
-      <li><a href="../dish-pages/home.html">🏠 Home</a></li>
-      <li><a href="../dish-pages/reading_list.html">📚 Readings</a></li>
-      <li><a href="../dish-pages/start_here.html">📖 Start Here</a></li>
-      <li><a href="../dish-pages/about.html">❓ About SakuLink</a></li>
-      <li><a href="../dish-pages/terms.html">📄 Terms of Use</a></li>
-      <li><a href="../dish-pages/privacy.html">🔐 Privacy Policy</a></li>
+      <li><a href="home.html">🏠 Home</a></li>
+      <li><a href="reading_list.html">📚 Readings</a></li>
+      <li><a href="start_here.html">📖 Start Here</a></li>
+      <li><a href="about.html">❓ About SakuLink</a></li>
+      <li><a href="terms.html">📄 Terms of Use</a></li>
+      <li><a href="privacy.html">🔐 Privacy Policy</a></li>
       <li><a href="#" onclick="logout()">🚪 Logout</a></li>
     </ul>
   </div>
@@ -152,7 +152,7 @@
   <div id="result">Scanned result: <span id="output"></span></div>
 
   <div class="button-container">
-    <a class="btn btn-home" href="../dish-pages/home.html">🏡 Back to Home</a>
+    <a class="btn btn-home" href="home.html">🏡 Back to Home</a>
     <button onclick="rescan()" class="btn btn-rescan">🔄 Rescan</button>
   </div>
 
@@ -165,7 +165,7 @@
 
     function logout() {
       localStorage.removeItem("authToken");
-      window.location.href = "../dish-pages/login.html";
+      window.location.href = "login.html";
     }
 
     const html5QrCode = new Html5Qrcode("preview");
@@ -176,8 +176,11 @@
     function onScanSuccess(decodedText) {
       if (hasRedirected) return;
 
-      if (!decodedText.startsWith("http") || !decodedText.includes("sakulinkqr.github.io")) {
-        window.location.href = "../dish-pages/invalid_qr.html";
+      if (
+        !decodedText.startsWith("http") ||
+        (!decodedText.includes("sakulink.com") && !decodedText.includes("sakulinkqr.github.io"))
+      ) {
+        window.location.href = "invalid_qr.html";
         return;
       }
 
@@ -192,7 +195,7 @@
 
         resultContainer.innerText = idCode;
         hasRedirected = true;
-        window.location.href = `../dish-pages/dish_detail.html?id_code=${encodeURIComponent(idCode)}`;
+        window.location.href = `dish_detail.html?id_code=${encodeURIComponent(idCode)}`;
       } catch (e) {
         resultContainer.innerText = "Failed to parse QR code.";
       }
