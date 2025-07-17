@@ -5,28 +5,29 @@
   <title>Add SakuLink to Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- アイコン・マニフェスト（再利用） -->
+  <!-- PWA manifest and icon -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="manifest.json" />
 
   <style>
     body {
       font-family: sans-serif;
+      background-color: #fff7fa;
       text-align: center;
-      padding: 40px;
+      padding: 40px 20px;
       max-width: 600px;
       margin: auto;
+      color: #333;
     }
 
     h1 {
-      font-size: 1.8em;
+      font-size: 2em;
       color: #ff4081;
       margin-bottom: 20px;
     }
 
     p {
       font-size: 1.1em;
-      color: #333;
       margin-bottom: 20px;
     }
 
@@ -45,10 +46,17 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .next-button:hover {
       background-color: #e03570;
+    }
+
+    .contact-box {
+      margin-top: 40px;
+      font-size: 0.95em;
+      color: #666;
     }
   </style>
 </head>
@@ -58,14 +66,19 @@
 
   <div class="instruction">
     <p><strong>📱 iPhone (Safari):</strong><br>
-    Tap the <strong>share icon</strong> <span style="font-size: 1.2em;">🔗</span> below, then select<br>
-    <strong>“Add to Home Screen”</strong></p>
+    Tap the <strong>share icon</strong> <span style="font-size: 1.2em;">🔗</span> at the bottom of the screen,<br>
+    then select <strong>“Add to Home Screen”</strong>.</p>
 
     <p><strong>📱 Android (Chrome):</strong><br>
-    Tap the <strong>⋮ menu</strong> (top-right), then choose<br>
-    <strong>“Add to Home screen”</strong></p>
+    Tap the <strong>⋮ menu</strong> at the top-right corner,<br>
+    then choose <strong>“Add to Home screen”</strong>.</p>
   </div>
 
   <button class="next-button" onclick="location.href='intro.html'">Continue without adding</button>
+
+  <div class="contact-box">
+    📩 For inquiries, please contact us at<br>
+    <strong>info@sakulink.com</strong>
+  </div>
 </body>
 </html>
