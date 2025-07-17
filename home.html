@@ -126,6 +126,12 @@
     .logout-button:hover {
       background-color: #d32f2f;
     }
+
+    .contact-box {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #777;
+    }
   </style>
 </head>
 <body>
@@ -155,12 +161,17 @@
   <h1>🌸 SakuLink 🌸</h1>
   <p class="tagline">🍱 Discover the heart of Japan through food 🍣</p>
 
-  <a class="button scan-button" href="../qr-scanner2/qr-scanner.html">📷 Scan QR</a>
+  <a class="button scan-button" href="qr-scanner.html">📷 Scan QR</a>
   <a class="button start-button" href="start_here.html">📖 Start Here</a>
   <a class="button read-button" href="reading_list.html">📚 Readings</a>
 
   <!-- 🌟 Seasonal Highlight -->
   <div id="seasonal-section" style="margin-top: 40px; font-size: 1.1em;"></div>
+
+  <!-- 📩 Contact Info -->
+  <div class="contact-box">
+    📩 For inquiries: <strong>info@sakulink.com</strong>
+  </div>
 
   <!-- 🔁 Scripts -->
   <script>
@@ -183,8 +194,6 @@
 
     // ✅ ログ表示（修正版）
     if (token) {
-      console.log("✅ トークンがあります。値はこれです:", token);
-
       fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/auth/me", {
         headers: {
           Authorization: `Bearer ${token}`
@@ -202,10 +211,9 @@
       });
     }
 
-    // 📥 アクセスログ送信関数（トークン付き）
+    // 📥 アクセスログ送信関数
     function sendAccessLog(uid) {
       const token = localStorage.getItem("authToken");
-
       fetch("https://x8ki-letl-twmt.n7.xano.io/api:583GjTLS/access_logs", {
         method: "POST",
         headers: {
