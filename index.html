@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Add SakuLink to Home</title>
+  <title>Welcome to SakuLink</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- アイコン・マニフェスト -->
+  <!-- PWA Settings -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="manifest" href="manifest.json" />
 
@@ -13,20 +13,21 @@
     body {
       font-family: sans-serif;
       text-align: center;
-      padding: 40px;
+      padding: 40px 20px;
       max-width: 600px;
       margin: auto;
+      background-color: #fff7fa;
+      color: #333;
     }
 
     h1 {
-      font-size: 1.8em;
+      font-size: 2em;
       color: #ff4081;
       margin-bottom: 20px;
     }
 
     p {
       font-size: 1.1em;
-      color: #333;
       margin-bottom: 20px;
     }
 
@@ -45,28 +46,39 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .next-button:hover {
       background-color: #e03570;
     }
+
+    .contact-box {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #777;
+    }
   </style>
 </head>
 <body>
   <h1>🌸 SakuLink 🌸</h1>
-  <p>To use this app like a native one, please add it to your home screen.</p>
+  <p>To enjoy this app like a native app, please add it to your home screen.</p>
 
   <div class="instruction">
     <p><strong>📱 iPhone (Safari):</strong><br>
-    Tap the <strong>share icon</strong> <span style="font-size: 1.2em;">🔗</span> below, then select<br>
-    <strong>“Add to Home Screen”</strong></p>
+    Tap the <strong>share icon</strong> <span style="font-size: 1.2em;">🔗</span> at the bottom,<br>
+    then select <strong>“Add to Home Screen”</strong>.</p>
 
     <p><strong>📱 Android (Chrome):</strong><br>
-    Tap the <strong>⋮ menu</strong> (top-right), then choose<br>
-    <strong>“Add to Home screen”</strong></p>
+    Tap the <strong>⋮ menu</strong> (top-right),<br>
+    then choose <strong>“Add to Home screen”</strong>.</p>
   </div>
 
-  <button class="next-button" onclick="location.href='intro.html'">Continue without adding</button>
+  <button class="next-button" onclick="location.href='intro.html'">Continue to the app</button>
+
+  <div class="contact-box">
+    📩 For inquiries: <strong>info@sakulink.com</strong>
+  </div>
 
   <!-- ✅ Service Worker 登録 -->
   <script>
@@ -81,14 +93,14 @@
     }
   </script>
 
-  <!-- ✅ PWA起動時だけ intro.html に自動遷移 -->
+  <!-- ✅ PWA 起動時は自動遷移 -->
   <script>
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
     if (isStandalone) {
       setTimeout(() => {
         window.location.href = "intro.html";
-      }, 1000); // 1秒待ってから遷移（必要に応じて調整）
+      }, 1000);
     }
   </script>
 </body>
