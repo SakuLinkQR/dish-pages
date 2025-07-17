@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>SakuLink Readings</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- contact: info@sakulink.com -->
   <style>
     body {
       font-family: sans-serif;
@@ -208,7 +209,7 @@
       window.location.href = "login.html";
     }
 
-    fetch('https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_list')
+    fetch('https://x8ki-letl-twmt.n7.xano.io/api:83htZU0e/get_reading_list')
       .then(response => response.json())
       .then(data => {
         const container = document.getElementById("readingList");
@@ -227,17 +228,16 @@
             link.href = `reading.html?id=${item.story_id}`;
 
             let icon = "📖";
-            if (item.title_en.toLowerCase().includes("sushi")) icon = "🍣";
-            else if (item.title_en.toLowerCase().includes("noodle") || item.title_en.toLowerCase().includes("ramen")) icon = "🍜";
+            if (item.title_en?.toLowerCase().includes("sushi")) icon = "🍣";
+            else if (item.title_en?.toLowerCase().includes("noodle") || item.title_en?.toLowerCase().includes("ramen")) icon = "🍜";
 
-            // 🛠️ 修正部分：display_order の型を安全にチェック
             let orderLabel = "?";
             if (!isNaN(item.display_order)) {
               const orderNum = parseInt(item.display_order);
               if (orderNum > 0) orderLabel = orderNum;
             }
 
-            link.textContent = `${icon} Story ${orderLabel}: ${item.title_en}`;
+            link.textContent = `${icon} Story ${orderLabel}: ${item.title_en || "Untitled"}`;
             card.appendChild(link);
             container.appendChild(card);
           });
