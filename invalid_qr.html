@@ -125,11 +125,17 @@
       background-color: #ffeb3b;
       color: black;
     }
+
+    .contact-box {
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #777;
+    }
   </style>
 </head>
 <body>
 
-  <!-- 🌸 ヘッダー（Start Hereと同じ構成） -->
+  <!-- 🌸 ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
@@ -137,7 +143,7 @@
     </div>
   </div>
 
-  <!-- 📋 ドロップダウンメニュー -->
+  <!-- 📋 メニュー -->
   <div class="dropdown-menu" id="dropdownMenu">
     <a href="home.html">🏠 Home</a>
     <a href="reading_list.html">📚 Readings</a>
@@ -148,7 +154,7 @@
     <a href="#" onclick="logout()">🚪 Logout</a>
   </div>
 
-  <!-- 📛 エラーメッセージ -->
+  <!-- ⚠️ 警告メッセージ -->
   <h1>Scan Stopped</h1>
 
   <div class="warning-box">
@@ -160,13 +166,18 @@
     </p>
   </div>
 
-  <!-- 🔘 ボタン -->
+  <!-- 🔘 操作ボタン -->
   <div class="button-container">
     <a class="btn btn-home" href="home.html">🏡 Back to Home</a>
-    <a class="btn btn-scan" href="../qr-scanner2/qr-scanner.html">🔄 Try Scanning Again</a>
+    <a class="btn btn-scan" href="qr-scanner.html">🔄 Try Scanning Again</a>
   </div>
 
-  <!-- 📜 メニュー動作スクリプト -->
+  <!-- 📩 お問い合わせ案内 -->
+  <div class="contact-box">
+    📩 For inquiries: <strong>info@sakulink.com</strong>
+  </div>
+
+  <!-- 📜 メニュー操作 -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("dropdownMenu");
@@ -178,6 +189,5 @@
       window.location.href = "login.html";
     }
   </script>
-
 </body>
 </html>
