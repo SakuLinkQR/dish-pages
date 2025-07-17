@@ -26,6 +26,15 @@
       line-height: 1.6em;
     }
 
+    ul {
+      text-align: left;
+      max-width: 400px;
+      margin: auto;
+      font-size: 1em;
+      color: #555;
+      line-height: 1.6;
+    }
+
     .next-button {
       margin-top: 30px;
       padding: 12px 24px;
@@ -40,14 +49,31 @@
     .next-button:hover {
       background-color: #e03570;
     }
+
+    .contact {
+      font-size: 0.9em;
+      color: #888;
+      margin-top: 40px;
+    }
   </style>
 </head>
 <body>
   <h1>🌸 SakuLink 🌸</h1>
   <p>This app is currently in a <strong>trial period</strong>.<br>
      All features are available for <strong>free</strong> during this time.</p>
+
+  <p>During this trial, you can:</p>
+  <ul>
+    <li>Scan QR codes on dishes</li>
+    <li>View detailed food descriptions</li>
+    <li>Learn cultural tips and ingredients</li>
+  </ul>
+
   <p>In the future, some features may require payment.<br>
      This app is designed for travelers who want to understand Japanese food via QR codes.</p>
+
   <button class="next-button" onclick="location.href='login.html'">OK, Continue</button>
+
+  <p class="contact">Contact: <a href="mailto:info@sakulink.com">info@sakulink.com</a></p>
 </body>
 </html>
