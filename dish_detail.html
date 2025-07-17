@@ -86,6 +86,7 @@
       justify-content: center;
       gap: 16px;
       margin: 24px 0 12px;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -119,6 +120,13 @@
       margin-top: 20px;
       border-radius: 10px;
     }
+
+    .contact-box {
+      text-align: center;
+      font-size: 0.9em;
+      margin-top: 40px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -141,6 +149,11 @@
     <div id="dish-container">
       <p class="loading">Loading...</p>
     </div>
+  </div>
+
+  <!-- Footer Contact -->
+  <div class="contact-box">
+    📩 For inquiries: <strong>info@sakulink.com</strong>
   </div>
 
   <!-- JavaScript -->
@@ -190,10 +203,10 @@
 
             <div class="button-row">
               <a class="btn btn-home" href="home.html">← 🏠 Back to Home</a>
-              <a class="btn btn-scan" href="../qr-scanner2/qr-scanner.html">🔄 Rescan</a>
+              <a class="btn btn-scan" href="qr-scanner.html">🔄 Rescan</a>
             </div>
 
-            <img src="../images/sample.jpg" alt="Sample Dish Image">
+            <img src="images/sample.jpg" alt="Sample Dish Image">
           `;
           container.innerHTML = html;
         })
