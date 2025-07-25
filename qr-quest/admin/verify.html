@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>本部スタッフ確認画面</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #fff;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    h1 {
+      color: #e91e63;
+      font-size: 1.8rem;
+    }
+    input[type="password"] {
+      padding: 10px;
+      font-size: 1rem;
+      width: 200px;
+      margin-top: 20px;
+    }
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 30px;
+      font-size: 1.3rem;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎫 ゴール確認（主催者用）</h1>
+  <p>プレイヤーの画面に「complete.html」が表示された後、<br>ここで確認・記録処理を行ってください。</p>
+
+  <input type="password" id="password" placeholder="パスワードを入力">
+  <br>
+  <button class="btn" onclick="checkPassword()">確認</button>
+
+  <div id="result"></div>
+
+  <script>
+    function checkPassword() {
+      const pw = document.getElementById("password").value;
+      const result = document.getElementById("result");
+
+      if (pw === "123") {
+        result.innerHTML = "✅ <strong>確認済み</strong>：この参加者はクエスト達成者です。<br>引換対応をお願いします。";
+        result.style.color = "green";
+      } else {
+        result.innerText = "❌ パスワードが間違っています。";
+        result.style.color = "red";
+      }
+    }
+  </script>
+
+</body>
+</html>
