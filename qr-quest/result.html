@@ -1,1 +1,70 @@
-リザルト
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>QRクエスト 結果</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      background-color: #f2f8ff;
+    }
+    h1 {
+      font-size: 1.8rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    #message {
+      font-size: 1.4rem;
+      color: #007bff;
+      margin: 20px 0;
+    }
+    #image {
+      width: 240px;
+      height: auto;
+      margin-top: 20px;
+    }
+    .btn {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>スキャン結果</h1>
+  <div id="message">判定中です…</div>
+  <img id="image" src="" alt="" style="display: none;" />
+  <br>
+  <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const message = document.getElementById("message");
+    const image = document.getElementById("image");
+
+    // IDごとの処理分岐（好きに追加・調整できます）
+    switch (id) {
+      case "001":
+        message.innerText = "🎉 ピース1をゲット！";
+        image.src = "images/piece1.png";
+        image.style.display = "block";
+        break;
+      case "002":
+        message.innerText = "🎉 ピース2をゲット！";
+        image.src = "images/piece2.png";
+        image.style.display = "block";
+        break;
+      case "005":
+        message.innerText = "🧭 ヒント：川沿いのベンチを探そう！";
+        break;
+      case "999":
