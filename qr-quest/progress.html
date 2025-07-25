@@ -57,7 +57,7 @@
   </style>
 </head>
 <body>
-  <h2>パズル完成まであと少し！</h2>
+  <h2 id="message">パズル完成まであと少し！</h2>
 
   <div class="pieces">
     <div class="piece-box"><img src="./images/piece1.png" alt="ピース1" /></div>
@@ -67,5 +67,22 @@
   </div>
 
   <a href="start.html" class="back-button">スタート画面へ戻る</a>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const images = document.querySelectorAll('.piece-box img');
+      let loadedCount = 0;
+
+      images.forEach(img => {
+        if (img.complete && img.naturalHeight !== 0) {
+          loadedCount++;
+        }
+      });
+
+      if (loadedCount === 4) {
+        document.getElementById('message').textContent = 'おめでとう！パズル完成！';
+      }
+    });
+  </script>
 </body>
 </html>
