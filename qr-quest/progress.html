@@ -20,8 +20,8 @@
     .pieces {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      width: 280px; /* 140 x 2 */
-      height: 280px; /* 140 x 2 */
+      width: 280px;
+      height: 280px;
       margin: 0 auto 30px;
     }
 
@@ -57,15 +57,57 @@
   </style>
 </head>
 <body>
-  <h2>パズル完成まであと少し！</h2>
+  <h2 id="status-message">読み込み中...</h2>
 
-  <div class="pieces">
-    <div class="piece-box"><img src="./images/piece1.png" alt="ピース1" /></div>
-    <div class="piece-box"><img src="./images/piece2.png" alt="ピース2" /></div>
-    <div class="piece-box"><img src="./images/piece3.png" alt="ピース3" /></div>
-    <div class="piece-box"><img src="./images/piece4.png" alt="ピース4" /></div>
+  <div class="pieces" id="puzzle-area">
+    <!-- 画像がある場合のみ挿入する -->
   </div>
 
   <a href="start.html" class="back-button">スタート画面へ戻る</a>
+
+  <script>
+    const images = [
+      './images/piece1.png',
+      './images/piece2.png',
+      './images/piece3.png',
+      './images/piece4.png'
+    ];
+
+    const puzzleArea = document.getElementById('puzzle-area');
+    const statusMessage = document.getElementById('status-message');
+
+    let loadedCount = 0;
+
+    images.forEach(src => {
+      const img = new Image();
+      img.src = src;
+
+      img.onload = () => {
+        loadedCount++;
+        const box = document.createElement('div');
+        box.className = 'piece-box';
+        box.appendChild(img);
+        puzzleArea.appendChild(box);
+
+        if (loadedCount === images.length) {
+          statusMessage.textContent = 'パズル完成！';
+        }
+      };
+
+      img.onerror = () => {
+        const box = document.createElement('div');
+        box.className = 'piece-box';
+        // 空白ボックスでもいいし、透明画像を代替してもOK
+        puzzleArea.appendChild(box);
+      };
+    });
+
+    // 万が一、読み込まれない画像があるとき
+    setTimeout(() => {
+      if (loadedCount < images.length) {
+        statusMessage.textContent = 'パズル完成まであと少し！';
+      }
+    }, 1000);
+  </script>
 </body>
 </html>
