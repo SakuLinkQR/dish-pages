@@ -2,34 +2,34 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>QRクエスト - 進行状況</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QRクエスト進行状況</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: "Arial", sans-serif;
+      background-color: #fdf5ee;
       text-align: center;
-      background-color: #fff8f0;
       padding: 20px;
     }
 
-    h1 {
-      font-size: 24px;
-      color: #333;
+    h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
     }
 
     .pieces {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 2px; /* ← 隙間を最小限に */
+      gap: 4px;
       justify-items: center;
-      margin-top: 20px;
+      margin-bottom: 30px;
     }
 
     .piece-box {
       width: 140px;
       height: 140px;
       overflow: hidden;
-      background-color: #f0f0f0;
-      position: relative;
+      background-color: transparent;
       border: none;
       padding: 0;
     }
@@ -40,45 +40,32 @@
       object-fit: cover;
     }
 
-    .label {
-      display: none;
-    }
-
-    .btn-home {
-      margin-top: 30px;
-      padding: 12px 24px;
-      font-size: 16px;
+    .back-button {
+      background-color: #8ecdf2;
+      color: white;
       border: none;
+      padding: 10px 20px;
+      font-size: 16px;
       border-radius: 8px;
-      background-color: #6ec6ff;
-      color: #fff;
       cursor: pointer;
-      transition: background-color 0.3s;
+      text-decoration: none;
     }
 
-    .btn-home:hover {
-      background-color: #42a5f5;
+    .back-button:hover {
+      background-color: #6cb7e2;
     }
   </style>
 </head>
 <body>
-  <h1>パズル完成まであと少し！</h1>
+  <h2>パズル完成まであと少し！</h2>
 
   <div class="pieces">
-    <div class="piece-box">
-      <img src="images/piece1.png" alt="ピース1" />
-    </div>
-    <div class="piece-box">
-      <img src="images/piece2.png" alt="ピース2" />
-    </div>
-    <div class="piece-box">
-      <img src="images/piece3.png" alt="ピース3" />
-    </div>
-    <div class="piece-box">
-      <img src="images/piece4.png" alt="ピース4" />
-    </div>
+    <div class="piece-box"><img src="./img/piece1.png" alt="ピース1" /></div>
+    <div class="piece-box"><img src="./img/piece2.png" alt="ピース2" /></div>
+    <div class="piece-box"><img src="./img/piece3.png" alt="ピース3" /></div>
+    <div class="piece-box"><img src="./img/piece4.png" alt="ピース4" /></div>
   </div>
 
-  <button class="btn-home" onclick="location.href='start.html'">スタート画面へ戻る</button>
+  <a href="start.html" class="back-button">スタート画面へ戻る</a>
 </body>
 </html>
