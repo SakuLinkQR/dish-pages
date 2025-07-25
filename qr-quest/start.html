@@ -1,1 +1,41 @@
-スタート用
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クエストメニュー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #ffffff;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+  </style>
+</head>
+<body>
+  <h1>クエストメニュー</h1>
+
+  <button onclick="location.href='scanner/qr-scanner.html'">QRをスキャンする</button>
+  <button onclick="location.href='progress.html'">進行状況を確認する</button>
+  <button onclick="location.href='index.html'">スタート画面に戻る</button>
+</body>
+</html>
