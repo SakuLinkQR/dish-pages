@@ -60,17 +60,17 @@
   <h2 id="status-message">読み込み中...</h2>
 
   <div class="pieces" id="puzzle-area">
-    <!-- 画像がある場合のみ挿入する -->
+    <!-- 画像がある場合のみ挿入されます -->
   </div>
 
   <a href="start.html" class="back-button">スタート画面へ戻る</a>
 
   <script>
     const images = [
-      './images/piece1.png',
-      './images/piece2.png',
-      './images/piece3.png',
-      './images/piece4.png'
+      './images/piece4.png',  // 左上
+      './images/piece1.png',  // 右上
+      './images/piece2.png',  // 左下
+      './images/piece3.png'   // 右下
     ];
 
     const puzzleArea = document.getElementById('puzzle-area');
@@ -97,12 +97,10 @@
       img.onerror = () => {
         const box = document.createElement('div');
         box.className = 'piece-box';
-        // 空白ボックスでもいいし、透明画像を代替してもOK
         puzzleArea.appendChild(box);
       };
     });
 
-    // 万が一、読み込まれない画像があるとき
     setTimeout(() => {
       if (loadedCount < images.length) {
         statusMessage.textContent = 'パズル完成まであと少し！';
