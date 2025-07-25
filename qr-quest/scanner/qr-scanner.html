@@ -1,1 +1,246 @@
-スキャナ用
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SakuLink QR Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #fff7fa;
+      margin: 0;
+      padding: 120px 20px 40px;
+      text-align: center;
+    }
+    .header-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: pink;
+      padding: 10px 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+    }
+    .header-inner {
+      max-width: 700px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 20px;
+      box-sizing: border-box;
+    }
+    .header-title {
+      font-weight: bold;
+    }
+    .menu-toggle {
+      font-size: 18px;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .menu {
+      display: none;
+      background-color: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 10px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .menu li {
+      margin: 8px 0;
+    }
+    .menu a {
+      text-decoration: none;
+      color: #333;
+    }
+    h1 {
+      color: #ff4081;
+      font-size: 2em;
+      margin-top: 10px;
+    }
+    #preview {
+      width: 300px;
+      height: 300px;
+      border: 1px solid #ccc;
+      margin: 20px auto;
+      background: black;
+    }
+    #preview video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #status {
+      color: gray;
+      margin: 10px 0;
+    }
+    #result {
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 24px;
+      font-size: 1em;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      text-decoration: none;
+      text-align: center;
+      min-width: 180px;
+      box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+      cursor: pointer;
+    }
+    .btn-home {
+      background-color: #ff4081;
+      color: white;
+    }
+    .btn-rescan {
+      background-color: #ffeb3b;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      window.location.href = "login.html";
+    }
+  </script>
+
+  <div class="header-bar">
+    <div class="header-inner">
+      <div class="header-title">🌸 SakuLink 🌸</div>
+      <div class="menu-toggle" onclick="toggleMenu()">📖 MENU ☰</div>
+    </div>
+  </div>
+
+  <div id="menu" class="menu">
+    <ul>
+      <li><a href="home.html">🏠 Home</a></li>
+      <li><a href="reading_list.html">📚 Readings</a></li>
+      <li><a href="start_here.html">📖 Start Here</a></li>
+      <li><a href="about.html">❓ About SakuLink</a></li>
+      <li><a href="terms.html">📄 Terms of Use</a></li>
+      <li><a href="privacy.html">🔐 Privacy Policy</a></li>
+      <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
+  </div>
+
+  <h1>QR Code Scanner</h1>
+  <div id="preview"></div>
+  <p id="status">Preparing camera...<br><small style="color:gray">*It may take a few seconds to start scanning.</small></p>
+  <div id="result">Scanned result: <span id="output"></span></div>
+
+  <div class="button-container">
+    <a class="btn btn-home" href="home.html">🏡 Back to Home</a>
+    <button onclick="rescan()" class="btn btn-rescan">🔄 Rescan</button>
+  </div>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("menu");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+
+    function logout() {
+      localStorage.removeItem("authToken");
+      window.location.href = "login.html";
+    }
+
+    const html5QrCode = new Html5Qrcode("preview");
+    const resultContainer = document.getElementById("output");
+    const statusText = document.getElementById("status");
+    let hasRedirected = false;
+
+    function onScanSuccess(decodedText) {
+      if (hasRedirected) return;
+
+      if (
+        !decodedText.startsWith("http") ||
+        (!decodedText.includes("sakulink.com") && !decodedText.includes("sakulinkqr.github.io"))
+      ) {
+        window.location.href = "invalid_qr.html";
+        return;
+      }
+
+      try {
+        const url = new URL(decodedText);
+        const idCode = url.searchParams.get("id_code") || url.searchParams.get("id") || "";
+
+        if (!idCode) {
+          resultContainer.innerText = "No valid ID found in QR code.";
+          return;
+        }
+
+        resultContainer.innerText = idCode;
+        hasRedirected = true;
+        window.location.href = `dish_detail.html?id_code=${encodeURIComponent(idCode)}`;
+      } catch (e) {
+        resultContainer.innerText = "Failed to parse QR code.";
+      }
+    }
+
+    function onScanFailure(error) {
+      // no-op
+    }
+
+    function rescan() {
+      hasRedirected = false;
+      resultContainer.innerText = "";
+      statusText.innerText = "Restarting camera...";
+
+      html5QrCode.stop().then(() => {
+        const preview = document.getElementById("preview");
+        preview.innerHTML = "";
+
+        setTimeout(() => {
+          html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            onScanSuccess,
+            onScanFailure
+          ).then(() => {
+            statusText.innerText = "Camera restarted. Please hold the QR code within the frame.";
+          }).catch(err => {
+            statusText.innerText = "Camera restart error: " + err;
+          });
+        }, 300);
+      }).catch(err => {
+        statusText.innerText = "Camera stop error: " + err;
+      });
+    }
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      onScanSuccess,
+      onScanFailure
+    ).then(() => {
+      statusText.innerText = "Camera active. Please hold the QR code within the frame.";
+    }).catch(err => {
+      statusText.innerText = "Camera error: " + err;
+    });
+  </script>
+</body>
+</html>
