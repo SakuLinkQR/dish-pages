@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <title>クエスト達成！</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- フィッシング対策の共通JSを読み込み -->
-  <script src="check_referrer.js"></script>
 
   <style>
     body {
@@ -64,7 +61,7 @@
   <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
 
   <script>
-    // 全ピースが揃っているかチェック
+    // ピースがすべて揃っているかチェック
     const totalPieces = 4;
     let completed = true;
 
@@ -76,11 +73,11 @@
     }
 
     if (!completed) {
-      // 未達成なら進行状況へリダイレクト
+      // 未達成なら進行状況ページへリダイレクト
       window.location.href = "progress.html";
     }
 
-    // 確認済みチェック（係員による confirm 処理後）
+    // すでに確認済みかどうかのチェック
     const isConfirmed = localStorage.getItem("confirmed") === "true";
     if (isConfirmed) {
       document.getElementById("message").innerText = "✅ クエスト確認済み（景品受け取り済）";
