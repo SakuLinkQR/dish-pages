@@ -3,109 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>QRクエスト進行状況</title>
+  <title>お宝進行状況</title>
   <style>
     body {
-      font-family: "Arial", sans-serif;
-      background-color: #fdf5ee;
+      font-family: sans-serif;
       text-align: center;
-      padding: 20px;
+      padding: 30px 10px;
+      background-color: #fffaf2;
     }
 
-    h2 {
-      font-size: 20px;
+    h1 {
+      font-size: 1.6rem;
+      color: #4b2e0d;
       margin-bottom: 20px;
     }
 
-    .pieces {
+    .grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      width: 280px;
-      height: 280px;
-      margin: 0 auto 30px;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      max-width: 300px;
+      margin: 0 auto;
     }
 
-    .piece-box {
+    .grid img {
       width: 140px;
-      height: 140px;
-      margin: 0;
-      padding: 0;
-      border: none;
+      height: auto;
+      border: 2px solid #aaa;
+      background-color: #eee;
     }
 
-    .piece-box img {
-      width: 100%;
-      height: 100%;
-      object-fit: fill;
-      display: block;
-    }
-
-    .back-button {
-      background-color: #8ecdf2;
+    .btn {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      background-color: #4fa3ff;
       color: white;
       border: none;
-      padding: 10px 20px;
-      font-size: 16px;
       border-radius: 8px;
       cursor: pointer;
-      text-decoration: none;
-    }
-
-    .back-button:hover {
-      background-color: #6cb7e2;
     }
   </style>
 </head>
 <body>
-  <h2 id="status-message">読み込み中...</h2>
 
-  <div class="pieces" id="puzzle-area">
-    <!-- 画像がある場合のみ挿入されます -->
+  <h1>🧭 みつけた お宝ピース！</h1>
+
+  <div class="grid">
+    <img id="piece1" src="images/blank.png" alt="ピース1（左上）" />
+    <img id="piece2" src="images/blank.png" alt="ピース2（右上）" />
+    <img id="piece3" src="images/blank.png" alt="ピース3（左下）" />
+    <img id="piece4" src="images/blank.png" alt="ピース4（右下）" />
   </div>
 
-  <a href="start.html" class="back-button">スタート画面へ戻る</a>
+  <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
 
   <script>
-    const images = [
-      './images/piece4.png',  // 左上
-      './images/piece1.png',  // 右上
-      './images/piece2.png',  // 左下
-      './images/piece3.png'   // 右下
-    ];
-
-    const puzzleArea = document.getElementById('puzzle-area');
-    const statusMessage = document.getElementById('status-message');
-
-    let loadedCount = 0;
-
-    images.forEach(src => {
-      const img = new Image();
-      img.src = src;
-
-      img.onload = () => {
-        loadedCount++;
-        const box = document.createElement('div');
-        box.className = 'piece-box';
-        box.appendChild(img);
-        puzzleArea.appendChild(box);
-
-        if (loadedCount === images.length) {
-          statusMessage.textContent = 'パズル完成！';
-        }
-      };
-
-      img.onerror = () => {
-        const box = document.createElement('div');
-        box.className = 'piece-box';
-        puzzleArea.appendChild(box);
-      };
-    });
-
-    setTimeout(() => {
-      if (loadedCount < images.length) {
-        statusMessage.textContent = 'パズル完成まであと少し！';
-      }
-    }, 1000);
+    // localStorage にあるピース取得状態を確認
+    if (localStorage.getItem("piece1") === "true") {
+      document.getElementById("piece1").src = "images/piece1.png";
+    }
+    if (localStorage.getItem("piece2") === "true") {
+      document.getElementById("piece2").src = "images/piece2.png";
+    }
+    if (localStorage.getItem("piece3") === "true") {
+      document.getElementById("piece3").src = "images/piece3.png";
+    }
+    if (localStorage.getItem("piece4") === "true") {
+      document.getElementById("piece4").src = "images/piece4.png";
+    }
   </script>
+
 </body>
 </html>
