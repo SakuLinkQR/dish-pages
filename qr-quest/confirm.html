@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <title>クエスト確認画面（本部専用）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- フィッシング対策スクリプト -->
+  <script src="check_referrer.js"></script>
+
   <style>
     body {
       font-family: sans-serif;
@@ -11,26 +15,31 @@
       padding: 40px 20px;
       background-color: #fff3e0;
     }
+
     h1 {
       font-size: 1.8rem;
       color: #e65100;
     }
+
     #message {
       font-size: 1.2rem;
       margin: 20px 0;
       color: #444;
     }
+
     #goal-image {
       width: 280px;
       margin: 20px auto;
       transition: opacity 0.3s;
     }
+
     input[type="password"] {
       padding: 10px;
       font-size: 1rem;
       width: 200px;
       margin-top: 10px;
     }
+
     .btn {
       margin-top: 20px;
       padding: 10px 24px;
@@ -78,7 +87,6 @@
         confirmSection.style.display = "none";
       } else {
         alert("パスワードが間違っています。");
-        // 誤操作でもユーザーが損するだけ（localStorageは変化しない）
       }
     }
   </script>
