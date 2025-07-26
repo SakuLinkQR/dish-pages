@@ -11,19 +11,24 @@
       padding: 40px 20px;
       background-color: #fff8e1;
     }
+
     h1 {
       font-size: 2rem;
       color: #ff5722;
     }
+
     #message {
       font-size: 1.4rem;
       color: #444;
       margin: 20px 0;
     }
+
     #goal-image {
       width: 280px;
       margin-top: 20px;
+      transition: opacity 0.3s;
     }
+
     .btn {
       margin-top: 30px;
       padding: 12px 24px;
@@ -34,17 +39,22 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
+    #note {
+      margin-top: 30px;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
 
   <h1>🎉 クエスト達成おめでとう！</h1>
   <div id="message">あなたはすべてのピースを集めました！</div>
-  <img id="goal-image" src="images/goal.png" alt="完成画像">
+  <img id="goal-image" src="images/goal.png" alt="完成画像" />
 
-  <p style="margin-top: 30px;">
+  <p id="note">
     スタッフにこの画面を見せて、<br>
-    記念品や景品を受け取りましょう！
+    景品を受け取りましょう！
   </p>
 
   <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
@@ -62,8 +72,16 @@
     }
 
     if (!completed) {
-      // まだ未達成なら進行状況へリダイレクト
+      // 未達成なら進行状況へリダイレクト
       window.location.href = "progress.html";
+    }
+
+    // 確認済みチェック（係員による confirm 処理後）
+    const isConfirmed = localStorage.getItem("confirmed") === "true";
+    if (isConfirmed) {
+      document.getElementById("message").innerText = "✅ クエスト確認済み（景品受け取り済）";
+      document.getElementById("goal-image").style.opacity = 0.4;
+      document.getElementById("note").innerHTML = "この参加者はすでに確認済みです。<br>景品の再配布はありません。";
     }
   </script>
 
