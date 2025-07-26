@@ -15,7 +15,15 @@
       font-size: 2rem;
       margin-bottom: 20px;
     }
-    button {
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+    .btn {
+      display: block;
+      width: 80%;
+      max-width: 320px;
+      margin: 10px auto;
       padding: 12px 24px;
       font-size: 1.2rem;
       border: none;
@@ -24,7 +32,7 @@
       color: white;
       cursor: pointer;
     }
-    button:hover {
+    .btn:hover {
       background-color: #1e88e5;
     }
   </style>
@@ -32,7 +40,8 @@
 <body>
   <h1>🌟 QRクエスト in ○○ 🌟</h1>
   <p>街を歩いて、QRを探して、クエストに挑戦しよう！</p>
-  <br>
-  <button onclick="location.href='intro.html'">クエストを始める</button>
+
+  <button class="btn" onclick="location.href='intro.html'">🎮 クエストを始める</button>
+  <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテストをする</button>
 </body>
 </html>
