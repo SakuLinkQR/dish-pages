@@ -43,6 +43,17 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
+    .btn-reward {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      background-color: #ffcc00;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -59,18 +70,34 @@
   <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
 
   <script>
-    // localStorage にあるピース取得状態を確認
-    if (localStorage.getItem("piece1") === "true") {
+    // ピース表示処理
+    const p1 = localStorage.getItem("piece1") === "true";
+    const p2 = localStorage.getItem("piece2") === "true";
+    const p3 = localStorage.getItem("piece3") === "true";
+    const p4 = localStorage.getItem("piece4") === "true";
+
+    if (p1) {
       document.getElementById("piece1").src = "images/piece1.png";
     }
-    if (localStorage.getItem("piece2") === "true") {
+    if (p2) {
       document.getElementById("piece2").src = "images/piece2.png";
     }
-    if (localStorage.getItem("piece3") === "true") {
+    if (p3) {
       document.getElementById("piece3").src = "images/piece3.png";
     }
-    if (localStorage.getItem("piece4") === "true") {
+    if (p4) {
       document.getElementById("piece4").src = "images/piece4.png";
+    }
+
+    // 4ピース揃った場合、「おたからをうけとる」ボタンを表示
+    if (p1 && p2 && p3 && p4) {
+      const rewardBtn = document.createElement("button");
+      rewardBtn.textContent = "🎁 おたからを うけとる";
+      rewardBtn.className = "btn-reward";
+      rewardBtn.onclick = () => {
+        location.href = "reward_intro.html";
+      };
+      document.body.appendChild(rewardBtn);
     }
   </script>
 
