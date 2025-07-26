@@ -24,10 +24,21 @@
       margin-top: 20px;
       font-size: 0.95rem;
     }
-    button {
+    .btn-group {
       margin-top: 30px;
+    }
+    button {
+      margin: 0 10px;
       padding: 10px 20px;
       font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #4fa3ff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1e88e5;
     }
   </style>
 </head>
@@ -36,6 +47,10 @@
   <p>下の枠でQRコードを読み取れるか確認してください。</p>
   <iframe src="scanner/qr-scanner.html"></iframe>
   <p>カメラが映らない場合は、スマホの設定から「カメラの許可」を確認してください。</p>
-  <button onclick="location.href='index.html'">スタート画面へ戻る</button>
+
+  <div class="btn-group">
+    <button onclick="location.href='index.html'">✅ カメラOK！ スタート画面に戻る</button>
+    <button onclick="location.href='index.html'">🔧 もう一度設定を見直す</button>
+  </div>
 </body>
 </html>
