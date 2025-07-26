@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ほうびのとき</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      background-image: url('https://i.imgur.com/ZYjT0p2.jpg'); /* 古地図背景 */
+      background-size: cover;
+      background-position: center;
+      color: #3b2c14;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    #overlay {
+      background-color: rgba(255, 248, 220, 0.75);
+      padding: 40px;
+      border-radius: 15px;
+      display: inline-block;
+    }
+
+    #text-box {
+      font-size: 22px;
+      line-height: 1.8;
+      white-space: pre-line;
+      min-height: 180px;
+    }
+
+    .next-button {
+      display: none;
+      margin-top: 40px;
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #deb887;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay">
+    <div id="text-box"></div>
+    <button class="next-button" onclick="location.href='complete.html'">▶ おたからを うけとる</button>
+  </div>
+
+  <script>
+    const message = `
+よく　みつけたな。
+
+ほうびに　わしからも
+おたからを　あげよう…
+
+▶ すたーとちてんへ　いそぐのじゃ！
+    `;
+
+    const textBox = document.getElementById("text-box");
+    const nextButton = document.querySelector(".next-button");
+    let index = 0;
+
+    function typeText() {
+      if (index < message.length) {
+        textBox.innerHTML += message[index] === "\n" ? "<br>" : message[index];
+        index++;
+        setTimeout(typeText, 70);
+      } else {
+        nextButton.style.display = "inline-block";
+      }
+    }
+
+    window.onload = typeText;
+  </script>
+</body>
+</html>
