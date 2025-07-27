@@ -73,28 +73,31 @@
 
   <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
 
+  <!-- ✅ ファンファーレ音声ファイル -->
+  <audio id="fanfare" src="sounds/fanfare.mp3" preload="auto"></audio>
+
   <script>
-    // ピース表示処理
+    // ピース状態の取得
     const p1 = localStorage.getItem("piece1") === "true";
     const p2 = localStorage.getItem("piece2") === "true";
     const p3 = localStorage.getItem("piece3") === "true";
     const p4 = localStorage.getItem("piece4") === "true";
 
-    if (p1) {
-      document.getElementById("piece1").src = "images/piece1.png";
-    }
-    if (p2) {
-      document.getElementById("piece2").src = "images/piece2.png";
-    }
-    if (p3) {
-      document.getElementById("piece3").src = "images/piece3.png";
-    }
-    if (p4) {
-      document.getElementById("piece4").src = "images/piece4.png";
-    }
+    // ピース画像の更新
+    if (p1) document.getElementById("piece1").src = "images/piece1.png";
+    if (p2) document.getElementById("piece2").src = "images/piece2.png";
+    if (p3) document.getElementById("piece3").src = "images/piece3.png";
+    if (p4) document.getElementById("piece4").src = "images/piece4.png";
 
-    // 4ピース揃った場合、「おたからをうけとる」ボタンを表示
+    // すでに「おたからボタン」を表示済みかどうかを防ぐために一度だけチェック
     if (p1 && p2 && p3 && p4) {
+      // ✅ ファンファーレ音再生
+      const audio = document.getElementById("fanfare");
+      audio.play().catch(e => {
+        console.log("自動再生ブロックされた場合、ユーザー操作が必要です");
+      });
+
+      // ✅ 「おたからを うけとる」ボタン表示
       const rewardBtn = document.createElement("button");
       rewardBtn.textContent = "🎁 おたからを うけとる";
       rewardBtn.className = "btn-reward";
