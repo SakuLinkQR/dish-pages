@@ -79,11 +79,11 @@
 
   <p id="note">
     スタッフにこの画面を見せて、<br>
-    景品を受け取りましょう！
+    「確認へ進む」ボタンから本部でパスワード認証を受けてください。
   </p>
 
-  <!-- ✅ スタッフ確認ボタン -->
-  <button id="confirm-btn" class="btn">✅ スタッフが確認しました</button>
+  <!-- ✅ 本部確認ページへのボタン -->
+  <button class="btn" onclick="location.href='confirm.html'">✅ 確認へ進む</button>
 
   <!-- ⬅ メニューに戻る -->
   <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
@@ -104,24 +104,12 @@
     }
 
     const isConfirmed = localStorage.getItem("confirmed") === "true";
-
     if (isConfirmed) {
       document.getElementById("message").innerText = "✅ クエスト確認済み（景品受け取り済）";
       document.getElementById("goal-image").style.opacity = 0.4;
       document.getElementById("note").innerHTML = "この参加者はすでに確認済みです。<br>景品の再配布はありません。";
       document.getElementById("complete-banner").style.display = "block";
-      document.getElementById("confirm-btn").style.display = "none";
     }
-
-    // ✅ スタッフ確認処理
-    document.getElementById("confirm-btn").addEventListener("click", () => {
-      localStorage.setItem("confirmed", "true");
-      document.getElementById("message").innerText = "✅ クエスト確認済み（景品受け取り済）";
-      document.getElementById("goal-image").style.opacity = 0.4;
-      document.getElementById("note").innerHTML = "この参加者はすでに確認済みです。<br>景品の再配布はありません。";
-      document.getElementById("complete-banner").style.display = "block";
-      document.getElementById("confirm-btn").style.display = "none";
-    });
   </script>
 
 </body>
