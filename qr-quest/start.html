@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>クエストメニュー</title>
 
-  <!-- ✅ フォントを変更（DotGothic16） -->
+  <!-- ✅ 冒険風ドットフォント -->
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 
   <style>
@@ -22,11 +22,12 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;   /* ← 上から順に並べる */
+      align-items: center;           /* ← 中央揃え */
     }
 
     h1 {
-      font-size: 2.3rem;
+      font-size: 2.2rem;
       margin-top: 30px;
       text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
       letter-spacing: 2px;
@@ -34,12 +35,12 @@
     }
 
     .button-group {
-      margin-bottom: 20px; /* ← 上に詰めた */
+      margin-top: 80px;  /* ← タイトルとボタンの間に十分な余白 */
     }
 
     button {
       display: block;
-      width: 80%;
+      width: 80vw;
       max-width: 360px;
       margin: 14px auto;
       padding: 20px 0;
@@ -63,7 +64,7 @@
 </head>
 <body>
 
-  <h1>たからものをさがすんじゃ</h1>
+  <h1>おたからを さがすんじゃ</h1>
 
   <div class="button-group">
     <button onclick="location.href='scanner/qr-scanner.html'">QRをスキャン！</button>
