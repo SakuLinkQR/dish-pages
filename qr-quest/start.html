@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>クエストメニュー</title>
 
-  <!-- ✅ Google Fonts: 古代風フォント（冒険感あり） -->
+  <!-- ✅ 古代風フォント -->
   <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
 
   <style>
@@ -17,26 +17,33 @@
       background-position: center;
       color: #f9f2dc;
       text-align: center;
-      padding: 60px 20px;
+      padding: 40px 20px;
       height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: space-between;
     }
 
     h1 {
       font-size: 2.5rem;
-      margin-bottom: 40px;
+      margin-top: 40px;
       text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
       letter-spacing: 2px;
     }
 
+    .button-group {
+      margin-bottom: 60px;
+    }
+
     button {
       display: block;
-      margin: 16px auto;
-      padding: 14px 28px;
-      font-size: 1.2rem;
-      border-radius: 10px;
+      width: 80%;
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      font-size: 1.3rem;
+      height: 60px;
+      border-radius: 12px;
       border: none;
       background-color: rgba(33, 22, 10, 0.85);
       color: #ffe082;
@@ -56,9 +63,11 @@
 
   <h1>さあ、しゅっぱつじゃ</h1>
 
-  <button onclick="location.href='scanner/qr-scanner.html'">QRをスキャン！</button>
-  <button onclick="location.href='progress.html'">どこまでみつけた？</button>
-  <button onclick="location.href='index.html'">さいしょにもどる</button>
+  <div class="button-group">
+    <button onclick="location.href='scanner/qr-scanner.html'">QRをスキャン！</button>
+    <button onclick="location.href='progress.html'">どこまでみつけた？</button>
+    <button onclick="location.href='index.html'">さいしょにもどる</button>
+  </div>
 
 </body>
 </html>
