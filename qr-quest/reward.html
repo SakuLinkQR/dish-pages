@@ -89,6 +89,15 @@
   <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
 
   <script>
+    // ✅ 正規ルートからのアクセスか確認
+    if (localStorage.getItem("reward_unlocked") !== "true") {
+      alert("正規の手順でアクセスしてください。");
+      window.location.href = "index.html";
+    } else {
+      localStorage.removeItem("reward_unlocked"); // 一度きりのアクセス
+    }
+
+    // ✅ ピースチェック（4ピース全て揃っているか）
     const totalPieces = 4;
     let completed = true;
 
@@ -103,6 +112,7 @@
       window.location.href = "progress.html";
     }
 
+    // ✅ 確認済み状態の表示変更
     const isConfirmed = localStorage.getItem("confirmed") === "true";
     if (isConfirmed) {
       document.getElementById("message").innerText = "✅ クエスト確認済み（景品受け取り済）";
