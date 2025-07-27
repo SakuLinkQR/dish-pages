@@ -46,7 +46,8 @@
 <body>
   <div id="overlay">
     <div id="text-box"></div>
-    <button class="next-button" onclick="location.href='reward.html'">▶ おたからを うけとる</button>
+    <!-- ✅ reward.html に進むときに localStorage にフラグを立てる -->
+    <button class="next-button" onclick="unlockReward()">▶ おたからを うけとる</button>
   </div>
 
   <script>
@@ -71,6 +72,12 @@
       } else {
         nextButton.style.display = "inline-block";
       }
+    }
+
+    function unlockReward() {
+      // ✅ フラグ保存（reward.html 側で検証される）
+      localStorage.setItem("reward_unlocked", "true");
+      window.location.href = "reward.html";
     }
 
     window.onload = typeText;
