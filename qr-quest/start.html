@@ -22,12 +22,12 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;   /* ← 上から順に並べる */
-      align-items: center;           /* ← 中央揃え */
+      justify-content: flex-start;
+      align-items: center;
     }
 
     h1 {
-      font-size: 2.2rem;
+      font-size: 1.8rem;
       margin-top: 30px;
       text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
       letter-spacing: 2px;
@@ -35,7 +35,7 @@
     }
 
     .button-group {
-      margin-top: 80px;  /* ← タイトルとボタンの間に十分な余白 */
+      margin-top: 80px;
     }
 
     button {
@@ -48,8 +48,8 @@
       height: 70px;
       border-radius: 12px;
       border: none;
-      background-color: rgba(33, 22, 10, 0.85);
-      color: #ffe082;
+      background-color: #ffd54f; /* 明るい黄オレンジ */
+      color: #4e342e;             /* 濃い茶色フォント */
       font-weight: bold;
       cursor: pointer;
       box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
@@ -57,14 +57,14 @@
     }
 
     button:hover {
-      background-color: rgba(66, 44, 22, 0.9);
+      background-color: #ffb300; /* 濃いめのオレンジ */
       transform: scale(1.05);
     }
   </style>
 </head>
 <body>
 
-  <h1>おたからを さがすんじゃ</h1>
+  <h1>おたからをさがすんじゃ</h1>
 
   <div class="button-group">
     <button onclick="location.href='scanner/qr-scanner.html'">QRをスキャン！</button>
