@@ -1,8 +1,21 @@
-const allowedReferers = [
-  "https://sakulink.com/qr-quest/qr-scanner.html",  // 正規スキャナーのURL
-];
+(function() {
+    const allowedReferrers = [
+        "scanner/qr-scanner.html"
+    ];
 
-if (!allowedReferers.some(ref => document.referrer.startsWith(ref))) {
-  // スキャナー以外からのアクセス
-  window.location.href = "warning.html";
-}
+    const currentReferrer = document.referrer;
+    let isAllowed = false;
+
+    // リファラーが許可されたものかどうかをチェック
+    for (let i = 0; i < allowedReferrers.length; i++) {
+        if (currentReferrer.includes(allowedReferrers[i])) {
+            isAllowed = true;
+            break;
+        }
+    }
+
+    // 許可されていない場合はwarning.htmlにリダイレクト
+    if (!isAllowed) {
+        window.location.href = '../warning.html';
+    }
+})();
