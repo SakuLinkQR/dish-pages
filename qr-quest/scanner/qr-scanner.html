@@ -68,14 +68,16 @@
 
       try {
         const url = new URL(decodedText);
-        const id = url.searchParams.get("id");
-        if (!id) {
-          resultContainer.innerText = "QRコードにIDが見つかりませんでした。";
-          return;
-        }
+        const domain = url.hostname;
+        const path = url.pathname;
 
-        hasRedirected = true;
-        window.location.href = `../result.html?id=${encodeURIComponent(id)}`;
+        // ✅ フィッシング対策：ドメインとパスを厳密チェック
+        if (domain === "sakulink.com" && path === "/qr-quest/progress.html") {
+          hasRedirected = true;
+          window.location.href = decodedText;
+        } else {
+          resultContainer.innerText = "これは公式QRクエスト用コードではありません。";
+        }
       } catch (e) {
         resultContainer.innerText = "読み取りエラーが発生しました。";
       }
