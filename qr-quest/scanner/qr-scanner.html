@@ -13,33 +13,38 @@
       margin: 0;
       overflow-x: hidden;
     }
+
     h1 {
       color: #007bff;
       font-size: 1.6rem;
       margin-bottom: 12px;
       line-height: 1.4;
     }
+
     #preview {
       width: 90vw;
-      max-width: 200px; /* ここを200pxに変更しました。必要に応じて調整してください */
-      aspect-ratio: 1 / 1; /* ←縦横比固定 */
+      max-width: 200px;
+      aspect-ratio: 1 / 1;
       border: 2px dashed #ccc;
       margin: 0 auto 10px;
       background: black;
       position: relative;
     }
+
     #status {
       color: gray;
       font-size: 0.9rem;
-      margin: 6px 0;
+      margin: 16px 0 8px; /* ← 上に余白を追加 */
     }
+
     #result {
       font-size: 1rem;
       color: #d32f2f;
-      margin: 6px 0 14px;
+      margin: 8px 0 20px; /* ← 上下に余白を追加 */
     }
+
     .btn {
-      margin: 6px;
+      margin: 12px 10px 6px; /* ← ボタンを下に下げる */
       padding: 10px 20px;
       background-color: #4caf50;
       color: white;
@@ -48,6 +53,7 @@
       font-size: 1rem;
       cursor: pointer;
     }
+
     .btn-exit {
       background-color: #ff7043;
     }
@@ -56,7 +62,9 @@
 <body>
 
   <h1>🎯 QRコードを読み取って<br>クエストを進めよう</h1>
+
   <div id="preview"></div>
+
   <p id="status">カメラを起動中…</p>
   <div id="result"></div>
 
@@ -108,7 +116,7 @@
             { facingMode: "environment" },
             {
               fps: 10,
-              qrbox: { width: 230, height: 230 }  // ← 読み取り枠復活
+              qrbox: { width: 230, height: 230 }  // ← 読み取り枠（白い四角）サイズ
             },
             onScanSuccess,
             onScanFailure
@@ -132,7 +140,7 @@
       { facingMode: "environment" },
       {
         fps: 10,
-        qrbox: { width: 230, height: 230 }  // ← ここも枠サイズを固定
+        qrbox: { width: 230, height: 230 }
       },
       onScanSuccess,
       onScanFailure
