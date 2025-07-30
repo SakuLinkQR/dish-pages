@@ -9,32 +9,33 @@
       font-family: sans-serif;
       background-color: #fefefe;
       text-align: center;
-      padding: 20px 10px;
+      padding: 16px 10px 60px;
     }
     h1 {
       color: #007bff;
-      font-size: 1.8rem;
-      margin-bottom: 20px;
+      font-size: 1.7rem;
+      margin-bottom: 16px;
     }
     #preview {
-      width: 220px;
-      height: 220px;
+      width: 280px;
+      height: 200px; /* ←縦サイズをさらに小さく */
       border: 2px dashed #ccc;
-      margin: 0 auto 16px;
+      margin: 0 auto 12px;
       background: black;
+      position: relative;
     }
     #status {
       color: gray;
-      margin: 10px 0;
+      margin: 6px 0;
     }
     #result {
       font-size: 1.2rem;
       color: #d32f2f;
-      margin-bottom: 16px;
+      margin: 10px 0 20px;
       padding: 4px 8px;
     }
     .btn {
-      margin: 8px;
+      margin: 6px;
       padding: 10px 20px;
       background-color: #4caf50;
       color: white;
@@ -50,7 +51,7 @@
 </head>
 <body>
 
-  <h1>🎯 QRコードを読み取ってクエストを進めよう</h1>
+  <h1>🎯 QRコードを読み取って<br>クエストを進めよう</h1>
   <div id="preview"></div>
   <p id="status">カメラを起動中…</p>
   <div id="result"></div>
@@ -78,7 +79,6 @@
         const domain = url.hostname;
         const path = url.pathname;
 
-        // ✅ フィッシング防止：公式URLのみ許可
         if (domain === "sakulink.com" && path === "/qr-quest/progress.html") {
           hasRedirected = true;
           window.location.href = decodedText;
@@ -102,7 +102,10 @@
         setTimeout(() => {
           html5QrCode.start(
             { facingMode: "environment" },
-            { fps: 10, qrbox: 220 },
+            {
+              fps: 10,
+              qrbox: { width: 250, height: 180 } // ← 枠が出るように幅を確保
+            },
             onScanSuccess,
             onScanFailure
           ).then(() => {
@@ -123,7 +126,10 @@
     // 初回起動
     html5QrCode.start(
       { facingMode: "environment" },
-      { fps: 10, qrbox: 220 },
+      {
+        fps: 10,
+        qrbox: { width: 250, height: 180 } // ← 枠が出るように
+      },
       onScanSuccess,
       onScanFailure
     ).then(() => {
