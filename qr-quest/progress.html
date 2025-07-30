@@ -77,27 +77,54 @@
   <audio id="fanfare" src="sounds/fanfare.mp3" preload="auto"></audio>
 
   <script>
-    // ピース状態の取得
+    // ✅ スプレッドシートに記録を送る
+    const urlParams = new URLSearchParams(window.location.search);
+    const event = urlParams.get('event');
+    const code = urlParams.get('code');
+    const type = urlParams.get('type');
+    const page = 'progress.html';
+
+    if (event && code && type) {
+      fetch("https://script.google.com/macros/s/AKfycbyE9PKDtOjTb1pFbnQFIrXLgDQ4s-kqVWFm2r7sJ9CZVbjt7DDfE4IsYCePGZQktfTFYg/exec", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          event: event,
+          code: code,
+          type: type,
+          page: page
+        })
+      })
+      .then(res => res.text())
+      .then(msg => {
+        console.log("送信結果:", msg);
+      })
+      .catch(err => {
+        console.error("送信失敗:", err);
+      });
+    }
+
+    // ✅ ピース状態の取得
     const p1 = localStorage.getItem("piece1") === "true";
     const p2 = localStorage.getItem("piece2") === "true";
     const p3 = localStorage.getItem("piece3") === "true";
     const p4 = localStorage.getItem("piece4") === "true";
 
-    // ピース画像の更新
+    // ✅ ピース画像の更新
     if (p1) document.getElementById("piece1").src = "images/piece1.png";
     if (p2) document.getElementById("piece2").src = "images/piece2.png";
     if (p3) document.getElementById("piece3").src = "images/piece3.png";
     if (p4) document.getElementById("piece4").src = "images/piece4.png";
 
-    // すでに「おたからボタン」を表示済みかどうかを防ぐために一度だけチェック
+    // ✅ 全ピース揃った場合
     if (p1 && p2 && p3 && p4) {
-      // ✅ ファンファーレ音再生
       const audio = document.getElementById("fanfare");
       audio.play().catch(e => {
-        console.log("自動再生ブロックされた場合、ユーザー操作が必要です");
+        console.log("音声の自動再生がブロックされました");
       });
 
-      // ✅ 「おたからを うけとる」ボタン表示
       const rewardBtn = document.createElement("button");
       rewardBtn.textContent = "🎁 おたからを うけとる";
       rewardBtn.className = "btn-reward";
