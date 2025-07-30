@@ -3,36 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <title>QRクエスト - スキャナー</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <style>
     body {
       font-family: sans-serif;
       background-color: #fefefe;
       text-align: center;
-      padding: 16px 10px 60px;
+      padding: 10px;
+      margin: 0;
+      overflow-x: hidden;
     }
     h1 {
       color: #007bff;
-      font-size: 1.7rem;
-      margin-bottom: 16px;
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+      line-height: 1.4;
     }
     #preview {
-      width: 280px;
-      height: 200px; /* ←縦サイズをさらに小さく */
+      width: 90vw;
+      max-width: 260px;
+      aspect-ratio: 1 / 1; /* ←縦横比固定 */
       border: 2px dashed #ccc;
-      margin: 0 auto 12px;
+      margin: 0 auto 10px;
       background: black;
       position: relative;
     }
     #status {
       color: gray;
+      font-size: 0.9rem;
       margin: 6px 0;
     }
     #result {
-      font-size: 1.2rem;
+      font-size: 1rem;
       color: #d32f2f;
-      margin: 10px 0 20px;
-      padding: 4px 8px;
+      margin: 6px 0 14px;
     }
     .btn {
       margin: 6px;
@@ -91,7 +95,7 @@
     }
 
     function onScanFailure(error) {
-      // スキャン失敗時は何もしない
+      // スキャン失敗時の処理（無視）
     }
 
     function rescan() {
@@ -104,7 +108,7 @@
             { facingMode: "environment" },
             {
               fps: 10,
-              qrbox: { width: 250, height: 180 } // ← 枠が出るように幅を確保
+              qrbox: { width: 230, height: 230 }  // ← 読み取り枠復活
             },
             onScanSuccess,
             onScanFailure
@@ -128,7 +132,7 @@
       { facingMode: "environment" },
       {
         fps: 10,
-        qrbox: { width: 250, height: 180 } // ← 枠が出るように
+        qrbox: { width: 230, height: 230 }  // ← ここも枠サイズを固定
       },
       onScanSuccess,
       onScanFailure
