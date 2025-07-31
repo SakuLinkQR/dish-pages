@@ -43,12 +43,12 @@
 
   <button class="btn" onclick="startQuest()">🎮 クエストを始める</button>
   <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテスト</button>
-  <button class="btn" onclick="location.href='intro.html'">⏩ スタート画面へスキップ</button>
+  <button class="btn" onclick="location.href='start.html'">⏩ スキップ</button>
 
   <script>
-    // ✅ 自動スキップ：すでにintro画面を見たユーザーは自動でintro.htmlへ
+    // ✅ 自動スキップ：すでにintro画面を見たユーザーは自動でstart.htmlへ
     if (localStorage.getItem("visitedIntro") === "true") {
-      location.href = "intro.html";
+      location.href = "start.html";
     }
 
     // ✅ 初回訪問フラグを設定
