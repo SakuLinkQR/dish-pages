@@ -66,6 +66,28 @@
     const message = document.getElementById("message");
     const image = document.getElementById("image");
 
+    let code = id || "unknown";
+    let type = parseInt(code) >= 100 ? "dummy" : "correct";
+    const event = "PROTO";
+    const page = "result.html";
+
+    // ✅ スプレッドシートに記録を送信
+    fetch("https://script.google.com/macros/s/AKfycbyE9PKDtOjTb1pFbnQFIrXLgDQ4s-kqVWFm2r7sJ9CZVbjt7DDfE4IsYCePGZQktfTFYg/exec", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        event: event,
+        code: code,
+        type: type,
+        page: page
+      })
+    }).then(res => res.text())
+      .then(msg => console.log("送信結果:", msg))
+      .catch(err => console.error("送信失敗:", err));
+
+    // ✅ ピース判定とlocalStorage保存
     switch (id) {
       case "001":
         localStorage.setItem("piece1", "true");
