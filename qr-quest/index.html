@@ -41,7 +41,21 @@
   <h1>🌟 QRクエスト in ○○ 🌟</h1>
   <p>街を歩いて、QRを探して、クエストに挑戦しよう！</p>
 
-  <button class="btn" onclick="location.href='intro.html'">🎮 クエストを始める</button>
+  <button class="btn" onclick="startQuest()">🎮 クエストを始める</button>
   <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテスト</button>
+  <button class="btn" onclick="location.href='intro.html'">⏩ スタート画面へスキップ</button>
+
+  <script>
+    // ✅ 自動スキップ：すでにintro画面を見たユーザーは自動でintro.htmlへ
+    if (localStorage.getItem("visitedIntro") === "true") {
+      location.href = "intro.html";
+    }
+
+    // ✅ 初回訪問フラグを設定
+    function startQuest() {
+      localStorage.setItem("visitedIntro", "true");
+      location.href = "intro.html";
+    }
+  </script>
 </body>
 </html>
