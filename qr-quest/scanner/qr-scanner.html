@@ -34,17 +34,17 @@
     #status {
       color: gray;
       font-size: 0.9rem;
-      margin: 16px 0 8px; /* ← 上に余白を追加 */
+      margin: 16px 0 8px;
     }
 
     #result {
       font-size: 1rem;
       color: #d32f2f;
-      margin: 8px 0 20px; /* ← 上下に余白を追加 */
+      margin: 8px 0 20px;
     }
 
     .btn {
-      margin: 12px 10px 6px; /* ← ボタンを下に下げる */
+      margin: 12px 10px 6px;
       padding: 10px 20px;
       background-color: #4caf50;
       color: white;
@@ -86,19 +86,12 @@
         return;
       }
 
-      try {
-        const url = new URL(decodedText);
-        const domain = url.hostname;
-        const path = url.pathname;
-
-        if (domain === "sakulink.com" && path === "/qr-quest/progress.html") {
-          hasRedirected = true;
-          window.location.href = decodedText;
-        } else {
-          resultContainer.innerText = "これは公式QRクエスト用コードではありません。";
-        }
-      } catch (e) {
-        resultContainer.innerText = "読み取りエラーが発生しました。";
+      // ✅ ゆるやかなURL判定（柔軟に対応）
+      if (decodedText.includes("sakulink.com/qr-quest/progress.html")) {
+        hasRedirected = true;
+        window.location.href = decodedText;
+      } else {
+        resultContainer.innerText = "これは公式QRクエスト用コードではありません。";
       }
     }
 
@@ -114,10 +107,7 @@
         setTimeout(() => {
           html5QrCode.start(
             { facingMode: "environment" },
-            {
-              fps: 10,
-              qrbox: { width: 230, height: 230 }  // ← 読み取り枠（白い四角）サイズ
-            },
+            { fps: 10, qrbox: { width: 230, height: 230 } },
             onScanSuccess,
             onScanFailure
           ).then(() => {
@@ -138,10 +128,7 @@
     // 初回起動
     html5QrCode.start(
       { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: { width: 230, height: 230 }
-      },
+      { fps: 10, qrbox: { width: 230, height: 230 } },
       onScanSuccess,
       onScanFailure
     ).then(() => {
