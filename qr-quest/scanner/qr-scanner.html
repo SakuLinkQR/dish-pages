@@ -86,7 +86,7 @@
         return;
       }
 
-      // ✅ 柔軟なURLチェック（正確なベースパスを許可）
+      // ✅ 柔軟なURLチェック
       if (decodedText.startsWith("https://sakulink.com/qr-quest/progress.html")) {
         hasRedirected = true;
         window.location.href = decodedText;
@@ -96,7 +96,7 @@
     }
 
     function onScanFailure(error) {
-      // スキャン失敗時の処理（無視）
+      // 無視
     }
 
     function rescan() {
