@@ -7,44 +7,48 @@
   <style>
     body {
       font-family: sans-serif;
-      background-color: #fefefe;
+      background-color: #fefefe; /* 最初のコードのbody色を維持 */
       text-align: center;
-      padding: 10px;
+      padding: 10px; /* 最初のコードのpaddingを維持 */
       margin: 0;
       overflow-x: hidden;
     }
-
     h1 {
-      color: #007bff;
+      color: #007bff; /* 最初のコードのh1色を維持 */
       font-size: 1.6rem;
       margin-bottom: 12px;
       line-height: 1.4;
     }
-
     #preview {
-      width: 90vw;
-      max-width: 240px;
-      aspect-ratio: 1 / 1;
-      border: 2px dashed #ccc;
-      margin: 0 auto 10px;
-      background: black;
-      position: relative;
+      /* ★ここから、後から提示されたコードのプレビュー画面のスタイルを移植★ */
+      width: 300px; /* 固定幅 */
+      height: 300px; /* 固定高さ */
+      border: 1px solid #ccc; /* 枠線 */
+      margin: 20px auto; /* 上下の余白と中央寄せ */
+      /* ★ここまで★ */
+
+      background: black; /* カメラ映像が読み込まれるまでの背景色 */
+      position: relative; /* QRボックスやその他の要素の配置用 */
+    }
+    /* html5-qrcodeが生成するvideoタグのスタイルを追加 */
+    #preview video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* 映像がプレビューボックスにフィットするように */
     }
 
     #status {
       color: gray;
       font-size: 0.9rem;
-      margin: 16px 0 8px;
+      margin: 6px 0; /* 最初のコードの余白を維持 */
     }
-
     #result {
       font-size: 1rem;
       color: #d32f2f;
-      margin: 8px 0 20px;
+      margin: 6px 0 14px; /* 最初のコードの余白を維持 */
     }
-
     .btn {
-      margin: 12px 10px 6px;
+      margin: 6px;
       padding: 10px 20px;
       background-color: #4caf50;
       color: white;
@@ -53,7 +57,6 @@
       font-size: 1rem;
       cursor: pointer;
     }
-
     .btn-exit {
       background-color: #ff7043;
     }
@@ -62,9 +65,7 @@
 <body>
 
   <h1>🎯 QRコードを読み取って<br>クエストを進めよう</h1>
-
   <div id="preview"></div>
-
   <p id="status">カメラを起動中…</p>
   <div id="result"></div>
 
@@ -91,12 +92,7 @@
         const domain = url.hostname;
         const path = url.pathname;
 
-        // ✅ result.html および progress.html を公式として許可
-        const isOfficial =
-          domain === "sakulink.com" &&
-          (path === "/qr-quest/result.html" || path === "/qr-quest/progress.html");
-
-        if (isOfficial) {
+        if (domain === "sakulink.com" && path === "/qr-quest/progress.html") {
           hasRedirected = true;
           window.location.href = decodedText;
         } else {
@@ -108,7 +104,7 @@
     }
 
     function onScanFailure(error) {
-      // スキャン失敗時は無視
+      // スキャン失敗時の処理（無視）
     }
 
     function rescan() {
@@ -116,10 +112,17 @@
       resultContainer.innerText = "";
       statusText.innerText = "再スキャンを準備中…";
       html5QrCode.stop().then(() => {
+        // html5-qrcodeがvideoタグを削除し、再作成する際の調整
+        const previewElement = document.getElementById("preview");
+        previewElement.innerHTML = ""; // プレビュー内のコンテンツをクリア
+
         setTimeout(() => {
           html5QrCode.start(
             { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 240, height: 240 } },
+            {
+              fps: 10,
+              qrbox: 250 // ★後から提示されたコードのqrbox値に合わせる★
+            },
             onScanSuccess,
             onScanFailure
           ).then(() => {
@@ -137,10 +140,13 @@
       });
     }
 
-    // ✅ 初回起動
+    // 初回起動
     html5QrCode.start(
       { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 240, height: 240 } },
+      {
+        fps: 10,
+        qrbox: 250 // ★後から提示されたコードのqrbox値に合わせる★
+      },
       onScanSuccess,
       onScanFailure
     ).then(() => {
