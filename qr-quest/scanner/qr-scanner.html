@@ -86,8 +86,8 @@
         return;
       }
 
-      // ✅ ゆるやかなURL判定（柔軟に対応）
-      if (decodedText.includes("sakulink.com/qr-quest/progress.html")) {
+      // ✅ 柔軟なURLチェック（正確なベースパスを許可）
+      if (decodedText.startsWith("https://sakulink.com/qr-quest/progress.html")) {
         hasRedirected = true;
         window.location.href = decodedText;
       } else {
