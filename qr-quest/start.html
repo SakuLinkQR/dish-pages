@@ -48,8 +48,8 @@
       height: 70px;
       border-radius: 12px;
       border: none;
-      background-color: #ffd54f; /* 明るい黄オレンジ */
-      color: #4e342e;             /* 濃い茶色フォント */
+      background-color: #ffd54f;
+      color: #4e342e;
       font-weight: bold;
       cursor: pointer;
       box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
@@ -57,7 +57,7 @@
     }
 
     button:hover {
-      background-color: #ffb300; /* 濃いめのオレンジ */
+      background-color: #ffb300;
       transform: scale(1.05);
     }
   </style>
@@ -71,6 +71,19 @@
     <button onclick="location.href='progress.html'">どこまでみつけた？</button>
     <button onclick="location.href='index.html'">さいしょにもどる</button>
   </div>
+
+  <!-- ✅ （任意）Service Worker を再登録 -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => {
+          console.log('Service Worker registered in start.html:', reg.scope);
+        })
+        .catch(err => {
+          console.log('Service Worker registration failed:', err);
+        });
+    }
+  </script>
 
 </body>
 </html>
