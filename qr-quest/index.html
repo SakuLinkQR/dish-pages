@@ -51,17 +51,6 @@
   <button class="btn" onclick="location.href='start.html'">⏩ スキップ</button>
 
   <script>
-    // ✅ 自動スキップ：すでにintro画面を見たユーザーは自動でstart.htmlへ
-    if (localStorage.getItem("visitedIntro") === "true") {
-      location.href = "start.html";
-    }
-
-    // ✅ 初回訪問フラグを設定
-    function startQuest() {
-      localStorage.setItem("visitedIntro", "true");
-      location.href = "intro.html";
-    }
-
     // ✅ Service Worker 登録（PWA化）
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
@@ -73,13 +62,22 @@
         });
     }
 
-    // ✅ ホーム画面から起動時は intro をスキップして start.html へ
+    // ✅ PWAとして起動 or 通常起動 → introを見ていたら start.html にスキップ
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    if (isStandalone && localStorage.getItem("visitedIntro") !== "true") {
+
+    if (localStorage.getItem("visitedIntro") === "true") {
+      // どの起動方法でも intro をスキップ
+      window.location.href = "start.html";
+    } else if (isStandalone) {
+      // 初回のPWA起動：intro はスキップして start.html へ（visitedIntro をここで記録）
       localStorage.setItem("visitedIntro", "true");
-      setTimeout(() => {
-        window.location.href = "start.html";
-      }, 1000);
+      window.location.href = "start.html";
+    }
+
+    // ✅ 初回訪問時：intro へ誘導
+    function startQuest() {
+      localStorage.setItem("visitedIntro", "true");
+      location.href = "intro.html";
     }
   </script>
 </body>
