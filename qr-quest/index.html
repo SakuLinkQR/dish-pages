@@ -51,7 +51,21 @@
   <button class="btn" onclick="location.href='start.html'">⏩ スキップ</button>
 
   <script>
-    // ✅ Service Worker 登録（PWA化）
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const visitedIntro = localStorage.getItem("visitedIntro") === "true";
+
+    // ✅ イントロ既読済みの人は即start.htmlへスキップ
+    if (visitedIntro) {
+      location.href = "start.html";
+    }
+
+    // ✅ 「クエストを始める」ボタンでintroへ → intro.htmlの終了時にフラグをセットしてもよい
+    function startQuest() {
+      localStorage.setItem("visitedIntro", "true");
+      location.href = "intro.html";
+    }
+
+    // ✅ Service Worker 登録（PWA対応）
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
         .then(reg => {
@@ -60,24 +74,6 @@
         .catch(err => {
           console.log('Service Worker registration failed:', err);
         });
-    }
-
-    // ✅ PWAとして起動 or 通常起動 → introを見ていたら start.html にスキップ
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-    if (localStorage.getItem("visitedIntro") === "true") {
-      // どの起動方法でも intro をスキップ
-      window.location.href = "start.html";
-    } else if (isStandalone) {
-      // 初回のPWA起動：intro はスキップして start.html へ（visitedIntro をここで記録）
-      localStorage.setItem("visitedIntro", "true");
-      window.location.href = "start.html";
-    }
-
-    // ✅ 初回訪問時：intro へ誘導
-    function startQuest() {
-      localStorage.setItem("visitedIntro", "true");
-      location.href = "intro.html";
     }
   </script>
 </body>
