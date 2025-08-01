@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QRクエストへようこそ</title>
+
+  <!-- ✅ PWA関連 -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
   <style>
     body {
       font-family: sans-serif;
@@ -55,6 +60,26 @@
     function startQuest() {
       localStorage.setItem("visitedIntro", "true");
       location.href = "intro.html";
+    }
+
+    // ✅ Service Worker 登録（PWA化）
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => {
+          console.log('Service Worker registered with scope:', reg.scope);
+        })
+        .catch(err => {
+          console.log('Service Worker registration failed:', err);
+        });
+    }
+
+    // ✅ ホーム画面から起動時は intro をスキップして start.html へ
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isStandalone && localStorage.getItem("visitedIntro") !== "true") {
+      localStorage.setItem("visitedIntro", "true");
+      setTimeout(() => {
+        window.location.href = "start.html";
+      }, 1000);
     }
   </script>
 </body>
