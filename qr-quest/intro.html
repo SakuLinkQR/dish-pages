@@ -3,32 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>冒険の始まり</title>
+  <title>ぼうけんのはじまり</title>
   <style>
     body {
-      background-image: url('images/map_background_b.png'); /* 背景マップ画像 */
+      background-image: url('images/map_background_b.png');
       background-size: cover;
       background-position: center;
-      color: #3b2c14; /* 濃い茶色のテキスト */
+      color: #3b2c14;
       font-family: 'Courier New', monospace;
       text-align: center;
       padding: 60px 20px;
     }
-
     #overlay {
-      background-color: rgba(255, 248, 220, 0.75); /* セピア調の半透明オーバーレイ */
+      background-color: rgba(255, 248, 220, 0.75);
       padding: 40px;
       border-radius: 15px;
       display: inline-block;
     }
-
     #text-box {
       font-size: 22px;
       line-height: 1.8;
       white-space: pre-line;
       min-height: 200px;
     }
-
     .next-button {
       display: none;
       margin-top: 40px;
@@ -49,7 +46,10 @@
   </div>
 
   <script>
-    // 導入文（固定）
+    // タイトル（start.htmlでも使う）
+    const questTitle = "ぴーすをさがせ！";
+
+    // 導入文
     const messagePart1 = `
 よくきた、ゆうじゃよ。
 あたらしい　たんけんの とびらが
@@ -58,7 +58,7 @@
 さあ、すすむがよい。
 `;
 
-    // ミッション説明（固定）
+    // ミッション説明
     const missionText = `
 たいへんじゃ！
 えが バラバラにされて しまった。
@@ -70,24 +70,22 @@
     const nextButton = document.querySelector(".next-button");
     let index = 0;
 
-    // 文字を一文字ずつ表示
     function typeText(text, callback) {
       if (index < text.length) {
         textBox.innerHTML += text[index] === "\n" ? "<br>" : text[index];
         index++;
         setTimeout(() => typeText(text, callback), 70);
       } else if (callback) {
-        setTimeout(callback, 800); // 次の文章まで少し間を空ける
+        setTimeout(callback, 800);
       }
     }
 
-    // ページ遷移
     function goToStart() {
-      localStorage.setItem("visitedIntro", "true"); // 念のため再セット
+      localStorage.setItem("visitedIntro", "true");
+      localStorage.setItem("questTitle", questTitle); // タイトルを保存
       location.href = "start.html";
     }
 
-    // 実行
     window.onload = () => {
       typeText(messagePart1, () => {
         index = 0;
