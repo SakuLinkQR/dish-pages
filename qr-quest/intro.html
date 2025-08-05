@@ -26,7 +26,7 @@
       font-size: 22px;
       line-height: 1.8;
       white-space: pre-line;
-      min-height: 180px;
+      min-height: 200px;
     }
 
     .next-button {
@@ -49,34 +49,54 @@
   </div>
 
   <script>
-    const message = `
+    // 導入文（固定）
+    const messagePart1 = `
 よくきた、ゆうじゃよ。
 あたらしい　たんけんの とびらが
 いま、ひらかれようとしている…。
 
 さあ、すすむがよい。
-    `;
+`;
+
+    // ミッション説明（固定）
+    const missionText = `
+たいへんじゃ！
+えが バラバラにされて しまった。
+あちこちに ちらばった ピースを さがし、
+もとどおりに するのじゃ！
+`;
 
     const textBox = document.getElementById("text-box");
     const nextButton = document.querySelector(".next-button");
     let index = 0;
 
-    function typeText() {
-      if (index < message.length) {
-        textBox.innerHTML += message[index] === "\n" ? "<br>" : message[index];
+    // 文字を一文字ずつ表示
+    function typeText(text, callback) {
+      if (index < text.length) {
+        textBox.innerHTML += text[index] === "\n" ? "<br>" : text[index];
         index++;
-        setTimeout(typeText, 70);
-      } else {
-        nextButton.style.display = "inline-block";
+        setTimeout(() => typeText(text, callback), 70);
+      } else if (callback) {
+        setTimeout(callback, 800); // 次の文章まで少し間を空ける
       }
     }
 
+    // ページ遷移
     function goToStart() {
       localStorage.setItem("visitedIntro", "true"); // 念のため再セット
       location.href = "start.html";
     }
 
-    window.onload = typeText;
+    // 実行
+    window.onload = () => {
+      typeText(messagePart1, () => {
+        index = 0;
+        textBox.innerHTML += "<br><br>";
+        typeText(missionText, () => {
+          nextButton.style.display = "inline-block";
+        });
+      });
+    };
   </script>
 </body>
 </html>
