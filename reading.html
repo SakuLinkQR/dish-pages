@@ -5,103 +5,24 @@
   <title>Reading Detail</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 120px 20px 40px;
-      max-width: 700px;
-      margin: auto;
-      background-color: #fffdf9;
-      line-height: 1.6;
-    }
-
-    .header-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: pink;
-      padding: 10px 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
-
-    .header-inner {
-      max-width: 700px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-      font-size: 20px;
-      box-sizing: border-box;
-    }
-
-    .header-title {
-      font-weight: bold;
-    }
-
-    .menu-toggle {
-      font-size: 16px;
-      color: #333;
-      font-weight: bold;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .dropdown-menu {
-      display: none;
-      position: fixed;
-      top: 58px;
-      right: 20px;
-      background-color: white;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      z-index: 1001;
-      padding: 10px 15px;
-      width: 180px;
-    }
-
-    .dropdown-menu a {
-      display: block;
-      text-decoration: none;
-      color: #333;
-      padding: 8px 0;
-      font-size: 0.95em;
-    }
-
-    .dropdown-menu a:hover {
-      color: #ff4081;
-    }
-
-    h1 {
-      color: #ff4081;
-      font-size: 1.6em;
-      margin-bottom: 20px;
-    }
-
-    .back-button {
-      margin-top: 30px;
-      display: inline-block;
-      background-color: #ff4081;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-decoration: none;
-    }
+    body { font-family: sans-serif; padding: 120px 20px 40px; max-width: 700px; margin: auto; background-color: #fffdf9; line-height: 1.6; }
+    .header-bar { position: fixed; top: 0; left: 0; width: 100%; background-color: pink; padding: 10px 0; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); z-index: 1000; }
+    .header-inner { max-width: 700px; margin: auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 20px; box-sizing: border-box; }
+    .header-title { font-weight: bold; }
+    .menu-toggle { font-size: 16px; color: #333; font-weight: bold; cursor: pointer; user-select: none; }
+    .dropdown-menu { display: none; position: fixed; top: 58px; right: 20px; background-color: white; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 1001; padding: 10px 15px; width: 180px; }
+    .dropdown-menu a { display: block; text-decoration: none; color: #333; padding: 8px 0; font-size: 0.95em; }
+    .dropdown-menu a:hover { color: #ff4081; }
+    h1 { color: #ff4081; font-size: 1.6em; margin-bottom: 20px; }
+    .back-button { margin-top: 30px; display: inline-block; background-color: #ff4081; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; }
   </style>
 </head>
 <body>
-
-  <!-- 🔐 トークンチェック -->
   <script>
     const token = localStorage.getItem("authToken");
-    if (!token) {
-      window.location.href = "login.html";
-    }
+    if (!token) { window.location.href = "login.html"; }
   </script>
 
-  <!-- ヘッダー -->
   <div class="header-bar">
     <div class="header-inner">
       <div class="header-title">🌸 SakuLink 🌸</div>
@@ -109,7 +30,6 @@
     </div>
   </div>
 
-  <!-- 展開メニュー -->
   <div class="dropdown-menu" id="dropdownMenu">
     <a href="home.html">🏠 Home</a>
     <a href="reading_list.html">📚 Readings</a>
@@ -120,28 +40,23 @@
     <a href="#" onclick="logout()">🚪 Logout</a>
   </div>
 
-  <!-- 本文 -->
   <h1 id="title">Loading...</h1>
   <div id="content"></div>
   <a href="reading_list.html" class="back-button">← Back to Readings</a>
 
-  <!-- スクリプト -->
   <script>
     function toggleMenu() {
       const menu = document.getElementById("dropdownMenu");
       menu.style.display = menu.style.display === "block" ? "none" : "block";
     }
-
-    function logout() {
-      localStorage.removeItem("authToken");
-      window.location.href = "login.html";
-    }
+    function logout() { localStorage.removeItem("authToken"); window.location.href = "login.html"; }
 
     const params = new URLSearchParams(window.location.search);
     const storyId = params.get("id");
 
     if (storyId) {
-      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:nS6vsoKd/get_reading_by_story_id?story_id=${storyId}`)
+      // ▼新URLに統一
+      fetch(`https://x8ki-letl-twmt.n7.xano.io/api:W-9gWuwf/get_reading_by_story_id_0?story_id=${storyId}`)
         .then((res) => {
           if (!res.ok) throw new Error("API error");
           return res.json();
