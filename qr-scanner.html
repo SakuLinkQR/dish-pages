@@ -88,6 +88,7 @@
     #result {
       font-size: 1.2em;
       margin-top: 20px;
+      min-height: 1.4em;
     }
     .button-container {
       display: flex;
@@ -120,6 +121,7 @@
   </style>
 </head>
 <body>
+  <!-- 認証トークンが無ければログインへ -->
   <script>
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -171,76 +173,124 @@
     const html5QrCode = new Html5Qrcode("preview");
     const resultContainer = document.getElementById("output");
     const statusText = document.getElementById("status");
+
+    // 多重遷移の防止
     let hasRedirected = false;
+
+    // 同一コード連続発火のデバウンス
+    let lastText = "";
+    let lastAt = 0;
+
+    async function startScanner() {
+      try {
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: 250 },
+          onScanSuccess,
+          onScanFailure
+        );
+        statusText.innerText = "Camera active. Please hold the QR code within the frame.";
+      } catch (err) {
+        statusText.innerText = "Camera error: " + err;
+      }
+    }
+
+    async function stopScanner() {
+      try {
+        if (html5QrCode._isScanning) {
+          await html5QrCode.stop();
+        }
+      } catch (_) {
+        /* ignore */
+      } finally {
+        const preview = document.getElementById("preview");
+        preview.innerHTML = "";
+      }
+    }
+
+    function isAllowedDomain(url) {
+      const host = url.hostname;
+      return host.includes("sakulink.com") || host.includes("sakulinkqr.github.io");
+    }
 
     function onScanSuccess(decodedText) {
       if (hasRedirected) return;
 
-      if (
-        !decodedText.startsWith("http") ||
-        (!decodedText.includes("sakulink.com") && !decodedText.includes("sakulinkqr.github.io"))
-      ) {
-        window.location.href = "invalid_qr.html";
+      // デバウンス（1.5秒）
+      const now = Date.now();
+      if (decodedText === lastText && now - lastAt < 1500) return;
+      lastText = decodedText;
+      lastAt = now;
+
+      // URLでなければメッセージのみ（遷移/停止しない）
+      if (!decodedText.startsWith("http")) {
+        resultContainer.innerText = "Invalid QR. Please try again.";
+        statusText.innerText = "Please hold a valid SakuLink QR within the frame.";
+        navigator.vibrate?.(80);
         return;
       }
 
       try {
         const url = new URL(decodedText);
-        const idCode = url.searchParams.get("id_code") || url.searchParams.get("id") || "";
 
-        if (!idCode) {
-          resultContainer.innerText = "No valid ID found in QR code.";
+        // 許可ドメイン以外 → メッセージのみで継続（旧: invalid_qr.html へ遷移していた）
+        if (!isAllowedDomain(url)) {
+          resultContainer.innerText = "This QR is not for SakuLink.";
+          statusText.innerText = "Please scan a SakuLink QR code.";
+          navigator.vibrate?.(80);
           return;
         }
 
+        const idCode =
+          url.searchParams.get("id_code") ||
+          url.searchParams.get("id") ||
+          "";
+
+        if (!idCode) {
+          resultContainer.innerText = "No valid ID found in QR code.";
+          statusText.innerText = "Scan another code.";
+          navigator.vibrate?.(80);
+          return;
+        }
+
+        // 有効 → 遷移前にカメラ停止してから安全に移動
         resultContainer.innerText = idCode;
         hasRedirected = true;
-        window.location.href = `dish_detail.html?id_code=${encodeURIComponent(idCode)}`;
+        stopScanner().finally(() => {
+          window.location.href = `dish_detail.html?id_code=${encodeURIComponent(idCode)}`;
+        });
       } catch (e) {
         resultContainer.innerText = "Failed to parse QR code.";
+        statusText.innerText = "Try again.";
       }
     }
 
-    function onScanFailure(error) {
-      // no-op
+    function onScanFailure(_) {
+      // no-op (フレーム毎の失敗通知)
     }
 
-    function rescan() {
+    async function rescan() {
       hasRedirected = false;
       resultContainer.innerText = "";
       statusText.innerText = "Restarting camera...";
 
-      html5QrCode.stop().then(() => {
-        const preview = document.getElementById("preview");
-        preview.innerHTML = "";
-
-        setTimeout(() => {
-          html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: 250 },
-            onScanSuccess,
-            onScanFailure
-          ).then(() => {
-            statusText.innerText = "Camera restarted. Please hold the QR code within the frame.";
-          }).catch(err => {
-            statusText.innerText = "Camera restart error: " + err;
-          });
-        }, 300);
-      }).catch(err => {
-        statusText.innerText = "Camera stop error: " + err;
-      });
+      await stopScanner();
+      setTimeout(startScanner, 300);
     }
 
-    html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      onScanSuccess,
-      onScanFailure
-    ).then(() => {
-      statusText.innerText = "Camera active. Please hold the QR code within the frame.";
-    }).catch(err => {
-      statusText.innerText = "Camera error: " + err;
+    // ページ復帰時に自動で再開（戻る操作等で固まる対策）
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && !hasRedirected) {
+        startScanner();
+      }
     });
+
+    // ページ離脱時は停止（リソース解放）
+    window.addEventListener("pagehide", stopScanner);
+    window.addEventListener("beforeunload", stopScanner);
+
+    // 初回起動
+    startScanner();
   </script>
 </body>
 </html>
