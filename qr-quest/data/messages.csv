@@ -1,1 +1,9 @@
-
+code,name,category,msg,note
+D001,sandal,garbage,くそっ、ただの古いサンダルだっ！,サンダル用
+D002,bucket,garbage,穴の開いたバケツとはな…,バケツ用
+D003,stone,garbage,チッ…ただの石ころだ…,石ころ用
+D004,banana,garbage,おっと、踏んだら滑っちまうところだった！,バナナの皮
+D005,junkpile,rare,うわっ！がらくたの山じゃないか！,ゴミ山
+D101,tanuki,animal,しまった！タヌキにばかされた！,タヌキ用
+D102,skunk,animal,やばい、スカンクだ、逃げろ！💨,スカンク用
+D201,treasurebox,rare,空っぽの宝箱だと！？,偽宝箱
