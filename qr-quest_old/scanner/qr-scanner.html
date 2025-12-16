@@ -143,14 +143,7 @@
 
         const allowed =
           domain === "sakulink.com" &&
-          (
-            // プロトタイプ
-            path === "/qr-quest/progress.html" ||
-            path === "/qr-quest/result.html" ||
-
-            // イベント版（/qr-quest/events/<event>/...）
-            /^\/qr-quest\/events\/[^\/]+\/(progress|result)\.html$/.test(path)
-          );
+          (path === "/qr-quest/progress.html" || path === "/qr-quest/result.html");
 
         if (allowed) {
           hasRedirected = true;

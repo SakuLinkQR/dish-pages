@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>カメラテスト</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      text-align: center;
+      font-family: sans-serif;
+      padding: 40px;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+    iframe {
+      width: 90%;
+      height: 400px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+    }
+    p {
+      margin-top: 20px;
+      font-size: 0.95rem;
+    }
+    .btn-group {
+      margin-top: 30px;
+    }
+    button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #4fa3ff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1e88e5;
+    }
+  </style>
+</head>
+<body>
+  <h1>📷 カメラ動作テスト</h1>
+  <p>下の枠でQRコードを読み取れるか確認してください。</p>
+  <iframe src="scanner/qr-scanner.html"></iframe>
+  <p>カメラが映らない場合は、スマホの設定から「カメラの許可」を確認してください。</p>
+
+  <div class="btn-group">
+    <button onclick="location.href='index.html'">✅ カメラOK！ スタート画面に戻る</button>
+    <button onclick="location.href='index.html'">🔧 もう一度設定を見直す</button>
+  </div>
+</body>
+</html>

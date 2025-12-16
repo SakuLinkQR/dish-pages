@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>お宝進行状況</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 30px 10px;
+      background-color: #fffaf2;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      color: #4b2e0d;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      width: 300px;
+      height: 300px;
+      margin: 0 auto;
+    }
+
+    .grid img {
+      width: 150px;
+      height: 150px;
+      display: block;
+      padding: 0;
+      margin: 0;
+      border: none;
+      background-color: transparent;
+    }
+
+    .btn {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      background-color: #4fa3ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-reward {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      background-color: #ffcc00;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧭 みつけた お宝ピース！</h1>
+
+  <div class="grid">
+    <img id="piece1" src="images/blank.png" alt="ピース1（左上）" />
+    <img id="piece2" src="images/blank.png" alt="ピース2（右上）" />
+    <img id="piece3" src="images/blank.png" alt="ピース3（左下）" />
+    <img id="piece4" src="images/blank.png" alt="ピース4（右下）" />
+  </div>
+
+  <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
+
+  <!-- ✅ ファンファーレ音声ファイル -->
+  <audio id="fanfare" src="sounds/fanfare.mp3" preload="auto"></audio>
+
+  <script>
+    // ✅ URLパラメータの取得と補完
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+    const event = urlParams.get('event') || "PROTO"; // デフォルトでPROTO
+    const code = urlParams.get('code') || id || "unknown";
+    const type = urlParams.get('type') || (parseInt(code) >= 100 ? "dummy" : "correct");
+    const page = 'progress.html';
+
+    // ✅ スプレッドシートに記録を送る
+    fetch("https://script.google.com/macros/s/AKfycbyE9PKDtOjTb1pFbnQFIrXLgDQ4s-kqVWFm2r7sJ9CZVbjt7DDfE4IsYCePGZQktfTFYg/exec", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        event: event,
+        code: code,
+        type: type,
+        page: page
+      })
+    })
+    .then(res => res.text())
+    .then(msg => {
+      console.log("送信結果:", msg);
+    })
+    .catch(err => {
+      console.error("送信失敗:", err);
+    });
+
+    // ✅ ピース状態の取得
+    const p1 = localStorage.getItem("piece1") === "true";
+    const p2 = localStorage.getItem("piece2") === "true";
+    const p3 = localStorage.getItem("piece3") === "true";
+    const p4 = localStorage.getItem("piece4") === "true";
+
+    // ✅ ピース画像の更新
+    if (p1) document.getElementById("piece1").src = "images/piece1.png";
+    if (p2) document.getElementById("piece2").src = "images/piece2.png";
+    if (p3) document.getElementById("piece3").src = "images/piece3.png";
+    if (p4) document.getElementById("piece4").src = "images/piece4.png";
+
+    // ✅ 全ピース揃った場合の処理
+    if (p1 && p2 && p3 && p4) {
+      const audio = document.getElementById("fanfare");
+      audio.play().catch(e => {
+        console.log("音声の自動再生がブロックされました");
+      });
+
+      const rewardBtn = document.createElement("button");
+      rewardBtn.textContent = "🎁 おたからを うけとる";
+      rewardBtn.className = "btn-reward";
+      rewardBtn.onclick = () => {
+        location.href = "reward_intro.html";
+      };
+      document.body.appendChild(rewardBtn);
+    }
+  </script>
+
+</body>
+</html>

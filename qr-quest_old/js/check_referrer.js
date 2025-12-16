@@ -16,6 +16,6 @@
 
     // 許可されていない場合はwarning.htmlにリダイレクト
     if (!isAllowed) {
-        window.location.href = 'warning.html';
+        window.location.href = '../warning.html';
     }
 })();

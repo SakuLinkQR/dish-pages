@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRクエストへようこそ</title>
+
+  <!-- ✅ PWA関連 -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+      background-color: #f0f8ff;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+    .btn {
+      display: block;
+      width: 80%;
+      max-width: 320px;
+      margin: 10px auto;
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #4fa3ff;
+      color: white;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #1e88e5;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌟 QRクエスト in ○○ 🌟</h1>
+  <p>街を歩いて、QRを探して、クエストに挑戦しよう！</p>
+
+  <button class="btn" onclick="startQuest()">🎮 クエストを始める</button>
+  <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテスト</button>
+  <button class="btn" onclick="location.href='start.html'">⏩ スキップ</button>
+
+  <script>
+    // ✅ visitedIntro が true なら、即 start.html へジャンプ（すべての起動経路に対応）
+    if (localStorage.getItem("visitedIntro") === "true") {
+      window.location.href = "start.html";
+    }
+
+    // ✅ 初回のみ intro を表示し、visitedIntro を true に
+    function startQuest() {
+      localStorage.setItem("visitedIntro", "true");
+      window.location.href = "intro.html";
+    }
+
+    // ✅ Service Worker 登録（PWA化用）
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => {
+          console.log('Service Worker registered with scope:', reg.scope);
+        })
+        .catch(err => {
+          console.log('Service Worker registration failed:', err);
+        });
+    }
+  </script>
+</body>
+</html>

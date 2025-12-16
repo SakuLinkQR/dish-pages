@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>クエストメニュー</title>
+
+  <!-- 冒険風ドットフォント -->
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'DotGothic16', sans-serif;
+      background-image: url('images/background_grandcanyon.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #f9f2dc;
+      text-align: center;
+      padding: 40px 20px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-top: 30px;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+      letter-spacing: 2px;
+      white-space: nowrap;
+    }
+    .button-group {
+      margin-top: 80px;
+    }
+    button {
+      display: block;
+      width: 80vw;
+      max-width: 360px;
+      margin: 14px auto;
+      padding: 20px 0;
+      font-size: 1.3rem;
+      height: 70px;
+      border-radius: 12px;
+      border: none;
+      background-color: #ffd54f;
+      color: #4e342e;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    button:hover {
+      background-color: #ffb300;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <h1 id="quest-title">クエスト</h1>
+
+  <div class="button-group">
+    <button onclick="location.href='scanner/qr-scanner.html'">QRをスキャン！</button>
+    <button onclick="location.href='progress.html'">どこまでみつけた？</button>
+    <button onclick="goBackToIndex()">さいしょにもどる</button>
+  </div>
+
+  <script>
+    // 初回訪問時はintro済みに設定
+    if (!localStorage.getItem("visitedIntro")) {
+      localStorage.setItem("visitedIntro", "true");
+    }
+
+    // タイトルをlocalStorageから読み込み
+    const savedTitle = localStorage.getItem("questTitle") || "クエスト";
+    document.getElementById("quest-title").textContent = savedTitle;
+
+    // 「さいしょにもどる」ボタン用
+    function goBackToIndex() {
+      // introをもう一度表示させるためフラグ削除
+      localStorage.removeItem("visitedIntro");
+      // index.htmlへ移動
+      location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

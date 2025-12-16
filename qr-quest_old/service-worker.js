@@ -1,8 +1,7 @@
 // qr-quest/service-worker.js
 // v2: ナビゲーションは network-first、静的資産は cache-first、旧キャッシュの削除 & 即時適用
 
-const CACHE_PREFIX = "qr-quest-";
-const CACHE_NAME = "qr-quest-v3"; // ←バージョンを上げると旧キャッシュが確実に破棄されます
+const CACHE_NAME = "qr-quest-v2"; // ←バージョンを上げると旧キャッシュが確実に破棄されます
 const ORIGIN = self.location.origin;
 
 // できるだけ“よく使う画面・資産”を事前キャッシュ
@@ -56,8 +55,8 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys.map((key) => {
-          if (key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME) return caches.delete(key);
-})
+          if (key !== CACHE_NAME) return caches.delete(key);
+        })
       );
       // 既存ページにも即時適用
       await self.clients.claim();
@@ -79,11 +78,6 @@ self.addEventListener("fetch", (event) => {
   // クロスオリジンは触らない
   if (url.origin !== ORIGIN) return;
 
-  // ✅ イベント版（/qr-quest/events/）は各イベントのService Workerに任せる
-  if (url.pathname.startsWith("/qr-quest/events/")) {
-    event.respondWith(fetch(req));
-    return;
-  }
   if (req.mode === "navigate") {
     // ページ遷移はネット優先
     event.respondWith(networkFirst(req));
