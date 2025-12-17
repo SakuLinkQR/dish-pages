@@ -1,77 +1,79 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <script src="event-config.js"></script>
-<meta charset="UTF-8" />
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QRクエストへようこそ</title>
+  <title>砂の祭典2026 公式アプリ</title>
 
-  <!-- ✅ PWA関連 -->
+  <!-- PWA関連 -->
   <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 
   <style>
     body {
-      font-family: sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
       text-align: center;
-      padding: 40px;
+      padding: 40px 20px;
       background-color: #f0f8ff;
+      margin: 0;
     }
     h1 {
-      font-size: 2rem;
-      margin-bottom: 20px;
+      font-size: 1.8rem;
+      margin: 10px 0 14px;
     }
     p {
-      font-size: 1.1rem;
-      margin-bottom: 30px;
+      font-size: 1.05rem;
+      margin: 0 0 22px;
+      line-height: 1.6;
     }
     .btn {
       display: block;
-      width: 80%;
-      max-width: 320px;
+      width: 86%;
+      max-width: 340px;
       margin: 10px auto;
-      padding: 12px 24px;
-      font-size: 1.2rem;
+      padding: 14px 18px;
+      font-size: 1.15rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       background-color: #4fa3ff;
       color: white;
       cursor: pointer;
     }
-    .btn:hover {
-      background-color: #1e88e5;
+    .btn:hover { background-color: #1e88e5; }
+
+    .tag {
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#e8f3ff;
+      color:#1e5aa8;
+      font-size:12px;
+      margin-bottom:10px;
     }
   </style>
 </head>
 <body>
-  <h1>🌟 QRクエスト in ○○ 🌟</h1>
-  <p>街を歩いて、QRを探して、クエストに挑戦しよう！</p>
+  <div class="tag">砂の祭典公式アプリ</div>
+  <h1>QRクエスト in 砂の祭典2026</h1>
+  <p>
+    このアプリは、会場のQRコードを読み取って「砂像の説明」や「クエスト」に参加できます。<br>
+    まずは下のボタンからスタートしてください。
+  </p>
 
   <button class="btn" onclick="startQuest()">🎮 クエストを始める</button>
   <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテスト</button>
-  <button class="btn" onclick="location.href='start.html'">⏩ スキップ</button>
 
   <script>
-    // ✅ visitedIntro が true なら、即 start.html へジャンプ（すべての起動経路に対応）
-    if (localStorage.getItem("visitedIntro") === "true") {
+    function startQuest() {
       window.location.href = "start.html";
     }
 
-    // ✅ 初回のみ intro を表示し、visitedIntro を true に
-    function startQuest() {
-      localStorage.setItem("visitedIntro", "true");
-      window.location.href = "intro.html";
-    }
-
-    // ✅ Service Worker 登録（PWA化用）
+    // Service Worker 登録（PWA化用）
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
-        .then(reg => {
-          console.log('Service Worker registered with scope:', reg.scope);
-        })
-        .catch(err => {
-          console.log('Service Worker registration failed:', err);
-        });
+        .then(reg => console.log('Service Worker registered with scope:', reg.scope))
+        .catch(err => console.log('Service Worker registration failed:', err));
     }
   </script>
 </body>
