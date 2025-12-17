@@ -19,15 +19,26 @@
       margin: auto;
       color: #333;
     }
+
     h1 { font-size: 1.8em; color: #ff4081; margin-bottom: 12px; }
     p { font-size: 1.05em; margin-bottom: 18px; }
+
     .instruction {
       background-color: #fff3f8;
       padding: 18px;
       border-radius: 10px;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
       text-align: left;
     }
+
+    /* B案の補足文 */
+    .note{
+      margin: 0 0 18px;
+      font-size: 0.95em;
+      color: #555;
+      line-height: 1.6;
+    }
+
     .next-button {
       padding: 12px 24px;
       font-size: 1.1em;
@@ -39,13 +50,25 @@
       box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
     }
     .next-button:hover { background-color: #e03570; }
-    .contact-box { margin-top: 28px; font-size: 0.95em; color: #666; }
+
+    /* 下部の控えめ表記 */
+    .powered{
+      margin-top: 26px;
+      font-size: 12px;
+      color: #888;
+    }
   </style>
 </head>
 
 <body>
   <h1>砂の祭典公式アプリ</h1>
   <p>使いやすくするため、ホーム画面に追加するのがおすすめです。</p>
+
+  <!-- B案：追加した人も、しない人も、このボタンで進める -->
+  <p class="note">
+    追加できた方は、追加後にこの画面へ戻って、下のボタンを押してください。<br>
+    追加しない方も、そのまま押してOKです。
+  </p>
 
   <div class="instruction">
     <p><strong>📱 iPhone（Safari）</strong><br>
@@ -57,15 +80,11 @@
     </p>
   </div>
 
-  <!-- 次は splash → ホームへ、の流れにする -->
+  <!-- 次は splash → language(自動) → ... の流れ -->
   <button class="next-button" onclick="location.href='./splash.html'">
-    追加せずに続ける（アプリ起動）
+    追加後（または追加せず）に進む（アプリ起動）
   </button>
 
-  <div class="contact-box">
-    砂の祭典事務局<br>
-    <strong>info@sakulink.com</strong>
-  </div>
+  <div class="powered">Powered by SakuLink</div>
 </body>
 </html>
-
