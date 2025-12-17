@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>砂の祭典2026</title>
 
-  <!-- 2秒後にスタートへ（必要なら秒数だけ変えられます） -->
+  <!-- 2秒後にスタートへ -->
   <meta http-equiv="refresh" content="2; url=./start.html" />
 
   <style>
@@ -13,6 +13,7 @@
       --bg:#ffffff;
       --ink:#222;
     }
+
     body{
       margin:0;
       min-height:100vh;
@@ -23,14 +24,36 @@
       background:var(--bg);
       color:var(--ink);
       text-align:center;
+      overflow:hidden;
     }
+
+    /* 背景の薄いアイコン */
+    .bg{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      pointer-events:none;
+      z-index:0;
+    }
+    .bg img{
+      width:min(68vw, 420px);
+      height:auto;
+      opacity:0.10;           /* ここを 0.06〜0.18 で好みに調整 */
+      filter: blur(0.2px);
+    }
+
     .wrap{
+      position:relative;
+      z-index:1;
       padding:24px 16px;
     }
+
     .title{
       font-size:28px;
       margin:0;
-      font-weight:800;
+      font-weight:900;
       letter-spacing:.02em;
     }
     .sub{
@@ -42,6 +65,10 @@
 </head>
 
 <body>
+  <div class="bg">
+    <img src="./icons/icon-512.png" alt="" />
+  </div>
+
   <div class="wrap">
     <h1 class="title">砂の祭典2026</h1>
     <p class="sub">読み込み中…</p>
