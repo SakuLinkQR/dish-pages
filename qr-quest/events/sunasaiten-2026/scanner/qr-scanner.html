@@ -3,93 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <title>QRクエスト - スキャナー</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
+    /* iPhoneでvhが暴れる対策 */
+    :root { --vh: 1vh; }
+    html, body { margin:0; padding:0; }
+
     body {
-      font-family: sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
       background-color: #fefefe;
       text-align: center;
-      padding: 10px;
-      margin: 0;
+      padding: 10px 12px 18px;
       overflow-x: hidden;
+      min-height: calc(var(--vh) * 100);
+      min-height: 100dvh;
+      box-sizing: border-box;
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     h1 {
       color: #007bff;
-      font-size: 1.6rem;
-      margin-bottom: 12px;
+      font-size: 1.35rem;
+      margin: 10px 0 10px;
       line-height: 1.4;
     }
 
+    /* 画面に合わせてプレビューを伸縮させる（固定300×300をやめる） */
     #preview {
-      width: 300px;
-      height: 300px;
+      width: min(86vw, 360px);
+      aspect-ratio: 1 / 1;
       border: 1px solid #ccc;
-      margin: 20px auto;
-      background: black;
+      border-radius: 12px;
+      margin: 14px auto 10px;
+      background: #000;
       position: relative;
+      overflow: hidden;
     }
 
     #preview video {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
 
     #status {
-      color: gray;
-      font-size: 0.9rem;
-      margin: 6px 0;
+      color: #666;
+      font-size: 0.95rem;
+      margin: 6px 0 2px;
     }
 
     #result {
       font-size: 1rem;
       color: #d32f2f;
-      margin: 6px 0 14px;
+      margin: 6px 0 12px;
       min-height: 1.2em;
+      padding: 0 10px;
+      word-break: break-word;
     }
 
     .btn {
       margin: 6px;
-      padding: 10px 20px;
+      padding: 10px 18px;
       background-color: #4caf50;
-      color: white;
+      color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 1rem;
       cursor: pointer;
+      min-width: 140px;
     }
 
-    .btn-exit {
-      background-color: #ff7043;
-    }
+    .btn-exit { background-color: #ff7043; }
   </style>
-</head>
-<body>
 
-  <h1>🎯 QRコードを読み取って<br>クエストを進めよう</h1>
+  <script>
+    function setVh(){
+      document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+    }
+    setVh();
+    window.addEventListener('resize', setVh);
+  </script>
+</head>
+
+<body>
+  <h1 id="title">🎯 QRコードを読み取って<br>クエストを進めよう</h1>
+
   <div id="preview"></div>
   <p id="status">カメラを起動中…</p>
   <div id="result"></div>
 
   <button onclick="rescan()" class="btn">🔄 再スキャン</button>
-  <button onclick="exitToMenu()" class="btn btn-exit">🏠 メニューに戻る</button>
+  <button onclick="exitToMenu()" class="btn btn-exit" id="exitBtn">🏠 メニューに戻る</button>
 
   <!-- html5-qrcode 本体 -->
   <script src="https://unpkg.com/html5-qrcode"></script>
+
   <script>
+    // mode=test のときは「テスト用挙動」にする
+    const params = new URLSearchParams(location.search);
+    const mode = params.get("mode"); // "test" or null
+
+    const titleEl = document.getElementById("title");
+    const exitBtn = document.getElementById("exitBtn");
+
+    if (mode === "test") {
+      titleEl.innerHTML = "📷 カメラテスト<br>QRを1つ読み取ってみてください";
+      exitBtn.textContent = "↩ テスト画面に戻る";
+    }
+
     const html5QrCode = new Html5Qrcode("preview");
     const statusText = document.getElementById("status");
     const resultContainer = document.getElementById("result");
 
-    // 同一コードの連続判定を抑制するためのデバウンス
     let lastText = "";
     let lastAt = 0;
-
-    // 遷移時の多重スタート防止フラグ
     let hasRedirected = false;
 
-    // カメラ開始（共通）
     async function startScanner() {
       try {
         await html5QrCode.start(
@@ -104,30 +135,37 @@
       }
     }
 
-    // カメラ停止（共通）
     async function stopScanner() {
       try {
         if (html5QrCode._isScanning) {
           await html5QrCode.stop();
         }
       } catch (_) {
-        // 失敗は握りつぶし
       } finally {
         document.getElementById("preview").innerHTML = "";
       }
     }
 
-    // スキャン成功時
     function onScanSuccess(decodedText) {
       if (hasRedirected) return;
 
-      // ▼同一内容の連続ヒットは1.5秒無視（手ブレや連続検出対策）
       const now = Date.now();
       if (decodedText === lastText && now - lastAt < 1500) return;
       lastText = decodedText;
       lastAt = now;
 
-      // URL以外は無効として即リターン（カメラは止めない）
+      // ▼テストモード：読み取れたら「OK表示」で止める（どこにも飛ばない）
+      if (mode === "test") {
+        resultContainer.innerText = "✅ 読み取り成功！\n" + decodedText;
+        statusText.innerText = "テストOKです。戻るボタンで戻ってください。";
+        navigator.vibrate?.(60);
+
+        // カメラを止めて固まりにくくする
+        stopScanner();
+        return;
+      }
+
+      // ▼通常モード（ここから下は今まで通りの厳格判定）
       if (!decodedText.startsWith("http")) {
         resultContainer.innerText = "無効なQRコードです。もう一度かざしてください。";
         statusText.innerText = "正しいQRをもう一度かざしてください。";
@@ -135,7 +173,6 @@
         return;
       }
 
-      // URLパースとホワイトリスト判定
       try {
         const url = new URL(decodedText);
         const domain = url.hostname;
@@ -144,17 +181,13 @@
         const allowed =
           domain === "sakulink.com" &&
           (
-            // プロトタイプ
             path === "/qr-quest/progress.html" ||
             path === "/qr-quest/result.html" ||
-
-            // イベント版（/qr-quest/events/<event>/...）
             /^\/qr-quest\/events\/[^\/]+\/(progress|result)\.html$/.test(path)
           );
 
         if (allowed) {
           hasRedirected = true;
-          // 画面遷移前に停止（カメラリソース解放）
           stopScanner().finally(() => {
             window.location.href = decodedText;
           });
@@ -162,47 +195,44 @@
           resultContainer.innerText = "これは公式QRクエスト用コードではありません。";
           statusText.innerText = "正しいQRをもう一度かざしてください。";
           navigator.vibrate?.(80);
-          return; // カメラ継続
+          return;
         }
       } catch {
         resultContainer.innerText = "読み取りエラーが発生しました。もう一度どうぞ。";
         statusText.innerText = "正しいQRをもう一度かざしてください。";
-        return; // カメラ継続
+        return;
       }
     }
 
-    // スキャン失敗時（フレーム毎の失敗通知。特に何もしない）
     function onScanFailure(_) { /* no-op */ }
 
-    // 再スキャン
     async function rescan() {
       hasRedirected = false;
       resultContainer.innerText = "";
       statusText.innerText = "再スキャンを準備中…";
-
       await stopScanner();
       setTimeout(startScanner, 300);
     }
 
-    // メニューに戻る
     async function exitToMenu() {
       await stopScanner();
-      window.location.href = "../start.html";
+      // テストモードは test-cameraへ戻す。通常は startへ戻す。
+      if (mode === "test") {
+        window.location.href = "../test-camera.html";
+      } else {
+        window.location.href = "../start.html";
+      }
     }
 
-    // ページ可視状態の変化で再起動（ブラウザ戻る等で復帰時に固まる対策）
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible" && !hasRedirected) {
-        // すでに動作中なら start は内部で弾かれるため安全
         startScanner();
       }
     });
 
-    // ページ遷移/破棄時は明示停止（カメラを掴みっぱなしにしない）
     window.addEventListener("pagehide", stopScanner);
     window.addEventListener("beforeunload", stopScanner);
 
-    // 初回起動
     startScanner();
   </script>
 </body>
