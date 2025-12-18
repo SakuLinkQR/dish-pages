@@ -1,0 +1,21 @@
+{
+  "s01": {
+    "monumentTitle": "（テスト）砂像タイトル",
+    "monumentSub": "市役所エリア",
+    "monumentPhoto": "",
+    "artist": {
+      "name": "茶圓 勝彦",
+      "country": "日本",
+      "bio": "【読み】ちゃえん かつひこ（Chaen Katsuhiko）\n砂像彫刻家／プロデューサー。\nNewsweekの選出（年は後で確定）も入れる予定。",
+      "photo": ""
+    },
+    "concept": {
+      "text": "〇〇（仮の説明）",
+      "modelPhoto": "",
+      "modelDesc": "〇〇（モデルの城の説明・仮）",
+      "makingPhoto": "",
+      "makingDesc": "〇〇（制作様子の説明・仮）"
+    }
+  }
+}
+
