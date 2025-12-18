@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>砂像案内</title>
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;margin:0;padding:16px;line-height:1.6;background:#fff}
+    .wrap{max-width:720px;margin:0 auto}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef6ff;color:#1e5aa8;font-size:12px}
+    h1{margin:10px 0 8px;font-size:22px}
+    .img{width:100%;max-height:360px;object-fit:cover;border-radius:14px;border:1px solid #eee;background:#f5f5f5}
+    .card{margin:14px 0;padding:14px;border:1px solid #eee;border-radius:14px;background:#fafafa}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{display:inline-block;flex:1;min-width:220px;text-align:center;padding:12px 14px;border-radius:12px;border:1px solid #1e88e5;background:#1e88e5;color:#fff;text-decoration:none;font-weight:700}
+    .btn.sub{background:#fff;color:#1e88e5}
+    .muted{color:#666;font-size:14px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">砂の祭典公式アプリ</div>
+  <h1 id="title">砂像タイトル</h1>
+  <p class="muted" id="subtitle">（ここに一言）</p>
+
+  <img id="photo" class="img" src="./images/placeholder.png" alt="砂像の写真（仮）">
+
+  <div class="card">
+    <h2 style="margin:0 0 6px;font-size:16px;">説明</h2>
+    <p id="desc" style="margin:0;">ここに説明文が入ります（仮）。</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin:0 0 6px;font-size:16px;">場所</h2>
+    <p id="place" style="margin:0;">会場内：〇〇エリア（仮）</p>
+  </div>
+
+  <div class="row" style="margin-top:14px;">
+    <a class="btn" id="toChallenge" href="./start.html">チャレンジ確認へ</a>
+    <a class="btn sub" href="./start.html">メニューに戻る</a>
+  </div>
+</div>
+
+<script>
+  // クエリパラメータ（URLの ? の後ろ）を読む。例: monument.html?id=s01
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id") || "s01";
+
+  // とりあえず「仮データ」をここに入れて増やしていく（あとでスプレッドシート化も可能）
+  const DATA = {
+    s01: {
+      title: "砂像サンプル1",
+      subtitle: "（一言キャッチ）",
+      desc: "ここに砂像の説明（仮）を書きます。あとで差し替えます。",
+      place: "会場内：市役所エリア（仮）",
+      photo: "./images/placeholder.png"
+    },
+    s02: {
+      title: "砂像サンプル2",
+      subtitle: "（一言キャッチ）",
+      desc: "説明（仮）",
+      place: "会場内：本町エリア（仮）",
+      photo: "./images/placeholder.png"
+    }
+  };
+
+  const d = DATA[id] || DATA.s01;
+
+  document.getElementById("title").textContent = d.title;
+  document.getElementById("subtitle").textContent = d.subtitle;
+  document.getElementById("desc").textContent = d.desc;
+  document.getElementById("place").textContent = d.place;
+  document.getElementById("photo").src = d.photo;
+
+  // ここは後で「当たり/はずれ判定ページ」などに変更してOK
+  document.getElementById("toChallenge").href = "./start.html";
+</script>
+</body>
+</html>
