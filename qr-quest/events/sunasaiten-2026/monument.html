@@ -5,74 +5,214 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>砂像案内</title>
   <style>
-    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;margin:0;padding:16px;line-height:1.6;background:#fff}
-    .wrap{max-width:720px;margin:0 auto}
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;margin:0;padding:16px;line-height:1.7;background:#fff}
+    .wrap{max-width:760px;margin:0 auto}
     .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef6ff;color:#1e5aa8;font-size:12px}
-    h1{margin:10px 0 8px;font-size:22px}
-    .img{width:100%;max-height:360px;object-fit:cover;border-radius:14px;border:1px solid #eee;background:#f5f5f5}
-    .card{margin:14px 0;padding:14px;border:1px solid #eee;border-radius:14px;background:#fafafa}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{display:inline-block;flex:1;min-width:220px;text-align:center;padding:12px 14px;border-radius:12px;border:1px solid #1e88e5;background:#1e88e5;color:#fff;text-decoration:none;font-weight:700}
+    h1{margin:10px 0 6px;font-size:22px}
+    .muted{color:#666;font-size:14px;margin:0 0 10px}
+
+    .hero{
+      width:100%;
+      max-height:380px;
+      object-fit:cover;
+      border-radius:14px;
+      border:1px solid #eee;
+      background:#f5f5f5;
+    }
+
+    .card{
+      margin:14px 0;
+      padding:14px;
+      border:1px solid #eee;
+      border-radius:14px;
+      background:#fafafa;
+    }
+    .card h2{margin:0 0 10px;font-size:16px}
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+    @media (min-width:700px){
+      .grid{grid-template-columns:1fr 1fr;}
+    }
+
+    .kv{
+      display:grid;
+      grid-template-columns:110px 1fr;
+      gap:10px;
+      align-items:start;
+      margin:8px 0;
+    }
+    .k{color:#555;font-size:13px}
+    .v{font-size:15px}
+
+    .img{
+      width:100%;
+      max-height:260px;
+      object-fit:cover;
+      border-radius:12px;
+      border:1px solid #e9e9e9;
+      background:#f5f5f5;
+    }
+    .cap{font-size:12px;color:#666;margin-top:6px}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .btn{
+      display:inline-block;
+      flex:1;
+      min-width:220px;
+      text-align:center;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #1e88e5;
+      background:#1e88e5;
+      color:#fff;
+      text-decoration:none;
+      font-weight:700;
+    }
     .btn.sub{background:#fff;color:#1e88e5}
-    .muted{color:#666;font-size:14px}
   </style>
 </head>
+
 <body>
 <div class="wrap">
   <div class="badge">砂の祭典公式アプリ</div>
-  <h1 id="title">砂像タイトル</h1>
-  <p class="muted" id="subtitle">（ここに一言）</p>
+  <h1 id="monumentTitle">砂像タイトル</h1>
+  <p class="muted" id="monumentSub">（エリア/一言）</p>
 
-  <img id="photo" class="img" src="./images/placeholder.png" alt="砂像の写真（仮）">
+  <!-- 砂像メイン写真 -->
+  <img id="monumentPhoto" class="hero" src="./images/placeholder.png" alt="砂像の写真（仮）">
 
+  <!-- ① 製作者プロフ -->
   <div class="card">
-    <h2 style="margin:0 0 6px;font-size:16px;">説明</h2>
-    <p id="desc" style="margin:0;">ここに説明文が入ります（仮）。</p>
+    <h2>① 製作者プロフィール</h2>
+
+    <div class="kv">
+      <div class="k">名前</div><div class="v" id="artistName">—</div>
+    </div>
+    <div class="kv">
+      <div class="k">国籍</div><div class="v" id="artistCountry">—</div>
+    </div>
+    <div class="kv">
+      <div class="k">略歴</div><div class="v" id="artistBio">—</div>
+    </div>
+
+    <!-- 任意：作家写真（あれば） -->
+    <div style="margin-top:10px;">
+      <img id="artistPhoto" class="img" src="./images/placeholder.png" alt="製作者写真（任意・仮）">
+      <div class="cap" id="artistPhotoCap">（製作者写真：任意）</div>
+    </div>
   </div>
 
+  <!-- ② 砂像コンセプト -->
   <div class="card">
-    <h2 style="margin:0 0 6px;font-size:16px;">場所</h2>
-    <p id="place" style="margin:0;">会場内：〇〇エリア（仮）</p>
+    <h2>② 砂像コンセプト</h2>
+
+    <p id="conceptText" style="margin:0 0 10px;">ここにコンセプト説明（仮）。</p>
+
+    <div class="grid">
+      <!-- モデル（城）の写真 -->
+      <div>
+        <img id="modelPhoto" class="img" src="./images/placeholder.png" alt="モデル（城）の写真（仮）">
+        <div class="cap" id="modelCap">モデル（城）の写真</div>
+        <p class="muted" id="modelDesc" style="margin-top:8px;">モデルの説明（仮）</p>
+      </div>
+
+      <!-- 制作様子の写真 -->
+      <div>
+        <img id="makingPhoto" class="img" src="./images/placeholder.png" alt="制作様子の写真（仮）">
+        <div class="cap" id="makingCap">制作の様子</div>
+        <p class="muted" id="makingDesc" style="margin-top:8px;">制作様子の説明（仮）</p>
+      </div>
+    </div>
   </div>
 
-  <div class="row" style="margin-top:14px;">
+  <div class="row">
     <a class="btn" id="toChallenge" href="./start.html">チャレンジ確認へ</a>
     <a class="btn sub" href="./start.html">メニューに戻る</a>
   </div>
 </div>
 
 <script>
-  // クエリパラメータ（URLの ? の後ろ）を読む。例: monument.html?id=s01
+  // monument.html?id=s01 のように呼ぶ
   const params = new URLSearchParams(location.search);
   const id = params.get("id") || "s01";
 
-  // とりあえず「仮データ」をここに入れて増やしていく（あとでスプレッドシート化も可能）
+  // ここに砂像ごとのデータを足していく（後でCSV/Sheet化も可能）
   const DATA = {
     s01: {
-      title: "砂像サンプル1",
-      subtitle: "（一言キャッチ）",
-      desc: "ここに砂像の説明（仮）を書きます。あとで差し替えます。",
-      place: "会場内：市役所エリア（仮）",
-      photo: "./images/placeholder.png"
+      monumentTitle: "砂像サンプル1",
+      monumentSub: "市役所エリア（仮）",
+
+      monumentPhoto: "./images/placeholder.png",
+
+      artist: {
+        name: "（例）山田 太郎",
+        country: "日本",
+        bio: "砂像制作歴10年。国内外のフェスで受賞経験あり。（仮）",
+        photo: "./images/placeholder.png",
+        photoCap: "製作者（仮）"
+      },
+
+      concept: {
+        text: "この砂像は『城の歴史と街の記憶』をテーマに制作。（仮）",
+        modelPhoto: "./images/placeholder.png",
+        modelCap: "モデル：〇〇城（仮）",
+        modelDesc: "〇〇城は〜（仮）",
+        makingPhoto: "./images/placeholder.png",
+        makingCap: "制作の様子（仮）",
+        makingDesc: "制作工程の一部を紹介。（仮）"
+      }
     },
+
     s02: {
-      title: "砂像サンプル2",
-      subtitle: "（一言キャッチ）",
-      desc: "説明（仮）",
-      place: "会場内：本町エリア（仮）",
-      photo: "./images/placeholder.png"
+      monumentTitle: "砂像サンプル2",
+      monumentSub: "本町エリア（仮）",
+      monumentPhoto: "./images/placeholder.png",
+      artist: {
+        name: "（例）Jane Doe",
+        country: "USA",
+        bio: "Sand sculptor. Participated in multiple international events.（仮）",
+        photo: "./images/placeholder.png",
+        photoCap: "Artist（仮）"
+      },
+      concept: {
+        text: "テーマ：『旅人の視点』。（仮）",
+        modelPhoto: "./images/placeholder.png",
+        modelCap: "モデル写真（仮）",
+        modelDesc: "モデル説明（仮）",
+        makingPhoto: "./images/placeholder.png",
+        makingCap: "制作様子（仮）",
+        makingDesc: "制作様子説明（仮）"
+      }
     }
   };
 
   const d = DATA[id] || DATA.s01;
 
-  document.getElementById("title").textContent = d.title;
-  document.getElementById("subtitle").textContent = d.subtitle;
-  document.getElementById("desc").textContent = d.desc;
-  document.getElementById("place").textContent = d.place;
-  document.getElementById("photo").src = d.photo;
+  // 上部
+  document.getElementById("monumentTitle").textContent = d.monumentTitle;
+  document.getElementById("monumentSub").textContent = d.monumentSub;
+  document.getElementById("monumentPhoto").src = d.monumentPhoto;
 
-  // ここは後で「当たり/はずれ判定ページ」などに変更してOK
+  // 作家
+  document.getElementById("artistName").textContent = d.artist.name;
+  document.getElementById("artistCountry").textContent = d.artist.country;
+  document.getElementById("artistBio").textContent = d.artist.bio;
+  document.getElementById("artistPhoto").src = d.artist.photo;
+  document.getElementById("artistPhotoCap").textContent = d.artist.photoCap || "製作者写真";
+
+  // コンセプト
+  document.getElementById("conceptText").textContent = d.concept.text;
+  document.getElementById("modelPhoto").src = d.concept.modelPhoto;
+  document.getElementById("modelCap").textContent = d.concept.modelCap;
+  document.getElementById("modelDesc").textContent = d.concept.modelDesc;
+  document.getElementById("makingPhoto").src = d.concept.makingPhoto;
+  document.getElementById("makingCap").textContent = d.concept.makingCap;
+  document.getElementById("makingDesc").textContent = d.concept.makingDesc;
+
+  // ここは後で「当たり/はずれ判定ページ」へ変更OK
   document.getElementById("toChallenge").href = "./start.html";
 </script>
 </body>
