@@ -29,7 +29,7 @@
       line-height: 1.4;
     }
 
-    /* 画面に合わせてプレビューを伸縮させる（固定300×300をやめる） */
+    /* 固定300×300をやめる（縮み/崩れ対策） */
     #preview {
       width: min(86vw, 360px);
       aspect-ratio: 1 / 1;
@@ -61,6 +61,7 @@
       min-height: 1.2em;
       padding: 0 10px;
       word-break: break-word;
+      white-space: pre-wrap;
     }
 
     .btn {
@@ -117,10 +118,14 @@
     const statusText = document.getElementById("status");
     const resultContainer = document.getElementById("result");
 
+    // 同一コードの連続判定を抑制するためのデバウンス
     let lastText = "";
     let lastAt = 0;
+
+    // 遷移時の多重スタート防止フラグ
     let hasRedirected = false;
 
+    // カメラ開始
     async function startScanner() {
       try {
         await html5QrCode.start(
@@ -135,37 +140,39 @@
       }
     }
 
+    // カメラ停止
     async function stopScanner() {
       try {
         if (html5QrCode._isScanning) {
           await html5QrCode.stop();
         }
       } catch (_) {
+        // 失敗は握りつぶし
       } finally {
         document.getElementById("preview").innerHTML = "";
       }
     }
 
+    // スキャン成功時
     function onScanSuccess(decodedText) {
       if (hasRedirected) return;
 
+      // 同一内容の連続ヒットは1.5秒無視
       const now = Date.now();
       if (decodedText === lastText && now - lastAt < 1500) return;
       lastText = decodedText;
       lastAt = now;
 
-      // ▼テストモード：読み取れたら「OK表示」で止める（どこにも飛ばない）
+      // ▼テストモード：読み取れたらOK表示して停止（どこにも飛ばない）
       if (mode === "test") {
         resultContainer.innerText = "✅ 読み取り成功！\n" + decodedText;
         statusText.innerText = "テストOKです。戻るボタンで戻ってください。";
         navigator.vibrate?.(60);
-
-        // カメラを止めて固まりにくくする
         stopScanner();
         return;
       }
 
-      // ▼通常モード（ここから下は今まで通りの厳格判定）
+      // URL以外は無効（カメラは止めない）
       if (!decodedText.startsWith("http")) {
         resultContainer.innerText = "無効なQRコードです。もう一度かざしてください。";
         statusText.innerText = "正しいQRをもう一度かざしてください。";
@@ -173,6 +180,7 @@
         return;
       }
 
+      // URLパースとホワイトリスト判定（ここが重要）
       try {
         const url = new URL(decodedText);
         const domain = url.hostname;
@@ -181,9 +189,15 @@
         const allowed =
           domain === "sakulink.com" &&
           (
+            // プロトタイプ
             path === "/qr-quest/progress.html" ||
             path === "/qr-quest/result.html" ||
-            /^\/qr-quest\/events\/[^\/]+\/(progress|result)\.html$/.test(path)
+
+            // イベント版：progress / result
+            /^\/qr-quest\/events\/[^\/]+\/(progress|result)\.html$/.test(path) ||
+
+            // ✅ 砂像説明ページ（monument.html）も許可
+            /^\/qr-quest\/events\/[^\/]+\/monument\.html$/.test(path)
           );
 
         if (allowed) {
@@ -204,8 +218,10 @@
       }
     }
 
+    // スキャン失敗時（フレーム毎の失敗通知。何もしない）
     function onScanFailure(_) { /* no-op */ }
 
+    // 再スキャン
     async function rescan() {
       hasRedirected = false;
       resultContainer.innerText = "";
@@ -214,9 +230,9 @@
       setTimeout(startScanner, 300);
     }
 
+    // メニューに戻る
     async function exitToMenu() {
       await stopScanner();
-      // テストモードは test-cameraへ戻す。通常は startへ戻す。
       if (mode === "test") {
         window.location.href = "../test-camera.html";
       } else {
@@ -224,15 +240,18 @@
       }
     }
 
+    // ページ可視状態の変化で再起動（復帰時に固まる対策）
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible" && !hasRedirected) {
         startScanner();
       }
     });
 
+    // ページ遷移/破棄時は明示停止
     window.addEventListener("pagehide", stopScanner);
     window.addEventListener("beforeunload", stopScanner);
 
+    // 初回起動
     startScanner();
   </script>
 </body>
