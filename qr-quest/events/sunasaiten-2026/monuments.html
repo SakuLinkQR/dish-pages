@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>砂像一覧</title>
+
+  <style>
+    :root{
+      --bg:#f6f9ff;
+      --card:#ffffff;
+      --ink:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --brand:#1e88e5;
+      --brand2:#0ea5e9;
+      --sample:#a855f7;
+      --shadow: 0 8px 24px rgba(0,0,0,.08);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
+    .wrap{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 14px 12px 40px;
+    }
+
+    /* top bar */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(246,249,255,.92);
+      backdrop-filter: blur(10px);
+      padding: 10px 0 12px;
+    }
+    .titleRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      justify-content: space-between;
+    }
+    .title{
+      margin:0;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 12px;
+      color: var(--muted);
+      box-shadow: 0 2px 10px rgba(0,0,0,.04);
+      white-space: nowrap;
+    }
+    .pill strong{color:var(--ink)}
+    .btn{
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn.primary{
+      border-color: rgba(30,136,229,.25);
+      background: var(--brand);
+      color:#fff;
+    }
+    .btn:active{transform: translateY(1px)}
+    .btnRow{display:flex; gap:8px; align-items:center; justify-content:flex-end;}
+
+    /* search */
+    .search{
+      margin-top: 10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .search input{
+      width:100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    .note{
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* section */
+    .section{
+      margin-top: 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .sectionHead{
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:10px;
+      background: linear-gradient(180deg, rgba(30,136,229,.10), rgba(255,255,255,0));
+    }
+    .sectionHead.sample{
+      background: linear-gradient(180deg, rgba(168,85,247,.10), rgba(255,255,255,0));
+    }
+    .sectionHead h2{
+      margin:0;
+      font-size: 14px;
+      font-weight: 900;
+    }
+    .count{
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* list rows */
+    .list{padding: 6px 10px 10px;}
+    .row{
+      width:100%;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      text-align:left;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background: #fff;
+      cursor: pointer;
+    }
+    .row + .row{margin-top: 8px}
+    .row:hover{border-color: rgba(30,136,229,.25)}
+    .no{
+      min-width: 64px;
+      font-weight: 900;
+      font-size: 13px;
+      color: #0f172a;
+      background: #eef6ff;
+      border: 1px solid rgba(30,136,229,.18);
+      border-radius: 999px;
+      padding: 6px 10px;
+      text-align:center;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    .main{
+      flex:1;
+      min-width: 0;
+    }
+    .line1{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .artist{
+      font-weight: 900;
+      font-size: 14px;
+      max-width: 100%;
+    }
+    .badge{
+      display:inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+    }
+    .badge.sample{
+      border-color: rgba(168,85,247,.25);
+      color: var(--sample);
+      background: rgba(168,85,247,.06);
+    }
+    .meta{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .meta span{display:inline-block; margin-right: 10px}
+
+    .empty{
+      padding: 18px 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    /* modal */
+    .modalBg{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      z-index: 50;
+      padding: 14px;
+    }
+    .modal{
+      width: 100%;
+      max-width: 560px;
+      background:#fff;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .modalTitle{
+      margin:0;
+      font-size: 15px;
+      font-weight: 900;
+    }
+    .modalSub{
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .modalBody{padding: 12px 14px 14px;}
+    .areaBox{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+    .areaLabel{
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+    .areaValue{
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+    .mapHint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .modalActions{
+      display:flex;
+      gap:10px;
+      padding: 0 14px 14px;
+    }
+    .modalActions .btn{flex:1}
+
+    /* language sheet */
+    .sheetBg{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      z-index: 60;
+      padding: 14px;
+    }
+    .sheet{
+      width:100%;
+      max-width: 560px;
+      background:#fff;
+      border-radius: 18px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      border:1px solid var(--line);
+    }
+    .sheet h3{
+      margin:0;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 900;
+      border-bottom: 1px solid var(--line);
+    }
+    .sheet .opt{
+      width:100%;
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      padding: 12px 14px;
+      border: none;
+      background:#fff;
+      cursor:pointer;
+      font-size: 14px;
+      font-weight: 800;
+      border-bottom: 1px solid var(--line);
+    }
+    .sheet .opt:last-child{border-bottom:none}
+    .sheet .opt small{color:var(--muted); font-weight:700}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="titleRow">
+        <div>
+          <div class="pill">
+            <strong>砂の祭典公式アプリ</strong>
+            <span id="langPill">言語: ja</span>
+          </div>
+          <h1 class="title">砂像一覧（番号 / 製作者 / 城名 / 設置エリア）</h1>
+        </div>
+        <div class="btnRow">
+          <button class="btn" id="langBtn">言語</button>
+          <button class="btn primary" id="homeBtn">ホーム</button>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="q" type="search" placeholder="例：12 / 茶圓 / 城 / 本町 / 木花館 などで検索" />
+      </div>
+
+      <p class="note">
+        ※この一覧は「探しやすくするための索引」です。砂像の詳しい説明は、現地のQRコードからご覧ください。<br>
+        ※「見本展示エリア」はクエスト対象外（お知らせ）です。
+      </p>
+    </div>
+
+    <div class="section" id="secQuest">
+      <div class="sectionHead">
+        <h2>クエスト対象の砂像</h2>
+        <div class="count" id="countQuest">0件</div>
+      </div>
+      <div class="list" id="listQuest"></div>
+    </div>
+
+    <div class="section" id="secSample">
+      <div class="sectionHead sample">
+        <h2>見本展示エリア（クエスト対象外）</h2>
+        <div class="count" id="countSample">0件</div>
+      </div>
+      <div class="list" id="listSample"></div>
+    </div>
+  </div>
+
+  <!-- 地図（場所）モーダル：タップしたらこれが出て、一覧に戻るだけ -->
+  <div class="modalBg" id="modalBg" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modalHead">
+        <div>
+          <h3 class="modalTitle" id="mTitle">—</h3>
+          <p class="modalSub" id="mSub">—</p>
+        </div>
+        <button class="btn" id="mCloseTop">閉じる</button>
+      </div>
+      <div class="modalBody">
+        <div class="areaBox">
+          <div class="areaLabel">設置エリア（場所の確認）</div>
+          <div class="areaValue" id="mArea">—</div>
+          <div class="mapHint" id="mHint">
+            ※ここでは場所の確認のみ表示します（詳細説明は現地QRから）。
+          </div>
+        </div>
+      </div>
+      <div class="modalActions">
+        <button class="btn primary" id="mClose">一覧に戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 言語選択シート -->
+  <div class="sheetBg" id="sheetBg" aria-hidden="true">
+    <div class="sheet">
+      <h3>言語を選択</h3>
+      <button class="opt" data-lang="ja">日本語 <small>ja</small></button>
+      <button class="opt" data-lang="en">English <small>en</small></button>
+      <button class="opt" data-lang="ko">한국어 <small>ko</small></button>
+      <button class="opt" data-lang="zh">中文（简体） <small>zh</small></button>
+      <button class="opt" id="sheetClose">閉じる</button>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ■ この一覧が読むデータ（言語別JSON）
+     *   ./content/monuments_ja.json
+     *   ./content/monuments_en.json
+     *   ./content/monuments_ko.json
+     *   ./content/monuments_zh.json
+     *
+     * ■ 期待するデータ項目（最低限）
+     *   monumentNo  : "12" or "No.12" or "012" など
+     *   artist.name : "茶圓勝彦"
+     *   concept.modelName : "○○城"（城名）
+     *   area : "市役所エリア" / "本町エリア" / "麓エリア" / "道の駅きんぽう木花館（砂像展示のみ）" など
+     *
+     * ■ 見本展示の判定（どれか当てはまれば見本扱い）
+     *   - category === "sample"
+     *   - questEligible === false
+     *   - isSample === true
+     *   - area に "砂像展示のみ" が含まれる
+     */
+
+    const $ = (id) => document.getElementById(id);
+
+    // ホームに戻る（あなたのホームファイル名に合わせて変更OK）
+    const HOME_URL = "./index.html";
+
+    // 言語
+    const lang = localStorage.getItem("lang") || "ja";
+    $("langPill").textContent = `言語: ${lang}`;
+
+    // データURL
+    const DATA_URL = `./content/monuments_${lang}.json`;
+
+    // UI
+    $("homeBtn").addEventListener("click", () => location.href = HOME_URL);
+
+    // 言語シート
+    const openSheet = () => { $("sheetBg").style.display = "flex"; };
+    const closeSheet = () => { $("sheetBg").style.display = "none"; };
+    $("langBtn").addEventListener("click", openSheet);
+    $("sheetClose").addEventListener("click", closeSheet);
+    $("sheetBg").addEventListener("click", (e) => { if (e.target === $("sheetBg")) closeSheet(); });
+    document.querySelectorAll(".opt[data-lang]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        localStorage.setItem("lang", btn.dataset.lang);
+        location.reload();
+      });
+    });
+
+    // モーダル（場所だけ表示）
+    const openModal = (item) => {
+      $("mTitle").textContent = `${item.no}  ${item.title || ""}`.trim();
+      $("mSub").textContent = item.artist ? `製作者：${item.artist} / 城名：${item.castle || "—"}` : `城名：${item.castle || "—"}`;
+      $("mArea").textContent = item.area || "—";
+
+      $("modalBg").style.display = "flex";
+      $("modalBg").setAttribute("aria-hidden", "false");
+    };
+    const closeModal = () => {
+      $("modalBg").style.display = "none";
+      $("modalBg").setAttribute("aria-hidden", "true");
+    };
+    $("mClose").addEventListener("click", closeModal);
+    $("mCloseTop").addEventListener("click", closeModal);
+    $("modalBg").addEventListener("click", (e) => { if (e.target === $("modalBg")) closeModal(); });
+
+    // helpers
+    const asText = (v) => (v && String(v).trim()) ? String(v).trim() : "";
+    const pickNo = (d, id) => asText(d.monumentNo || d.no || d.number) || id;
+    const pickArtist = (d) => asText(d.artist?.name || d.artistName);
+    const pickCastle = (d) => asText(d.concept?.modelName || d.concept?.modelTitle || d.modelName || d.castleName);
+    const pickTitle = (d) => asText(d.monumentTitle || d.title);
+    const pickArea = (d) => asText(d.area || d.location || d.monumentArea);
+
+    const isSample = (d, area) => {
+      if (d.category === "sample") return true;
+      if (d.questEligible === false) return true;
+      if (d.isSample === true) return true;
+      if (area.includes("砂像展示のみ")) return true;
+      return false;
+    };
+
+    const numKey = (no) => {
+      const m = String(no).match(/\d+/);
+      return m ? parseInt(m[0], 10) : Number.MAX_SAFE_INTEGER;
+    };
+
+    const makeRow = (item) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "row";
+      btn.addEventListener("click", () => openModal(item));
+
+      const no = document.createElement("div");
+      no.className = "no";
+      no.textContent = item.no;
+
+      const main = document.createElement("div");
+      main.className = "main";
+
+      const line1 = document.createElement("div");
+      line1.className = "line1";
+
+      const artist = document.createElement("div");
+      artist.className = "artist";
+      artist.textContent = item.artist || "（製作者未入力）";
+
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = item.area ? item.area : "（エリア未入力）";
+
+      line1.appendChild(artist);
+      line1.appendChild(badge);
+
+      if (item.sample) {
+        const b2 = document.createElement("span");
+        b2.className = "badge sample";
+        b2.textContent = "見本展示";
+        line1.appendChild(b2);
+      }
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const t = item.title ? `作品：${item.title}` : "作品：—";
+      const c = item.castle ? `城名：${item.castle}` : "城名：—";
+      meta.innerHTML = `<span>${t}</span><span>${c}</span>`;
+
+      main.appendChild(line1);
+      main.appendChild(meta);
+
+      btn.appendChild(no);
+      btn.appendChild(main);
+      return btn;
+    };
+
+    let allItems = [];
+
+    async function loadData() {
+      try {
+        const res = await fetch(DATA_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("fetch failed");
+        const obj = await res.json();
+
+        // JSONが { "s01": {...}, "s02": {...} } の形を想定
+        const items = Object.entries(obj).map(([id, d]) => {
+          const area = pickArea(d);
+          return {
+            id,
+            no: pickNo(d, id),
+            title: pickTitle(d),
+            artist: pickArtist(d),
+            castle: pickCastle(d),
+            area,
+            sample: isSample(d, area),
+          };
+        });
+
+        return items;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function render(items) {
+      allItems = items;
+
+      const quest = items.filter(x => !x.sample);
+      const sample = items.filter(x => x.sample);
+
+      // 並び：クエストは番号順。見本はエリア→番号順
+      quest.sort((a,b) => numKey(a.no) - numKey(b.no));
+      sample.sort((a,b) => (a.area || "").localeCompare(b.area || "") || (numKey(a.no) - numKey(b.no)));
+
+      $("countQuest").textContent = `${quest.length}件`;
+      $("countSample").textContent = `${sample.length}件`;
+
+      const listQuest = $("listQuest");
+      const listSample = $("listSample");
+      listQuest.innerHTML = "";
+      listSample.innerHTML = "";
+
+      if (quest.length === 0) {
+        const d = document.createElement("div");
+        d.className = "empty";
+        d.textContent = "クエスト対象の砂像データがまだありません。JSON（content/monuments_○○.json）を入れると表示されます。";
+        listQuest.appendChild(d);
+      } else {
+        quest.forEach(item => listQuest.appendChild(makeRow(item)));
+      }
+
+      if (sample.length === 0) {
+        const d = document.createElement("div");
+        d.className = "empty";
+        d.textContent = "見本展示（対象外）の砂像はまだ登録されていません。";
+        listSample.appendChild(d);
+      } else {
+        sample.forEach(item => listSample.appendChild(makeRow(item)));
+      }
+    }
+
+    function applyFilter() {
+      const q = $("q").value.trim().toLowerCase();
+      if (!q) return render(allItems);
+
+      const filtered = allItems.filter(x => {
+        const hay = [
+          x.no, x.title, x.artist, x.castle, x.area, x.sample ? "見本展示" : "クエスト"
+        ].join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+      render(filtered);
+    }
+
+    $("q").addEventListener("input", () => {
+      // 入力中にガタガタしないように軽く遅延
+      clearTimeout(window.__t);
+      window.__t = setTimeout(applyFilter, 120);
+    });
+
+    (async () => {
+      const items = await loadData();
+      if (!items) {
+        // データが読めなかったとき
+        render([]);
+        return;
+      }
+      render(items);
+    })();
+  </script>
+</body>
+</html>
