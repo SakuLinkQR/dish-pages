@@ -283,6 +283,17 @@
     }
     .modalActions .btn{flex:1}
 
+    /* ★地図画像（モーダル内） */
+    .mapImg{
+      width:100%;
+      height:auto;
+      display:block;
+      margin-top:10px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background:#fff;
+    }
+
     /* language sheet */
     .sheetBg{
       position: fixed;
@@ -372,7 +383,7 @@
     </div>
   </div>
 
-  <!-- 地図（場所）モーダル：タップしたらこれが出て、一覧に戻るだけ -->
+  <!-- 地図（場所）モーダル：タップしたら地図が出て、一覧に戻るだけ -->
   <div class="modalBg" id="modalBg" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modalHead">
@@ -382,15 +393,21 @@
         </div>
         <button class="btn" id="mCloseTop">閉じる</button>
       </div>
+
       <div class="modalBody">
         <div class="areaBox">
           <div class="areaLabel">設置エリア（場所の確認）</div>
           <div class="areaValue" id="mArea">—</div>
+
+          <!-- ★地図画像（あるときだけ表示） -->
+          <img id="mMap" class="mapImg" alt="設置エリア地図" style="display:none;" />
+
           <div class="mapHint" id="mHint">
             ※ここでは場所の確認のみ表示します（詳細説明は現地QRから）。
           </div>
         </div>
       </div>
+
       <div class="modalActions">
         <button class="btn primary" id="mClose">一覧に戻る</button>
       </div>
@@ -435,6 +452,15 @@
     // ホームに戻る（あなたのホームファイル名に合わせて変更OK）
     const HOME_URL = "./index.html";
 
+    // ★エリア名 → 地図画像ファイル（mapsフォルダに置く想定）
+    // 画像ファイル名は好きに変更OK（ここだけ合わせれば動きます）
+    const AREA_MAP = {
+      "市役所エリア": "./maps/area_shiyakusho.png",
+      "本町エリア": "./maps/area_honmachi.png",
+      "麓エリア": "./maps/area_fumoto.png",
+      "道の駅きんぽう木花館（砂像展示のみ）": "./maps/sample_kinpou_mokukan.png",
+    };
+
     // 言語
     const lang = localStorage.getItem("lang") || "ja";
     $("langPill").textContent = `言語: ${lang}`;
@@ -458,15 +484,30 @@
       });
     });
 
-    // モーダル（場所だけ表示）
+    // モーダル（場所＋地図を表示）
     const openModal = (item) => {
       $("mTitle").textContent = `${item.no}  ${item.title || ""}`.trim();
-      $("mSub").textContent = item.artist ? `製作者：${item.artist} / 城名：${item.castle || "—"}` : `城名：${item.castle || "—"}`;
+      $("mSub").textContent = item.artist
+        ? `製作者：${item.artist} / 城名：${item.castle || "—"}`
+        : `城名：${item.castle || "—"}`;
       $("mArea").textContent = item.area || "—";
+
+      // ★地図画像の表示（対応がある時だけ出す）
+      const img = $("mMap");
+      const mapSrc = AREA_MAP[item.area];
+
+      if (mapSrc) {
+        img.src = mapSrc;
+        img.style.display = "block";
+      } else {
+        img.removeAttribute("src");
+        img.style.display = "none";
+      }
 
       $("modalBg").style.display = "flex";
       $("modalBg").setAttribute("aria-hidden", "false");
     };
+
     const closeModal = () => {
       $("modalBg").style.display = "none";
       $("modalBg").setAttribute("aria-hidden", "true");
@@ -487,7 +528,7 @@
       if (d.category === "sample") return true;
       if (d.questEligible === false) return true;
       if (d.isSample === true) return true;
-      if (area.includes("砂像展示のみ")) return true;
+      if ((area || "").includes("砂像展示のみ")) return true;
       return false;
     };
 
