@@ -14,13 +14,14 @@
     body {
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
       text-align: center;
-      padding: 40px 20px;
+      padding: 40px 20px 110px; /* 下の余白を少し増やす */
       background-color: #f0f8ff;
       margin: 0;
     }
     h1 {
       font-size: 1.8rem;
       margin: 10px 0 14px;
+      line-height: 1.25;
     }
     p {
       font-size: 1.05rem;
@@ -33,14 +34,32 @@
       max-width: 340px;
       margin: 10px auto;
       padding: 14px 18px;
-      font-size: 1.15rem;
+      font-size: 1.12rem;
       border: none;
       border-radius: 10px;
       background-color: #4fa3ff;
       color: white;
       cursor: pointer;
+      font-weight: 800;
     }
     .btn:hover { background-color: #1e88e5; }
+
+    .btn.sub {
+      background-color: #ffffff;
+      color: #1e88e5;
+      border: 2px solid #1e88e5;
+    }
+    .btn.sub:hover { background-color: #e8f3ff; }
+
+    .btn.gray {
+      background-color: #7f8c8d;
+    }
+    .btn.gray:hover { background-color: #6c7a7b; }
+
+    .btn.pink {
+      background-color: #ff4081;
+    }
+    .btn.pink:hover { background-color: #e03570; }
 
     .tag {
       display:inline-block;
@@ -50,22 +69,54 @@
       color:#1e5aa8;
       font-size:12px;
       margin-bottom:10px;
+      font-weight: 800;
+    }
+
+    .muted {
+      color: #3b3b3b;
+      font-size: 0.95rem;
+      margin-top: 14px;
+      opacity: 0.9;
     }
   </style>
 </head>
+
 <body>
   <div class="tag">砂の祭典公式アプリ</div>
-  <h1>QRクエスト in 砂の祭典2026</h1>
+
+  <h1>砂の祭典2026</h1>
   <p>
-    このアプリは、会場のQRコードを読み取って「砂像の説明」や「クエスト」に参加できます。<br>
-    まずは下のボタンからスタートしてください。
+    砂像の解説を見たり、QRクエストに参加できます。<br>
+    まずは下のボタンから選んでください。
   </p>
 
-  <button class="btn" onclick="startQuest()">🎮 クエストを始める</button>
+  <!-- 追加：アプリの使い方 -->
+  <button class="btn sub" onclick="location.href='howto.html'">📘 アプリの使い方</button>
+
+  <!-- 砂像詳細解説（まずは仮で、砂像一覧ページができたら差し替え） -->
+  <button class="btn" onclick="location.href='monument.html'">🏰 砂像詳細解説（仮）</button>
+
+  <!-- チャレンジクエスト：クエストがメインの人 -->
+  <button class="btn pink" onclick="startChallenge()">🧩 チャレンジクエスト（9ピース）</button>
+
+  <!-- ファミリークエスト：有料・本部登録後（いまは仮でstartへ） -->
+  <button class="btn gray" onclick="startFamily()">👨‍👩‍👧 ファミリークエスト（4ピース）</button>
+
+  <!-- カメラテスト（残す） -->
   <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテスト</button>
 
+  <p class="muted">Powered by SakuLink</p>
+
   <script>
-    function startQuest() {
+    // 参加モード（後で miss.html などの分岐にも使えます）
+    function startChallenge() {
+      localStorage.setItem("mode", "challenge");
+      window.location.href = "scanner/qr-scanner.html";
+    }
+
+    function startFamily() {
+      localStorage.setItem("mode", "family");
+      // 本番は「本部登録後の導線」に差し替え予定
       window.location.href = "start.html";
     }
 
