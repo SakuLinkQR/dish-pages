@@ -14,7 +14,7 @@
       --line:#e5e7eb;
       --brand:#1e88e5;
       --brand2:#0ea5e9;
-      --sample:#a855f7;
+      --sample:#a855f7; /* ←色はそのままでもOK。必要なら後で変えましょう */
       --shadow: 0 8px 24px rgba(0,0,0,.08);
       --radius: 16px;
     }
@@ -125,7 +125,8 @@
       gap:10px;
       background: linear-gradient(180deg, rgba(30,136,229,.10), rgba(255,255,255,0));
     }
-    .sectionHead.sample{
+    /* PR砂像用（見出しの色味） */
+    .sectionHead.pr{
       background: linear-gradient(180deg, rgba(168,85,247,.10), rgba(255,255,255,0));
     }
     .sectionHead h2{
@@ -194,7 +195,8 @@
       background: #fff;
       color: var(--muted);
     }
-    .badge.sample{
+    /* PR砂像バッジ */
+    .badge.pr{
       border-color: rgba(168,85,247,.25);
       color: var(--sample);
       background: rgba(168,85,247,.06);
@@ -283,17 +285,6 @@
     }
     .modalActions .btn{flex:1}
 
-    /* ★地図画像（モーダル内） */
-    .mapImg{
-      width:100%;
-      height:auto;
-      display:block;
-      margin-top:10px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background:#fff;
-    }
-
     /* language sheet */
     .sheetBg{
       position: fixed;
@@ -362,7 +353,7 @@
 
       <p class="note">
         ※この一覧は「探しやすくするための索引」です。砂像の詳しい説明は、現地のQRコードからご覧ください。<br>
-        ※「見本展示エリア」はクエスト対象外（お知らせ）です。
+        ※「PR砂像エリア」はクエスト対象外（お知らせ）です。
       </p>
     </div>
 
@@ -374,16 +365,16 @@
       <div class="list" id="listQuest"></div>
     </div>
 
-    <div class="section" id="secSample">
-      <div class="sectionHead sample">
-        <h2>見本展示エリア（クエスト対象外）</h2>
-        <div class="count" id="countSample">0件</div>
+    <div class="section" id="secPR">
+      <div class="sectionHead pr">
+        <h2>PR砂像エリア（クエスト対象外）</h2>
+        <div class="count" id="countPR">0件</div>
       </div>
-      <div class="list" id="listSample"></div>
+      <div class="list" id="listPR"></div>
     </div>
   </div>
 
-  <!-- 地図（場所）モーダル：タップしたら地図が出て、一覧に戻るだけ -->
+  <!-- 地図（場所）モーダル：タップしたらこれが出て、一覧に戻るだけ -->
   <div class="modalBg" id="modalBg" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modalHead">
@@ -393,21 +384,15 @@
         </div>
         <button class="btn" id="mCloseTop">閉じる</button>
       </div>
-
       <div class="modalBody">
         <div class="areaBox">
           <div class="areaLabel">設置エリア（場所の確認）</div>
           <div class="areaValue" id="mArea">—</div>
-
-          <!-- ★地図画像（あるときだけ表示） -->
-          <img id="mMap" class="mapImg" alt="設置エリア地図" style="display:none;" />
-
           <div class="mapHint" id="mHint">
             ※ここでは場所の確認のみ表示します（詳細説明は現地QRから）。
           </div>
         </div>
       </div>
-
       <div class="modalActions">
         <button class="btn primary" id="mClose">一覧に戻る</button>
       </div>
@@ -440,10 +425,12 @@
      *   concept.modelName : "○○城"（城名）
      *   area : "市役所エリア" / "本町エリア" / "麓エリア" / "道の駅きんぽう木花館（砂像展示のみ）" など
      *
-     * ■ 見本展示の判定（どれか当てはまれば見本扱い）
-     *   - category === "sample"
+     * ■ PR砂像の判定（どれか当てはまればPR砂像扱い）
+     *   - category === "pr"
+     *   - category === "sample"（旧名が残っていても救済）
      *   - questEligible === false
-     *   - isSample === true
+     *   - isPR === true
+     *   - isSample === true（旧名が残っていても救済）
      *   - area に "砂像展示のみ" が含まれる
      */
 
@@ -451,15 +438,6 @@
 
     // ホームに戻る（あなたのホームファイル名に合わせて変更OK）
     const HOME_URL = "./index.html";
-
-    // ★エリア名 → 地図画像ファイル（mapsフォルダに置く想定）
-    // 画像ファイル名は好きに変更OK（ここだけ合わせれば動きます）
-    const AREA_MAP = {
-      "市役所エリア": "./maps/area_shiyakusho.png",
-      "本町エリア": "./maps/area_honmachi.png",
-      "麓エリア": "./maps/area_fumoto.png",
-      "道の駅きんぽう木花館（砂像展示のみ）": "./maps/sample_kinpou_mokukan.png",
-    };
 
     // 言語
     const lang = localStorage.getItem("lang") || "ja";
@@ -484,30 +462,15 @@
       });
     });
 
-    // モーダル（場所＋地図を表示）
+    // モーダル（場所だけ表示）
     const openModal = (item) => {
       $("mTitle").textContent = `${item.no}  ${item.title || ""}`.trim();
-      $("mSub").textContent = item.artist
-        ? `製作者：${item.artist} / 城名：${item.castle || "—"}`
-        : `城名：${item.castle || "—"}`;
+      $("mSub").textContent = item.artist ? `製作者：${item.artist} / 城名：${item.castle || "—"}` : `城名：${item.castle || "—"}`;
       $("mArea").textContent = item.area || "—";
-
-      // ★地図画像の表示（対応がある時だけ出す）
-      const img = $("mMap");
-      const mapSrc = AREA_MAP[item.area];
-
-      if (mapSrc) {
-        img.src = mapSrc;
-        img.style.display = "block";
-      } else {
-        img.removeAttribute("src");
-        img.style.display = "none";
-      }
 
       $("modalBg").style.display = "flex";
       $("modalBg").setAttribute("aria-hidden", "false");
     };
-
     const closeModal = () => {
       $("modalBg").style.display = "none";
       $("modalBg").setAttribute("aria-hidden", "true");
@@ -524,10 +487,14 @@
     const pickTitle = (d) => asText(d.monumentTitle || d.title);
     const pickArea = (d) => asText(d.area || d.location || d.monumentArea);
 
-    const isSample = (d, area) => {
-      if (d.category === "sample") return true;
+    // ✅ PR砂像判定（旧:sample も拾う）
+    const isPR = (d, area) => {
+      const cat = asText(d.category).toLowerCase();
+      if (cat === "pr") return true;
+      if (cat === "sample") return true;          // 旧名救済
       if (d.questEligible === false) return true;
-      if (d.isSample === true) return true;
+      if (d.isPR === true) return true;
+      if (d.isSample === true) return true;       // 旧名救済
       if ((area || "").includes("砂像展示のみ")) return true;
       return false;
     };
@@ -564,10 +531,10 @@
       line1.appendChild(artist);
       line1.appendChild(badge);
 
-      if (item.sample) {
+      if (item.pr) {
         const b2 = document.createElement("span");
-        b2.className = "badge sample";
-        b2.textContent = "見本展示";
+        b2.className = "badge pr";
+        b2.textContent = "PR砂像";
         line1.appendChild(b2);
       }
 
@@ -603,7 +570,7 @@
             artist: pickArtist(d),
             castle: pickCastle(d),
             area,
-            sample: isSample(d, area),
+            pr: isPR(d, area),
           };
         });
 
@@ -616,20 +583,20 @@
     function render(items) {
       allItems = items;
 
-      const quest = items.filter(x => !x.sample);
-      const sample = items.filter(x => x.sample);
+      const quest = items.filter(x => !x.pr);
+      const pr = items.filter(x => x.pr);
 
-      // 並び：クエストは番号順。見本はエリア→番号順
+      // 並び：クエストは番号順。PR砂像はエリア→番号順
       quest.sort((a,b) => numKey(a.no) - numKey(b.no));
-      sample.sort((a,b) => (a.area || "").localeCompare(b.area || "") || (numKey(a.no) - numKey(b.no)));
+      pr.sort((a,b) => (a.area || "").localeCompare(b.area || "") || (numKey(a.no) - numKey(b.no)));
 
       $("countQuest").textContent = `${quest.length}件`;
-      $("countSample").textContent = `${sample.length}件`;
+      $("countPR").textContent = `${pr.length}件`;
 
       const listQuest = $("listQuest");
-      const listSample = $("listSample");
+      const listPR = $("listPR");
       listQuest.innerHTML = "";
-      listSample.innerHTML = "";
+      listPR.innerHTML = "";
 
       if (quest.length === 0) {
         const d = document.createElement("div");
@@ -640,13 +607,13 @@
         quest.forEach(item => listQuest.appendChild(makeRow(item)));
       }
 
-      if (sample.length === 0) {
+      if (pr.length === 0) {
         const d = document.createElement("div");
         d.className = "empty";
-        d.textContent = "見本展示（対象外）の砂像はまだ登録されていません。";
-        listSample.appendChild(d);
+        d.textContent = "PR砂像（対象外）はまだ登録されていません。";
+        listPR.appendChild(d);
       } else {
-        sample.forEach(item => listSample.appendChild(makeRow(item)));
+        pr.forEach(item => listPR.appendChild(makeRow(item)));
       }
     }
 
@@ -656,7 +623,7 @@
 
       const filtered = allItems.filter(x => {
         const hay = [
-          x.no, x.title, x.artist, x.castle, x.area, x.sample ? "見本展示" : "クエスト"
+          x.no, x.title, x.artist, x.castle, x.area, x.pr ? "PR砂像" : "クエスト"
         ].join(" ").toLowerCase();
         return hay.includes(q);
       });
