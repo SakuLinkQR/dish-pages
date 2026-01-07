@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <script src="event-config.js"></script>
-<meta charset="UTF-8" />
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>クエストメニュー</title>
+  <title>ファミリークエスト（4ピース）</title>
 
   <!-- 冒険風ドットフォント -->
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
@@ -33,8 +33,15 @@
       letter-spacing: 2px;
       white-space: nowrap;
     }
+    .sub {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    }
     .button-group {
-      margin-top: 80px;
+      margin-top: 70px;
+      width: 100%;
     }
     button {
       display: block;
@@ -42,7 +49,7 @@
       max-width: 360px;
       margin: 14px auto;
       padding: 20px 0;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       height: 70px;
       border-radius: 12px;
       border: none;
@@ -61,7 +68,8 @@
 </head>
 <body>
 
-  <h1 id="quest-title">クエスト</h1>
+  <h1>ファミリークエスト</h1>
+  <div class="sub">（4ピース）</div>
 
   <div class="button-group">
     <button onclick="location.href='scanner/qr-scanner.html'">QRをスキャン！</button>
@@ -70,21 +78,13 @@
   </div>
 
   <script>
-    // 初回訪問時はintro済みに設定
-    if (!localStorage.getItem("visitedIntro")) {
-      localStorage.setItem("visitedIntro", "true");
-    }
+    // ファミリー用
+    localStorage.setItem('mode', 'family');
 
-    // タイトルをlocalStorageから読み込み
-    const savedTitle = localStorage.getItem("questTitle") || "クエスト";
-    document.getElementById("quest-title").textContent = savedTitle;
-
-    // 「さいしょにもどる」ボタン用
     function goBackToIndex() {
-      // introをもう一度表示させるためフラグ削除
-      localStorage.removeItem("visitedIntro");
-      // index.htmlへ移動
-      location.href = "index.html";
+      // introをもう一度見たい場合は削除（ファミリーだけ）
+      localStorage.removeItem('visitedIntro_family');
+      location.href = 'index.html';
     }
   </script>
 </body>

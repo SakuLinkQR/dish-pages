@@ -1,87 +1,91 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <script src="event-config.js"></script>
-<meta charset="UTF-8" />
-  <title>ほうびのとき</title>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ごほうび まえがき</title>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
   <style>
-    body {
-      background-image: url('images/map_background_b.png'); /* ローカル画像に変更 */
-      background-size: cover;
-      background-position: center;
-      color: #3b2c14;
-      font-family: 'Courier New', monospace;
-      text-align: center;
-      padding: 60px 20px;
+    body{
+      font-family: 'DotGothic16', sans-serif;
+      margin:0;
+      background:#0b1020;
+      color:#fff;
+      text-align:center;
+      padding:34px 14px;
     }
-
-    #overlay {
-      background-color: rgba(255, 248, 220, 0.75);
-      padding: 40px;
-      border-radius: 15px;
-      display: inline-block;
-      max-width: 90%;
+    .card{
+      max-width:640px;
+      margin:0 auto;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:16px;
+      padding:18px 14px;
+      backdrop-filter: blur(8px);
     }
-
-    #text-box {
-      font-size: 22px;
-      line-height: 1.8;
-      white-space: pre-line;
-      min-height: 180px;
+    h1{margin:0 0 10px;font-size:22px}
+    p{margin:0 0 14px;line-height:1.8}
+    .btn{
+      display:block;
+      width:100%;
+      max-width:340px;
+      margin:10px auto 0;
+      padding:14px 16px;
+      border-radius:12px;
+      border:none;
+      background:#ffb100;
+      color:#1f2937;
+      font-weight:900;
+      cursor:pointer;
     }
-
-    .next-button {
-      display: none;
-      margin-top: 40px;
-      padding: 12px 24px;
-      font-size: 18px;
-      background-color: #deb887;
-      color: #000;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+    .btn.sub{background:#ffffff;color:#1e88e5;border:2px solid #1e88e5}
   </style>
 </head>
 <body>
-  <div id="overlay">
-    <div id="text-box"></div>
-    <!-- ✅ reward.html に進むときに localStorage にフラグを立てる -->
-    <button class="next-button" onclick="unlockReward()">▶ おたからを うけとる</button>
+  <div class="card">
+    <h1 id="title">ごほうび まえがき</h1>
+    <p id="msg">読み込み中...</p>
+
+    <button class="btn" id="go">ごほうびへ</button>
+    <button class="btn sub" id="back">進行状況へ戻る</button>
   </div>
 
   <script>
-    const message = `
-よく　みつけたな。
+    const mode = localStorage.getItem('mode') || 'family';
+    const isChallenge = (mode === 'challenge');
+    const total = isChallenge ? 9 : 4;
+    const pieceKey = (n) => isChallenge ? `c_piece${n}` : `piece${n}`;
+    const unlockKey = isChallenge ? 'reward_unlocked_challenge' : 'reward_unlocked_family';
 
-ほうびに　わしからも
-おたからを　あげよう…
-
-▶ すたーとちてんへ　いそぐのじゃ！
-    `;
-
-    const textBox = document.getElementById("text-box");
-    const nextButton = document.querySelector(".next-button");
-    let index = 0;
-
-    function typeText() {
-      if (index < message.length) {
-        textBox.innerHTML += message[index] === "\n" ? "<br>" : message[index];
-        index++;
-        setTimeout(typeText, 70);
-      } else {
-        nextButton.style.display = "inline-block";
-      }
+    // 全ピース達成チェック
+    let ok = true;
+    for (let i=1;i<=total;i++) {
+      if (localStorage.getItem(pieceKey(i)) !== 'true') { ok = false; break; }
     }
 
-    function unlockReward() {
-      // ✅ フラグ保存（reward.html 側で検証される）
-      localStorage.setItem("reward_unlocked", "true");
-      window.location.href = "reward.html";
+    const titleEl = document.getElementById('title');
+    const msgEl = document.getElementById('msg');
+    const goBtn = document.getElementById('go');
+    const backBtn = document.getElementById('back');
+
+    titleEl.textContent = isChallenge ? '🏆 チャレンジ達成！' : '🏆 ファミリー達成！';
+
+    if (!ok) {
+      msgEl.textContent = 'まだピースがそろっていないようだ。\nもう少しさがしてみよう！';
+      goBtn.textContent = '進行状況へ';
+      goBtn.onclick = () => location.href = 'progress.html';
+    } else {
+      msgEl.textContent = isChallenge
+        ? 'つわものよ… ついに 9ピースが そろった！\nごほうびを うけとるがよい。'
+        : 'ゆうじゃよ… ついに 4ピースが そろった！\nごほうびを うけとるがよい。';
+      goBtn.onclick = () => {
+        localStorage.setItem(unlockKey, 'true');
+        location.href = 'reward.html';
+      };
     }
 
-    window.onload = typeText;
+    backBtn.onclick = () => location.href = 'progress.html';
   </script>
 </body>
 </html>

@@ -1,127 +1,103 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <script src="event-config.js"></script>
-<meta charset="UTF-8">
-  <title>クエスト達成！</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ごほうび</title>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'DotGothic16', sans-serif;
       text-align: center;
-      padding: 40px 20px;
-      background-color: #fff8e1;
+      padding: 30px 10px;
+      background-color: #f3fff5;
     }
-
-    h1 {
-      font-size: 2rem;
-      color: #ff5722;
-    }
-
-    #message {
-      font-size: 1.4rem;
-      color: #444;
-      margin: 20px 0;
-    }
-
-    .image-wrapper {
-      position: relative;
-      display: inline-block;
-      margin-top: 20px;
-    }
-
-    #goal-image {
-      width: 280px;
-      transition: opacity 0.3s;
-    }
-
-    #complete-banner {
-      position: absolute;
-      top: 30%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255, 100, 100, 0.9);
-      color: white;
-      padding: 20px 30px;
-      font-size: 2rem;
-      font-weight: bold;
+    h1{margin:0 0 14px;}
+    img{
+      max-width: 92%;
+      border: 4px solid #2ecc71;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      display: none;
+      margin: 10px 0 16px;
     }
-
-    .btn {
-      margin-top: 30px;
-      padding: 12px 24px;
-      font-size: 1rem;
-      background-color: #4caf50;
-      color: white;
+    .btn{
+      margin-top: 8px;
+      padding: 14px 22px;
+      font-size: 18px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
+      background-color: #2ecc71;
+      color: white;
       cursor: pointer;
+      font-weight: 800;
+      width: 90%;
+      max-width: 380px;
     }
-
-    #note {
-      margin-top: 30px;
-      font-size: 1rem;
+    .btn:hover { background-color: #27ae60; }
+    .btn.sub{
+      background: #fff;
+      color: #27ae60;
+      border: 2px solid #27ae60;
     }
+    .btn.sub:hover{ background: #eafff0; }
+    .muted{color:#555; font-size: 14px; margin-top: 10px; white-space: pre-line;}
   </style>
 </head>
 <body>
+  <h1 id="title">🎁 ごほうび</h1>
+  <p class="muted" id="sub">読み込み中...</p>
 
-  <h1>🎉 クエスト達成おめでとう！</h1>
-  <div id="message">あなたはすべてのピースを集めました！</div>
+  <img id="goalImg" src="images/goal.png" alt="完成画像" />
 
-  <div class="image-wrapper">
-    <img id="goal-image" src="images/goal.png" alt="完成画像" />
-    <div id="complete-banner">🎉 たっせいずみ！</div>
-  </div>
-
-  <p id="note">
-    スタッフにこの画面を見せて、<br>
-    「確認へ進む」ボタンから本部でパスワード認証を受けてください。
-  </p>
-
-  <!-- ✅ 本部確認ページへのボタン -->
-  <button class="btn" onclick="location.href='admin/verify.html'">✅ 確認へ進む</button>
-
-  <!-- ⬅ メニューに戻る -->
-  <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
+  <button class="btn" id="confirmBtn">スタッフ確認に進む</button>
+  <button class="btn sub" id="menuBtn">メニューへ戻る</button>
 
   <script>
-    // ✅ 正規ルートからのアクセスか確認
-    if (localStorage.getItem("reward_unlocked") !== "true") {
-      alert("正規の手順でアクセスしてください。");
-      window.location.href = "index.html";
-    } else {
-      localStorage.removeItem("reward_unlocked"); // 一度きりのアクセス
+    const mode = localStorage.getItem('mode') || 'family';
+    const isChallenge = (mode === 'challenge');
+    const total = isChallenge ? 9 : 4;
+    const pieceKey = (n) => isChallenge ? `c_piece${n}` : `piece${n}`;
+
+    const unlockKey = isChallenge ? 'reward_unlocked_challenge' : 'reward_unlocked_family';
+    const confirmKey = isChallenge ? 'confirmed_challenge' : 'confirmed_family';
+
+    const menuHref = isChallenge ? 'start_challenge.html' : 'start.html';
+    document.getElementById('menuBtn').onclick = () => location.href = menuHref;
+
+    // 画像切替（チャレンジは今回の写真）
+    document.getElementById('goalImg').src = isChallenge ? 'images/challenge/goal.png' : 'images/goal.png';
+
+    const titleEl = document.getElementById('title');
+    const subEl = document.getElementById('sub');
+
+    // 直リンク対策：introでunlockしていない場合は戻す
+    if (localStorage.getItem(unlockKey) !== 'true') {
+      titleEl.textContent = '🔒 ごほうびは まだ ひみつ';
+      subEl.textContent = 'ごほうびを見るには、いったん「ごほうび まえがき」ページを通ってね。';
+      document.getElementById('confirmBtn').style.display = 'none';
+      return;
     }
 
-    // ✅ ピースチェック（4ピース全て揃っているか）
-    const totalPieces = 4;
-    let completed = true;
-
-    for (let i = 1; i <= totalPieces; i++) {
-      if (localStorage.getItem(`piece${i}`) !== "true") {
-        completed = false;
-        break;
-      }
+    // 完了チェック
+    const got = Array.from({length: total}, (_, i) => localStorage.getItem(pieceKey(i+1)) === 'true');
+    const done = got.every(Boolean);
+    if (!done) {
+      titleEl.textContent = 'まだ そろっていない！';
+      subEl.textContent = 'ピースが足りないようです。進行状況から確認してください。';
+      document.getElementById('confirmBtn').style.display = 'none';
+      return;
     }
 
-    if (!completed) {
-      window.location.href = "progress.html";
-    }
+    titleEl.textContent = '🎉 かんせい！';
+    subEl.textContent = isChallenge
+      ? 'チャレンジ（9ピース）クリア！\n本部でスタッフに見せてください。'
+      : 'ファミリー（4ピース）クリア！\n本部でスタッフに見せてください。';
 
-    // ✅ 確認済み状態の表示変更
-    const isConfirmed = localStorage.getItem("confirmed") === "true";
-    if (isConfirmed) {
-      document.getElementById("message").innerText = "✅ クエスト確認済み（景品受け取り済）";
-      document.getElementById("goal-image").style.opacity = 0.4;
-      document.getElementById("note").innerHTML = "この参加者はすでに確認済みです。<br>景品の再配布はありません。";
-      document.getElementById("complete-banner").style.display = "block";
-    }
+    document.getElementById('confirmBtn').onclick = () => {
+      // 二重交付防止の印（本番の運用に合わせて調整OK）
+      localStorage.setItem(confirmKey, 'pending');
+      location.href = 'admin/verify.html';
+    };
   </script>
-
 </body>
 </html>

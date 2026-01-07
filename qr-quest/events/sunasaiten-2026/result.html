@@ -1,232 +1,166 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <script src="event-config.js"></script>
-<meta charset="UTF-8" />
-  <title>QRクエスト - 結果画面</title>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <title>スキャン結果</title>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#fff8ec; --ink:#444; --accent:#ff6f00; }
     body {
-      margin:0; padding:24px 16px; text-align:center;
-      font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
-      background:var(--bg); color:var(--ink);
+      font-family: 'DotGothic16', sans-serif;
+      background-color: #fffaf2;
+      text-align: center;
+      padding: 40px 20px;
+      margin: 0;
     }
-    h1 { margin:0 0 8px; font-size:1.6rem; color:var(--accent); }
-    #message { margin:12px auto 10px; font-size:1.15rem; line-height:1.6; min-height:2.2em; }
-    #resultImg { display:none; width:66vw; max-width:260px; height:auto; margin:10px auto 0; border-radius:12px; }
-    .btns { margin-top:20px; display:grid; gap:10px; justify-content:center; }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 18px;
+      color: #4b2e0d;
+      line-height: 1.3;
+    }
+    p {
+      font-size: 1.15rem;
+      margin: 0 0 20px;
+      color: #6b4a2a;
+      line-height: 1.6;
+    }
     .btn {
-      display:inline-block; padding:12px 18px; border-radius:999px;
-      background:#4caf50; color:#fff; text-decoration:none; font-weight:600;
-      box-shadow:0 6px 16px rgba(76,175,80,.25);
+      display: block;
+      width: 88%;
+      max-width: 320px;
+      margin: 12px auto;
+      padding: 12px 18px;
+      font-size: 1.05rem;
+      border: none;
+      border-radius: 10px;
+      background-color: #4fa3ff;
+      color: white;
+      cursor: pointer;
+      font-weight: 900;
     }
-    .btn.secondary { background:#2196f3; box-shadow:0 6px 16px rgba(33,150,243,.25); }
+    .btn:hover { background-color: #1e88e5; }
 
-    /* 扉＆蔦＆光の演出（任意） */
-    #reveal-scene { position:fixed; inset:0; display:none; justify-content:center; align-items:center; background:#000; z-index:9999; }
-    #reveal-scene .stage { position:relative; width:82vw; max-width:420px; aspect-ratio:3/4; overflow:hidden; }
-    #reveal-scene .layer { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; }
-    #reveal-scene .door  { animation: doorFade 900ms ease forwards; }
-    #reveal-scene .vines { animation: vinesFade 900ms ease 120ms forwards; }
-    #reveal-scene .light { animation: lightRise 1100ms ease 220ms forwards; mix-blend-mode:screen; }
-    @keyframes doorFade  { from{opacity:0; transform:scale(1.05)} to{opacity:1; transform:scale(1)} }
-    @keyframes vinesFade { from{opacity:0} to{opacity:.92} }
-    @keyframes lightRise { 0%{opacity:0; transform:scale(1) translateY(10%)} 60%{opacity:1} 100%{opacity:1; transform:scale(1.07) translateY(-3%)} }
-    .reveal-out { animation: sceneOut 360ms ease forwards; }
-    @keyframes sceneOut { to { opacity:0; visibility:hidden } }
-    @media (prefers-reduced-motion: reduce) { #reveal-scene { display:none !important; } }
+    /* 宝箱演出 */
+    .reveal {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      margin: 0 auto 22px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.03);
+      border: 1px solid rgba(0,0,0,.06);
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+    }
+    .reveal img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .reveal .door {
+      background: linear-gradient(180deg, rgba(120,84,40,.90), rgba(90,60,22,.95));
+      border-radius: 18px;
+      transform: translateX(0);
+      transition: transform .65s ease;
+    }
+    .reveal.open .door { transform: translateX(-105%); }
+    .spark {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 40%, rgba(255,219,88,.75), rgba(255,219,88,0) 55%);
+      opacity: 0;
+      transition: opacity .55s ease;
+    }
+    .reveal.open .spark { opacity: 1; }
   </style>
 </head>
 <body>
-  <h1>発見結果</h1>
-  <p id="message">判定中…</p>
-  <img id="resultImg" alt="result" />
 
-  <div class="btns">
-    <a class="btn" href="./progress.html">進行状況を見る</a>
-    <a class="btn secondary" href="./index.html">メニューへ戻る</a>
+  <div class="reveal" id="reveal" aria-hidden="true" style="display:none;">
+    <img src="images/vines.png" alt="" style="opacity:.08;" />
+    <div class="spark"></div>
+    <img src="images/door.png" alt="" class="door" />
   </div>
 
-  <!-- 扉・蔦・光の演出レイヤー（画像は任意差し替え） -->
-  <div id="reveal-scene" aria-hidden="true">
-    <div class="stage">
-      <img class="layer door"  src="./images/door.png"  alt="">
-      <img class="layer vines" src="./images/vines.png" alt="">
-      <img class="layer light" src="./images/light.png" alt="">
-    </div>
-  </div>
+  <h1 id="title">スキャン結果</h1>
+  <p id="message">読み込み中...</p>
+
+  <button class="btn" id="menuBtn">メニューへ戻る</button>
+  <button class="btn" id="progressBtn">進行状況を見る</button>
 
   <script>
-  /********************
-   * 設定（相対パスに統一）
-   ********************/
-  const CSV_URL = "./data/messages.csv"; // スプレッドシート書き出しCSV
-  let   IMG_DIR = "./images/duds/";      // ダミー画像のフォルダ
-  const IMG_EXT = ".png";                // 画像拡張子（必要なら変更）
+    const params = new URLSearchParams(window.location.search);
+    const idRaw = params.get('id') || '';
 
-  // 将来イベント切替（URLに ?event=summer_fair があれば切替。なければ既定フォルダ）
-  function getParam(name){ return new URLSearchParams(location.search).get(name); }
-  const EVENT = getParam('event');
-  if (EVENT) IMG_DIR = `./images/events/${EVENT}/duds/`;
+    // ✅ モード判定（family=4 / challenge=9）
+    const mode = localStorage.getItem('mode') || 'family';
+    const isChallenge = (mode === 'challenge');
+    const totalCorrect = isChallenge ? 9 : 4;
 
-  // 正解ピース（当面4個のまま）
-  const PIECE_KEYS = { "001":"piece1","002":"piece2","003":"piece3","004":"piece4" };
+    // ✅ ピース番号をパース（"001" でもOK）
+    const m = String(idRaw).match(/\d+/);
+    const pieceNum = m ? parseInt(m[0], 10) : NaN;
+    const isCorrect = Number.isFinite(pieceNum) && pieceNum >= 1 && pieceNum <= totalCorrect;
 
-  /********************
-   * ユーティリティ
-   ********************/
-  function qs(sel){ return document.querySelector(sel); }
-  const wait = (ms)=>new Promise(r=>setTimeout(r,ms));
+    // ✅ 進捗キー（familyは piece1..4 / challengeは c_piece1..9）
+    const pieceKey = (n) => isChallenge ? `c_piece${n}` : `piece${n}`;
 
-  // CSVの1行を"…"対応で分割
-  function splitCsvLine(line){
-    const out=[]; let cur="", inQ=false;
-    for(let i=0;i<line.length;i++){
-      const ch=line[i];
-      if(ch === '"'){
-        if(inQ && line[i+1] === '"'){ cur+='"'; i++; } else inQ = !inQ;
-      } else if(ch === ',' && !inQ){
-        out.push(cur); cur="";
-      } else {
-        cur += ch;
-      }
-    }
-    out.push(cur);
-    return out;
-  }
+    // ✅ ログ用
+    const event = (window.QRQUEST_EVENT && window.QRQUEST_EVENT.id) ? window.QRQUEST_EVENT.id : 'PROTO';
+    const code = m ? String(pieceNum).padStart(3,'0') : (idRaw || 'unknown');
+    const type = isCorrect ? 'correct' : 'dummy';
+    const page = 'result.html';
 
-  // CSV → 配列{code,name,category,msg,file}
-  let __rowsCache=null;
-  async function loadRows(){
-    if(__rowsCache) return __rowsCache;
-    const text = await fetch(CSV_URL, {cache:"no-store"}).then(r=>r.text());
-    const lines = text.trim().split(/\r?\n/);
-    if (!lines.length) return (__rowsCache = []);
-    const header = splitCsvLine(lines.shift());
-    const idx = {
-      code: header.indexOf("code"),
-      name: header.indexOf("name"),
-      category: header.indexOf("category"),
-      msg: header.indexOf("msg")
-    };
-    const rows=[];
-    for(const line of lines){
-      if(!line.trim()) continue;
-      const c = splitCsvLine(line);
-      const code = (c[idx.code]||"").trim();
-      const name = (c[idx.name]||"").trim();
-      const category = (c[idx.category]||"").trim();
-      const msg = (c[idx.msg]||"").trim();
-      if(!code || !name || !msg) continue;
-      rows.push({ code, name, category, msg, file: `${name}_${code}${IMG_EXT}` });
-    }
-    __rowsCache = rows;
-    return rows;
-  }
+    // ✅ スプレッドシートに記録を送る
+    fetch('https://script.google.com/macros/s/AKfycbyE9PKDtOjTb1pFbnQFIrXLgDQ4s-kqVWFm2r7sJ9CZVbjt7DDfE4IsYCePGZQktfTFYg/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ event, code, type, page })
+    }).catch(() => {});
 
-  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+    // ✅ ボタンの戻り先
+    const menuHref = isChallenge ? 'start_challenge.html' : 'start.html';
+    document.getElementById('menuBtn').onclick = () => location.href = menuHref;
+    document.getElementById('progressBtn').onclick = () => location.href = `progress.html?event=${encodeURIComponent(event)}&code=${encodeURIComponent(code)}&type=${encodeURIComponent(type)}`;
 
-  async function imageExists(path){
-    try{
-      const r = await fetch(path, {method:"HEAD"});
-      return r.ok;
-    }catch(e){ return false; }
-  }
+    const titleEl = document.getElementById('title');
+    const msgEl = document.getElementById('message');
+    const revealEl = document.getElementById('reveal');
 
-  /********************
-   * 扉＆蔦の簡易演出
-   ********************/
-  async function playRevealScene(duration=1200){
-    const scene = qs('#reveal-scene');
-    if(!scene) return;
-    scene.style.display = 'flex';
-    void scene.offsetWidth; // reflow
-    await wait(duration);
-    scene.classList.add('reveal-out');
-    await wait(360);
-    scene.style.display = 'none';
-    scene.classList.remove('reveal-out');
-  }
+    // ✅ ダミー文言
+    const dummyTexts = [
+      'あれれ？これはダミーQRかも！\n近くをよーく見てみよう！',
+      'ざんねん！これはフェイントだ！\nでもヒントがあるかも？',
+      'おっと！まちがいQRだ！\n本物はすぐ近くだよ！',
+      'ダミーQR発見！\nあきらめずに探そう！'
+    ];
 
-  /********************
-   * 正解表示（ピース）
-   ********************/
-  function pieceKeyFromId(qrId){
-    return PIECE_KEYS[qrId] || null;
-  }
-
-  function showCorrectPiece(id){
-    const key = pieceKeyFromId(id);
-    const msgEl = qs('#message');
-    const imgEl = qs('#resultImg');
-
-    if(!key){
-      msgEl.innerText = "❓ 不明なQRコードです。";
-      return;
-    }
-    const isDup = localStorage.getItem(key) === "true";
-    if(isDup){
-      msgEl.innerText = "👀 さっき見つけたばかりじゃ！ つぎへ進もう。";
+    if (!isCorrect) {
+      titleEl.textContent = '😵 あれ？ちがうみたい…';
+      msgEl.textContent = dummyTexts[Math.floor(Math.random() * dummyTexts.length)];
     } else {
-      localStorage.setItem(key, "true");
-      msgEl.innerText = "🎉 ピースをゲット！";
+      const already = localStorage.getItem(pieceKey(pieceNum)) === 'true';
+      localStorage.setItem(pieceKey(pieceNum), 'true');
+
+      // 演出
+      revealEl.style.display = 'block';
+      revealEl.setAttribute('aria-hidden','false');
+      requestAnimationFrame(() => revealEl.classList.add('open'));
+
+      titleEl.textContent = already ? '✅ これは もう もっているピース！' : '🎉 お宝をGETした！';
+      msgEl.textContent = isChallenge
+        ? `ピース ${pieceNum} を手に入れた！\n（チャレンジ：${totalCorrect}ピース）`
+        : `ピース ${pieceNum} を手に入れた！\n（ファミリー：${totalCorrect}ピース）`;
+
+      // 自動で進捗へ
+      setTimeout(() => {
+        location.href = `progress.html?event=${encodeURIComponent(event)}&code=${encodeURIComponent(code)}&type=correct`;
+      }, 850);
     }
-    const num = key.replace("piece","");
-    imgEl.src = `./images/piece${num}.png`;  // ← 相対パス
-    imgEl.style.display = "block";
-  }
-
-  /********************
-   * ダミー表示（CSV → PNG名を組み立て）
-   ********************/
-  async function showDummyFromCsv() {
-    const msgEl = qs("#message");
-    const imgEl = qs("#resultImg");
-
-    const rows = await loadRows();
-    if(!rows.length){
-      msgEl.innerText = "（ダミーデータがありません）";
-      return;
-    }
-
-    const last = sessionStorage.getItem("lastDummyFile");
-    let chosen = null, tries = 6;
-    while(tries-- > 0){
-      const candidate = pick(rows);
-      const filePath = IMG_DIR + candidate.file;
-      if(last === candidate.file) continue;
-      // デバッグ表示（必要なければ消してOK）
-      console.log("IMG PATH:", filePath);
-      if(await imageExists(filePath)){ chosen = candidate; break; }
-    }
-    if(!chosen) chosen = pick(rows);
-
-    msgEl.innerText = chosen.msg;
-    imgEl.src = IMG_DIR + chosen.file;  // ← 相対パス＋イベント対応
-    imgEl.style.display = "block";
-    sessionStorage.setItem("lastDummyFile", chosen.file);
-  }
-
-  /********************
-   * メインフロー
-   * 例:
-   *   result.html?id=001  → 正解（piece1）
-   *   result.html?id=999  → ダミー（不正解）
-   ********************/
-  (async function main(){
-    const id = getParam("id"); // 例：001, 002, ...
-    const isCorrect = !!pieceKeyFromId(id); // idが定義されていれば正解
-
-    await playRevealScene(1200);
-
-    if(isCorrect){
-      showCorrectPiece(id);
-    }else{
-      await showDummyFromCsv();
-    }
-  })();
   </script>
 </body>
 </html>

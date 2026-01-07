@@ -235,9 +235,10 @@
       await stopScanner();
       if (mode === "test") {
         window.location.href = "../test-camera.html";
-      } else {
-        window.location.href = "../start.html";
+        return;
       }
+      const qmode = localStorage.getItem("mode") || "family";
+      window.location.href = (qmode === "challenge") ? "../start_challenge.html" : "../start.html";
     }
 
     // ページ可視状態の変化で再起動（復帰時に固まる対策）

@@ -14,7 +14,7 @@
     body {
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
       text-align: center;
-      padding: 40px 20px 110px; /* 下の余白を少し増やす */
+      padding: 40px 20px 110px;
       background-color: #f0f8ff;
       margin: 0;
     }
@@ -61,14 +61,6 @@
     }
     .btn.pink:hover { background-color: #e03570; }
 
-    /* ✅ 追加：砂像一覧（索引）用の色（サブと同系統） */
-    .btn.list {
-      background-color: #ffffff;
-      color: #1e88e5;
-      border: 2px solid #1e88e5;
-    }
-    .btn.list:hover { background-color: #e8f3ff; }
-
     .tag {
       display:inline-block;
       padding:6px 10px;
@@ -98,38 +90,47 @@
     まずは下のボタンから選んでください。
   </p>
 
-  <!-- 追加：アプリの使い方 -->
+  <!-- アプリの使い方 -->
   <button class="btn sub" onclick="location.href='howto.html'">📘 アプリの使い方</button>
 
-  <!-- ✅ 追加：砂像一覧（索引）※砂像詳細とは別ボタン -->
-  <!-- ファイル名は、あなたが作った一覧ページを monuments_list.html として保存している前提 -->
-  <button class="btn list" onclick="location.href='monuments_list.html'">📋 砂像一覧（索引）</button>
+  <!-- ✅ 砂像一覧（索引） -->
+  <button class="btn sub" onclick="location.href='monuments_list.html'">📍 砂像一覧（番号・製作者・城名・エリア）</button>
 
-  <!-- 砂像詳細解説（個別ページ） -->
-  <button class="btn" onclick="location.href='monument.html'">🏰 砂像詳細解説</button>
+  <!-- 砂像詳細解説（QRから入るのが基本 / 直リンクは仮） -->
+  <button class="btn" onclick="location.href='monument.html'">🏰 砂像詳細解説（仮）</button>
 
-  <!-- チャレンジクエスト：クエストがメインの人 -->
+  <!-- チャレンジクエスト：9ピース -->
   <button class="btn pink" onclick="startChallenge()">🧩 チャレンジクエスト（9ピース）</button>
 
-  <!-- ファミリークエスト：有料・本部登録後（いまは仮でstartへ） -->
+  <!-- ファミリークエスト：4ピース -->
   <button class="btn gray" onclick="startFamily()">👨‍👩‍👧 ファミリークエスト（4ピース）</button>
 
-  <!-- カメラテスト（残す） -->
+  <!-- カメラテスト -->
   <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテスト</button>
 
   <p class="muted">Powered by SakuLink</p>
 
   <script>
-    // 参加モード（後で miss.html などの分岐にも使えます）
+    function goQuest(mode){
+      localStorage.setItem("mode", mode);
+
+      const introKey = (mode === "challenge") ? "visitedIntro_challenge" : "visitedIntro_family";
+      const startUrl = (mode === "challenge") ? "start_challenge.html" : "start.html";
+
+      // 初回だけintroへ（モード別に1回ずつ）
+      if (localStorage.getItem(introKey) !== "true") {
+        window.location.href = "intro.html";
+      } else {
+        window.location.href = startUrl;
+      }
+    }
+
     function startChallenge() {
-      localStorage.setItem("mode", "challenge");
-      window.location.href = "scanner/qr-scanner.html";
+      goQuest("challenge");
     }
 
     function startFamily() {
-      localStorage.setItem("mode", "family");
-      // 本番は「本部登録後の導線」に差し替え予定
-      window.location.href = "start.html";
+      goQuest("family");
     }
 
     // Service Worker 登録（PWA化用）

@@ -1,136 +1,185 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <script src="event-config.js"></script>
-<meta charset="UTF-8" />
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>お宝進行状況</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
       text-align: center;
-      padding: 30px 10px;
+      padding: 26px 10px;
       background-color: #fffaf2;
     }
 
     h1 {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       color: #4b2e0d;
-      margin-bottom: 20px;
+      margin: 0 0 10px;
+      line-height: 1.3;
+    }
+
+    .sub {
+      font-size: 0.95rem;
+      color: #6b4a2a;
+      margin: 0 0 18px;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
       gap: 0;
-      width: 300px;
-      height: 300px;
       margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
     }
 
     .grid img {
-      width: 150px;
-      height: 150px;
+      width: 100%;
+      height: 100%;
       display: block;
       padding: 0;
       margin: 0;
       border: none;
-      background-color: transparent;
+      background: transparent;
+      object-fit: cover;
     }
 
     .btn {
-      margin-top: 30px;
-      padding: 12px 24px;
+      margin-top: 20px;
+      padding: 12px 22px;
       font-size: 1rem;
       background-color: #4fa3ff;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
+      font-weight: 800;
     }
 
     .btn-reward {
-      margin-top: 20px;
-      padding: 12px 24px;
+      margin-top: 14px;
+      padding: 12px 22px;
       font-size: 1rem;
       background-color: #ffcc00;
       color: #000;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
+      font-weight: 900;
+    }
+
+    .btn-sub {
+      background-color: #ffffff;
+      color: #1e88e5;
+      border: 2px solid #1e88e5;
+      margin-top: 14px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .row .btn {
+      margin-top: 0;
+      min-width: 220px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🧭 みつけた お宝ピース！</h1>
+  <h1 id="title">🧭 みつけた お宝ピース！</h1>
+  <p class="sub" id="sub">0 / 0</p>
 
-  <div class="grid">
-    <img id="piece1" src="images/blank.png" alt="ピース1（左上）" />
-    <img id="piece2" src="images/blank.png" alt="ピース2（右上）" />
-    <img id="piece3" src="images/blank.png" alt="ピース3（左下）" />
-    <img id="piece4" src="images/blank.png" alt="ピース4（右下）" />
+  <div class="grid" id="grid" aria-label="puzzle grid"></div>
+
+  <div class="row">
+    <button class="btn btn-sub" id="backBtn">⬅ メニューに戻る</button>
+    <button class="btn" onclick="location.href='scanner/qr-scanner.html'">📷 スキャンへ戻る</button>
   </div>
-
-  <button class="btn" onclick="location.href='start.html'">⬅ メニューに戻る</button>
 
   <!-- ✅ ファンファーレ音声ファイル -->
   <audio id="fanfare" src="sounds/fanfare.mp3" preload="auto"></audio>
 
   <script>
-    // ✅ URLパラメータの取得と補完
+    // ✅ URLパラメータの取得と補完（スプレッドシート記録用）
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
-    const event = urlParams.get('event') || "PROTO"; // デフォルトでPROTO
-    const code = urlParams.get('code') || id || "unknown";
-    const type = urlParams.get('type') || (parseInt(code) >= 100 ? "dummy" : "correct");
+    const event = urlParams.get('event') || 'PROTO';
+    const code = urlParams.get('code') || id || 'unknown';
+    const type = urlParams.get('type') || (parseInt(code, 10) >= 100 ? 'dummy' : 'correct');
     const page = 'progress.html';
 
     // ✅ スプレッドシートに記録を送る
-    fetch("https://script.google.com/macros/s/AKfycbyE9PKDtOjTb1pFbnQFIrXLgDQ4s-kqVWFm2r7sJ9CZVbjt7DDfE4IsYCePGZQktfTFYg/exec", {
+    fetch('https://script.google.com/macros/s/AKfycbyE9PKDtOjTb1pFbnQFIrXLgDQ4s-kqVWFm2r7sJ9CZVbjt7DDfE4IsYCePGZQktfTFYg/exec', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        event: event,
-        code: code,
-        type: type,
-        page: page
-      })
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ event, code, type, page })
     })
     .then(res => res.text())
-    .then(msg => {
-      console.log("送信結果:", msg);
-    })
-    .catch(err => {
-      console.error("送信失敗:", err);
+    .then(msg => console.log('送信結果:', msg))
+    .catch(err => console.error('送信失敗:', err));
+
+    // ✅ モード判定（family=4ピース / challenge=9ピース）
+    const mode = localStorage.getItem('mode') || 'family';
+    const isChallenge = (mode === 'challenge');
+
+    // 進捗キー（familyは piece1..4 / challengeは c_piece1..9）
+    const pieceKey = (n) => isChallenge ? `c_piece${n}` : `piece${n}`;
+
+    // ピース画像の場所
+    const pieceSrc = (n) => isChallenge ? `images/challenge/piece${n}.png` : `images/piece${n}.png`;
+
+    // グリッド構成
+    const total = isChallenge ? 9 : 4;
+    const cols = isChallenge ? 3 : 2;
+    const cell = isChallenge ? 110 : 150; // スマホで見やすいサイズ
+
+    // タイトルなど
+    document.getElementById('title').textContent = isChallenge
+      ? '🧭 チャレンジクエスト：みつけた お宝ピース！'
+      : '🧭 ファミリークエスト：みつけた お宝ピース！';
+
+    // メニュー戻り先
+    document.getElementById('backBtn').addEventListener('click', () => {
+      location.href = isChallenge ? 'start_challenge.html' : 'start.html';
     });
 
-    // ✅ ピース状態の取得
-    const p1 = localStorage.getItem("piece1") === "true";
-    const p2 = localStorage.getItem("piece2") === "true";
-    const p3 = localStorage.getItem("piece3") === "true";
-    const p4 = localStorage.getItem("piece4") === "true";
+    // グリッドを生成
+    const grid = document.getElementById('grid');
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    grid.style.width = `${cell * cols}px`;
+    grid.style.height = `${cell * cols}px`;
 
-    // ✅ ピース画像の更新
-    if (p1) document.getElementById("piece1").src = "images/piece1.png";
-    if (p2) document.getElementById("piece2").src = "images/piece2.png";
-    if (p3) document.getElementById("piece3").src = "images/piece3.png";
-    if (p4) document.getElementById("piece4").src = "images/piece4.png";
+    let found = 0;
+    for (let n = 1; n <= total; n++) {
+      const img = document.createElement('img');
+      const has = localStorage.getItem(pieceKey(n)) === 'true';
+      if (has) found++;
+      img.id = `piece${n}`;
+      img.alt = `ピース${n}`;
+      img.src = has ? pieceSrc(n) : 'images/blank.png';
+      grid.appendChild(img);
+    }
+
+    document.getElementById('sub').textContent = `${found} / ${total}`;
 
     // ✅ 全ピース揃った場合の処理
-    if (p1 && p2 && p3 && p4) {
-      const audio = document.getElementById("fanfare");
-      audio.play().catch(e => {
-        console.log("音声の自動再生がブロックされました");
-      });
+    if (found === total) {
+      const audio = document.getElementById('fanfare');
+      audio.play().catch(() => console.log('音声の自動再生がブロックされました'));
 
-      const rewardBtn = document.createElement("button");
-      rewardBtn.textContent = "🎁 おたからを うけとる";
-      rewardBtn.className = "btn-reward";
+      const rewardBtn = document.createElement('button');
+      rewardBtn.textContent = '🎁 おたからを うけとる';
+      rewardBtn.className = 'btn-reward';
       rewardBtn.onclick = () => {
-        location.href = "reward_intro.html";
+        location.href = 'reward_intro.html';
       };
       document.body.appendChild(rewardBtn);
     }

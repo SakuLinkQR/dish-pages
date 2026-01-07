@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <script src="event-config.js"></script>
-<meta charset="UTF-8" />
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ぼうけんのはじまり</title>
   <style>
@@ -20,6 +20,7 @@
       padding: 40px;
       border-radius: 15px;
       display: inline-block;
+      max-width: 720px;
     }
     #text-box {
       font-size: 22px;
@@ -47,23 +48,39 @@
   </div>
 
   <script>
-    // タイトル（start.htmlでも使う）
-    const questTitle = "ぴーすをさがせ！";
+    // モード：index.html で family / challenge をセット
+    const mode = localStorage.getItem('mode') || 'family';
 
-    // 導入文
-    const messagePart1 = `
+    const introKey = (mode === 'challenge') ? 'visitedIntro_challenge' : 'visitedIntro_family';
+    const titleKey = (mode === 'challenge') ? 'questTitle_challenge' : 'questTitle_family';
+    const startUrl  = (mode === 'challenge') ? 'start_challenge.html' : 'start.html';
+
+    // タイトル（必要ならstart画面でも使える）
+    const questTitle = (mode === 'challenge') ? 'ぴーすを うばいもどせ！' : 'ぴーすをさがせ！';
+
+    // 導入文（①）
+    const messagePart1 = (mode === 'challenge') ? `
+よくきた、つわものよ。
+あたらしい　たんけんの とびらが
+いま、ひらかれようとしている…。\n
+さあ、すすむがよい。
+` : `
 よくきた、ゆうじゃよ。
 あたらしい　たんけんの とびらが
-いま、ひらかれようとしている…。
-
+いま、ひらかれようとしている…。\n
 さあ、すすむがよい。
 `;
 
-    // ミッション説明
-    const missionText = `
+    // ミッション説明（②）
+    const missionText = (mode === 'challenge') ? `
 たいへんじゃ！
 えが バラバラにされて しまった。
-あちこちに ちらばった ピースを さがし、
+あちこちに ちらばった 9まいの ピースを さがし、
+もとどおりに するのじゃ！
+` : `
+たいへんじゃ！
+えが バラバラにされて しまった。
+あちこちに ちらばった 4まいの ピースを さがし、
 もとどおりに するのじゃ！
 `;
 
@@ -82,9 +99,9 @@
     }
 
     function goToStart() {
-      localStorage.setItem("visitedIntro", "true");
-      localStorage.setItem("questTitle", questTitle); // タイトルを保存
-      location.href = "start.html";
+      localStorage.setItem(introKey, "true");
+      localStorage.setItem(titleKey, questTitle);
+      location.href = startUrl;
     }
 
     window.onload = () => {
