@@ -61,6 +61,14 @@
     }
     .btn.pink:hover { background-color: #e03570; }
 
+    /* ✅ 追加：砂像一覧（索引）用の色（サブと同系統） */
+    .btn.list {
+      background-color: #ffffff;
+      color: #1e88e5;
+      border: 2px solid #1e88e5;
+    }
+    .btn.list:hover { background-color: #e8f3ff; }
+
     .tag {
       display:inline-block;
       padding:6px 10px;
@@ -93,8 +101,12 @@
   <!-- 追加：アプリの使い方 -->
   <button class="btn sub" onclick="location.href='howto.html'">📘 アプリの使い方</button>
 
-  <!-- 砂像詳細解説（まずは仮で、砂像一覧ページができたら差し替え） -->
-  <button class="btn" onclick="location.href='monument.html'">🏰 砂像詳細解説（仮）</button>
+  <!-- ✅ 追加：砂像一覧（索引）※砂像詳細とは別ボタン -->
+  <!-- ファイル名は、あなたが作った一覧ページを monuments_list.html として保存している前提 -->
+  <button class="btn list" onclick="location.href='monuments_list.html'">📋 砂像一覧（索引）</button>
+
+  <!-- 砂像詳細解説（個別ページ） -->
+  <button class="btn" onclick="location.href='monument.html'">🏰 砂像詳細解説</button>
 
   <!-- チャレンジクエスト：クエストがメインの人 -->
   <button class="btn pink" onclick="startChallenge()">🧩 チャレンジクエスト（9ピース）</button>
