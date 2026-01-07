@@ -2,7 +2,17 @@
 <html lang="ja">
 <head>
   <script src="../event-config.js"></script>
-  <script src="../js/check_referrer.js"></script>
+  <script>
+    // ✅ reward.html を経由していない直接アクセスをブロック（イベント別プレフィックス対応）
+    (function(){
+      const mode = localStorage.getItem("mode") || "family";
+      const key = (mode === "challenge") ? "reward_unlocked_challenge" : "reward_unlocked_family";
+      if (localStorage.getItem(key) !== "true") {
+        window.location.replace("../warning.html");
+      }
+    })();
+  </script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>本部確認</title>

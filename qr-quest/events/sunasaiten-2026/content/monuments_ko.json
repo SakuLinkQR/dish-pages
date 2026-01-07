@@ -1,0 +1,21 @@
+{
+  "s01": {
+    "monumentTitle": "(Test) Sand Monument Title",
+    "monumentSub": "City Hall Area",
+    "monumentPhoto": "",
+    "artist": {
+      "name": "Katsuhiko Chaen",
+      "country": "Japan",
+      "bio": "[Reading] Chaen Katsuhiko\nSand sculptor / producer.\nNewsweek selection (year to confirm).",
+      "photo": ""
+    },
+    "concept": {
+      "text": "〇〇 (temporary description)",
+      "modelPhoto": "",
+      "modelDesc": "〇〇 (model/castle description – temp)",
+      "makingPhoto": "",
+      "makingDesc": "〇〇 (making process description – temp)"
+    }
+  }
+}
+
