@@ -104,7 +104,10 @@
     // ✅ ピース番号をパース（"001" でもOK）
     const m = String(idRaw).match(/\d+/);
     const pieceNum = m ? parseInt(m[0], 10) : NaN;
+
+    // ✅ 正解QRかどうか
     const isCorrect = Number.isFinite(pieceNum) && pieceNum >= 1 && pieceNum <= totalCorrect;
+
 
     // ✅ 進捗キー（familyは piece1..4 / challengeは c_piece1..9）
     const pieceKey = (n) => isChallenge ? `c_piece${n}` : `piece${n}`;
@@ -143,6 +146,14 @@
       titleEl.textContent = '😵 あれ？ちがうみたい…';
       msgEl.textContent = dummyTexts[Math.floor(Math.random() * dummyTexts.length)];
     } else {
+
+      // 🔒 ファミリーは「本部QR（1枚目）」を読むまで進めない
+      const familyUnlocked = localStorage.getItem('family_unlocked') === 'true';
+      if (!isChallenge && !familyUnlocked) {
+        location.replace('family_need_hq.html');
+        throw new Error('Family quest locked (branch): go to HQ first');
+      }
+
       const already = localStorage.getItem(pieceKey(pieceNum)) === 'true';
       localStorage.setItem(pieceKey(pieceNum), 'true');
 

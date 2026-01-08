@@ -21,6 +21,7 @@ window.QRQUEST_EVENT = {
     "visitedIntro_family",
     "questTitle_family",
     "piece1","piece2","piece3","piece4",
+    "family_unlocked","family_unlocked_at",
     "reward_unlocked_family",
     "confirmed_family",
 

@@ -198,7 +198,10 @@
             /^\/qr-quest\/events\/[^\/]+\/(progress|result)\.html$/.test(path) ||
 
             // ✅ 砂像説明ページ（monument.html）も許可
-            /^\/qr-quest\/events\/[^\/]+\/monument\.html$/.test(path)
+            /^\/qr-quest\/events\/[^\/]+\/monument\.html$/.test(path) ||
+
+            // ✅ 本部QR（登録＆1枚目）
+            /^\/qr-quest\/events\/[^\/]+\/family_unlock\.html$/.test(path)
           );
 
         if (allowed) {

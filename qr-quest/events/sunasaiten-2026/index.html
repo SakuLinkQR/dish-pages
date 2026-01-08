@@ -130,7 +130,8 @@
     }
 
     function startFamily() {
-      goQuest("family");
+      localStorage.setItem("mode", "family");
+      window.location.href = "family_notice.html";
     }
 
     // Service Worker 登録（PWA化用）

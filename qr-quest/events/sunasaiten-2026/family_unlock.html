@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>1まいめゲット（本部）</title>
+  <style>
+    body{
+      font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+      margin:0;background:#f0f8ff;padding:40px 16px;text-align:center;
+    }
+    .wrap{max-width:520px;margin:0 auto}
+    .card{
+      background:#fff;border:1px solid #e5e7eb;border-radius:14px;
+      padding:18px;line-height:1.75;box-shadow: 0 10px 28px rgba(0,0,0,.06);
+    }
+    .tag{
+      display:inline-block;padding:6px 10px;border-radius:999px;
+      background:#e8f3ff;color:#1e5aa8;font-size:12px;font-weight:800;margin-bottom:12px;
+    }
+    h1{font-size:1.5rem;margin:6px 0 10px;line-height:1.25}
+    p{margin:0;color:#333}
+    .muted{opacity:.9}
+    .btn{
+      display:block;width:86%;max-width:340px;margin:14px auto 0;
+      padding:14px 18px;font-size:1.12rem;border:none;border-radius:10px;
+      background:#4fa3ff;color:#fff;cursor:pointer;font-weight:800;
+    }
+    .btn:hover{background:#1e88e5}
+    .small{margin-top:10px;font-size:.92rem;color:#444;opacity:.85}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="tag">ファミリークエスト（本部）</div>
+
+    <div class="card" id="step1">
+      <h1>よくきた　ゆうじゃよ</h1>
+      <p class="muted">ここで とうろく かんりょうじゃ。</p>
+      <button class="btn" id="toStep2">つぎへ</button>
+      <div class="small">※本部QR：登録完了＆1まいめ獲得</div>
+    </div>
+
+    <div class="card" id="step2" style="display:none;">
+      <h1>1まいめゲットじゃ！</h1>
+      <p class="muted">
+        つづけて あと3まいを さがすのじゃ。<br>
+        さあ すすめ！
+      </p>
+      <button class="btn" id="goScan">スキャンへ</button>
+      <div class="small">（数秒後に自動でスキャンへ戻ります）</div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ ここを読んだ＝登録完了（解放）＋ピース1獲得
+    localStorage.setItem("mode", "family");
+    localStorage.setItem("family_unlocked", "true");
+    localStorage.setItem("family_unlocked_at", String(Date.now()));
+    localStorage.setItem("piece1", "true");
+
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+
+    const goScan = () => location.href = "scanner/qr-scanner.html";
+
+    document.getElementById("toStep2").addEventListener("click", () => {
+      step1.style.display = "none";
+      step2.style.display = "block";
+      setTimeout(goScan, 1800);
+    });
+
+    document.getElementById("goScan").addEventListener("click", goScan);
+  </script>
+</body>
+</html>

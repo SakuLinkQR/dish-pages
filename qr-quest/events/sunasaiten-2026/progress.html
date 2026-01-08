@@ -130,7 +130,14 @@
     const mode = localStorage.getItem('mode') || 'family';
     const isChallenge = (mode === 'challenge');
 
-    // 進捗キー（familyは piece1..4 / challengeは c_piece1..9）
+    // 🔒 ファミリーは「本部QR（1枚目）」を読むまで進捗画面もロック
+    const familyUnlocked = localStorage.getItem('family_unlocked') === 'true';
+    if (!isChallenge && !familyUnlocked) {
+      location.replace('family_need_hq.html');
+      throw new Error('Progress locked: go to HQ first');
+    }
+
+// 進捗キー（familyは piece1..4 / challengeは c_piece1..9）
     const pieceKey = (n) => isChallenge ? `c_piece${n}` : `piece${n}`;
 
     // ピース画像の場所
