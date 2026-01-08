@@ -93,7 +93,11 @@
   <!-- アプリの使い方 -->
   <button class="btn sub" onclick="location.href='howto.html'">📘 アプリの使い方</button>
 
-  <!-- ✅ 砂像一覧（索引） -->
+  
+
+  <!-- 追加：QRを読み取る（砂像/クエスト） -->
+  <button class=\"btn\" onclick=\"scanNow()\">📷 QRを読み取る（砂像/クエスト）</button>
+<!-- ✅ 砂像一覧（索引） -->
   <button class="btn sub" onclick="location.href='monuments_list.html'">📍 砂像一覧（番号・製作者・城名・エリア）</button>
 
   <!-- 砂像詳細解説（QRから入るのが基本 / 直リンクは仮） -->
@@ -108,9 +112,37 @@
   <!-- カメラテスト -->
   <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテスト</button>
 
+  <p class="muted" id="rescanTip" style="display:none;">✅ 登録が完了しました。今いる場所のQRコードを、もう一度読み取ってください。</p>
+
   <p class="muted">Powered by SakuLink</p>
 
   <script>
+    // 初回セットアップ（言語選択 → 登録）
+    function ensureSetup() {
+      const lang = localStorage.getItem("lang") || "";
+      if (!lang) {
+        window.location.href = "language.html";
+        return false;
+      }
+      const reg = localStorage.getItem("app_registered") === "true";
+      if (!reg) {
+        window.location.href = "register.html";
+        return false;
+      }
+      return true;
+    }
+
+    // 登録後の「再スキャン案内」
+    (function(){
+      const tip = document.getElementById("rescanTip");
+      if (!tip) return;
+      if (localStorage.getItem("show_rescan_tip") === "true") {
+        tip.style.display = "block";
+        localStorage.removeItem("show_rescan_tip");
+      }
+    })();
+
+
     function goQuest(mode){
       localStorage.setItem("mode", mode);
 
@@ -125,12 +157,21 @@
       }
     }
 
+    function scanNow() {
+      if (!ensureSetup()) return;
+      window.location.href = "scanner/qr-scanner.html";
+    }
+
     function startChallenge() {
-      goQuest("challenge");
+      if (!ensureSetup()) return;
+      localStorage.setItem("mode", "challenge");
+      window.location.href = "scanner/qr-scanner.html";
     }
 
     function startFamily() {
+      if (!ensureSetup()) return;
       localStorage.setItem("mode", "family");
+      // 本番は「本部登録後の導線」に差し替え予定
       window.location.href = "family_notice.html";
     }
 

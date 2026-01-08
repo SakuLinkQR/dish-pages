@@ -65,6 +65,16 @@
       transform: scale(1.05);
     }
   </style>
+
+  <script>
+  (function(){
+    const lang = localStorage.getItem("lang") || "";
+    const reg  = localStorage.getItem("app_registered") === "true";
+    if(!lang){ location.replace("language.html"); return; }
+    if(!reg){ location.replace("register.html"); return; }
+  })();
+  </script>
+
 </head>
 <body>
 

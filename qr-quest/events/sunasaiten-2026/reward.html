@@ -42,6 +42,16 @@
     .btn.sub:hover{ background: #eafff0; }
     .muted{color:#555; font-size: 14px; margin-top: 10px; white-space: pre-line;}
   </style>
+
+  <script>
+  (function(){
+    const lang = localStorage.getItem("lang") || "";
+    const reg  = localStorage.getItem("app_registered") === "true";
+    if(!lang){ location.replace("language.html"); return; }
+    if(!reg){ location.replace("register.html"); return; }
+  })();
+  </script>
+
 </head>
 <body>
   <h1 id="title">🎁 ごほうび</h1>

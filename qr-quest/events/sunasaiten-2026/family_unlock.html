@@ -30,6 +30,16 @@
     .btn:hover{background:#1e88e5}
     .small{margin-top:10px;font-size:.92rem;color:#444;opacity:.85}
   </style>
+
+  <script>
+  (function(){
+    const lang = localStorage.getItem("lang") || "";
+    const reg  = localStorage.getItem("app_registered") === "true";
+    if(!lang){ location.replace("language.html"); return; }
+    if(!reg){ location.replace("register.html"); return; }
+  })();
+  </script>
+
 </head>
 <body>
   <div class="wrap">

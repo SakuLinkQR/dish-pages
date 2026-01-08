@@ -56,8 +56,11 @@
   </div>
 
   <script>
-    const KEY = "qrquest_lang";
-    let selected = localStorage.getItem(KEY) || "ja";
+
+    const KEY_OLD = "qrquest_lang";
+    const KEY = "lang";
+
+    let selected = localStorage.getItem(KEY) || localStorage.getItem(KEY_OLD) || "ja";
 
     function setActive() {
       document.querySelectorAll("button.lang").forEach(b=>{
@@ -65,25 +68,36 @@
       });
     }
 
+    function saveLang(){
+      localStorage.setItem(KEY, selected);
+      localStorage.setItem(KEY_OLD, selected); // 互換用（残しておく）
+    }
+
     document.querySelectorAll("button.lang").forEach(b=>{
       b.addEventListener("click", ()=>{
         selected = b.dataset.lang;
-        localStorage.setItem(KEY, selected);
+        saveLang();
         setActive();
       });
     });
 
     document.getElementById("skip").addEventListener("click", ()=>{
-      // 何も保存せず次へ
-      location.href = "add_to_home.html";
+      // 初回でも迷わないように、デフォルト言語（ja）で進む
+      selected = selected || "ja";
+      saveLang();
+      // 登録へ
+      const reg = localStorage.getItem("app_registered") === "true";
+      location.href = reg ? "index.html" : "register.html";
     });
 
     document.getElementById("next").addEventListener("click", ()=>{
-      localStorage.setItem(KEY, selected);
-      location.href = "add_to_home.html";
+      saveLang();
+      const reg = localStorage.getItem("app_registered") === "true";
+      location.href = reg ? "index.html" : "register.html";
     });
 
     setActive();
+
   </script>
 </body>
 </html>

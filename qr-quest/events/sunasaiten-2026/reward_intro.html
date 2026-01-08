@@ -41,6 +41,16 @@
     }
     .btn.sub{background:#ffffff;color:#1e88e5;border:2px solid #1e88e5}
   </style>
+
+  <script>
+  (function(){
+    const lang = localStorage.getItem("lang") || "";
+    const reg  = localStorage.getItem("app_registered") === "true";
+    if(!lang){ location.replace("language.html"); return; }
+    if(!reg){ location.replace("register.html"); return; }
+  })();
+  </script>
+
 </head>
 <body>
   <div class="card">
