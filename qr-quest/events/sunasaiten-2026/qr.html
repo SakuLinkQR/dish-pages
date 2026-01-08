@@ -27,34 +27,31 @@
   </div>
 
 <script>
-  // ✅ 砂像QRは「1つだけ」で運用するための入口（ルーター）
-  // 推奨QR形式：
-  //   .../qr.html?mid=s01                （砂像解説のみ）
-  //   .../qr.html?mid=s12&c=003          （チャレンジ用ピース3の砂像）
-  //   .../qr.html?c=901                  （ダミーQR：砂像IDなし）
-  // ファミリー用は必要なら：
-  //   .../qr.html?mid=sXX&f=002          （ファミリー用ピース2）
+  // ✅ 砂像QRは「1個だけ」で運用するための入口（ルーター）
+  // QRは mid だけ固定にするのがおすすめ（当たり/はずれを後で入れ替えてもQR作り直し不要）
+  // 例：.../qr.html?mid=s01
+  //
+  // 当たり/はずれ（チャレンジ9ピース）は、JSON（将来的にCSVから生成）側で判定します：
+  //   challenge_piece: 1〜9  → 当たり（そのピース）
+  //   challenge_piece: "DUMMY" or 0 → ダミー（ハズレ）
+  //   未設定/空欄 → クエスト対象外（解説のみ）
   //
   // 動作：
-  // - 未セットアップ：language → register → index（※登録後は再スキャン案内）
+  // - 未セットアップ：language → register → index（登録後は再スキャン案内）
   // - セットアップ済み：
-  //    mode=challenge：cがあれば resultへ（解説スキップ）
-  //    mode=family   ：fがあれば resultへ
-  //    mode=info/その他：midがあれば monumentへ（※cがあれば裏でチャレンジ進捗を記録）
+  //    mode=challenge：当たり/ダミーを result へ（解説スキップ）
+  //    mode=info     ：monument へ（当たりなら裏で進捗も記録）
   //
   const msg = (t)=>{ const el=document.getElementById('msg'); if(el) el.textContent=t; };
 
   const params = new URLSearchParams(location.search);
   const mid = params.get('mid') || params.get('monument') || params.get('id') || '';
-  const c = params.get('c') || '';   // challenge piece or dummy
-  const f = params.get('f') || '';   // family piece (optional)
 
   // 言語（旧キー互換）
   const lang = localStorage.getItem('lang') || localStorage.getItem('qrquest_lang') || '';
 
   if (!lang) {
     msg('言語選択へ移動します…');
-    // 言語選択 → 登録 → ホーム（登録後は再スキャン案内）
     location.replace('language.html');
     throw new Error('no lang');
   }
@@ -68,59 +65,71 @@
   }
 
   // モード：info / challenge / family
+  // ※ファミリーは本部解放が前提なので、砂像QRは原則「解説/チャレンジ」に使います
   const mode = localStorage.getItem('mode') || 'info';
+  const isChallengeMode = (mode === 'challenge');
 
-  const parseNum = (s)=>{
-    const m = String(s||'').match(/\d+/);
-    return m ? parseInt(m[0],10) : NaN;
-  };
+  const DATA_URL = `./content/monuments_${lang}.json`;
 
-  const recordChallengeSilently = (code)=>{
-    const n = parseNum(code);
-    if (Number.isFinite(n) && n>=1 && n<=9){
-      localStorage.setItem(`c_piece${n}`, 'true');
-    }
-  };
-
-  // ① チャレンジモード：解説を飛ばして result へ
-  if (mode === 'challenge') {
-    if (c) {
-      msg('チャレンジクエストの結果へ…');
-      location.replace(`result.html?id=${encodeURIComponent(c)}`);
-      throw new Error('to result challenge');
-    }
-    // cが無い砂像は、解説へ（クエスト外でも見られる）
+  function normalizePiece(v){
+    if (v === null || v === undefined) return { kind:'none' };
+    const s = String(v).trim();
+    if (!s) return { kind:'none' };
+    if (s.toUpperCase() === 'DUMMY' || s === '0') return { kind:'dummy' };
+    const n = parseInt(s, 10);
+    if (Number.isFinite(n) && n>=1 && n<=9) return { kind:'piece', n };
+    return { kind:'none' };
   }
 
-  // ② ファミリーモード：fがあれば result へ
-  if (mode === 'family') {
-    if (f) {
-      msg('ファミリークエストの結果へ…');
-      location.replace(`result.html?id=${encodeURIComponent(f)}`);
-      throw new Error('to result family');
+  function recordChallengeSilently(n){
+    localStorage.setItem(`c_piece${n}`, 'true');
+  }
+
+  (async ()=>{
+    // mid が無い＝砂像ではないQR（このイベントでは基本使わない）
+    if (!mid) {
+      msg('ホームへ移動します…');
+      location.replace('index.html');
+      return;
     }
-  }
 
-  // ③ 解説モード：砂像解説へ（cがあれば裏でチャレンジ進捗を記録）
-  if (c && mode !== 'challenge') {
-    recordChallengeSilently(c);
-  }
+    // JSONを読んで、当たり/はずれを判定
+    let piece = { kind:'none' };
+    try{
+      const res = await fetch(DATA_URL, { cache:'no-store' });
+      const all = await res.json();
+      const d = all[mid];
+      // 互換：challenge_piece / challengePiece / challenge.piece
+      piece = normalizePiece(d?.challenge_piece ?? d?.challengePiece ?? d?.challenge?.piece);
+    }catch(e){
+      // 読めない場合は安全に解説へ
+      piece = { kind:'none' };
+    }
 
-  if (mid) {
-    const url = `monument.html?id=${encodeURIComponent(mid)}${c ? `&c=${encodeURIComponent(c)}` : ''}${f ? `&f=${encodeURIComponent(f)}` : ''}`;
+    // ① チャレンジモード：resultへ（当たり/ダミーのみ）
+    if (isChallengeMode) {
+      if (piece.kind === 'piece') {
+        const code = String(piece.n).padStart(3,'0');
+        msg('チャレンジクエストの結果へ…');
+        location.replace(`result.html?id=${encodeURIComponent(code)}`);
+        return;
+      }
+      if (piece.kind === 'dummy') {
+        msg('チャレンジクエスト（ダミー）へ…');
+        location.replace(`result.html?id=DUMMY`);
+        return;
+      }
+      // チャレンジ対象外の砂像は、解説へ（観光用）
+    }
+
+    // ② 解説モード：解説へ（当たりなら裏で進捗を記録）
+    if (piece.kind === 'piece') {
+      recordChallengeSilently(piece.n);
+    }
+
     msg('砂像解説へ移動します…');
-    location.replace(url);
-    throw new Error('to monument');
-  }
-
-  // midが無い（ダミーQRなど）
-  if (mode === 'challenge' && c) {
-    msg('チャレンジ結果へ…');
-    location.replace(`result.html?id=${encodeURIComponent(c)}`);
-  } else {
-    msg('ホームへ移動します…');
-    location.replace('index.html');
-  }
+    location.replace(`monument.html?id=${encodeURIComponent(mid)}`);
+  })();
 </script>
 </body>
 </html>

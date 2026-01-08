@@ -135,6 +135,7 @@
 
     <div class="row">
       <a class="btn" href="javascript:void(0)" id="toConceptBtn">次へ（砂像説明へ）</a>
+      <a class="btn pink" href="javascript:void(0)" id="toChallengeBtn">🧩 チャレンジクエストへ（スキャン）</a>
       <!-- ✅ 修正：Quest全体ホームではなく、このイベントの index.html へ戻す -->
       <a class="btn sub" href="./index.html">メニューに戻る</a>
     </div>
@@ -163,6 +164,7 @@
 
     <div class="row">
       <a class="btn gray" href="javascript:void(0)" id="backToArtistBtn">作者プロフィールに戻る</a>
+      <a class="btn pink" href="javascript:void(0)" id="toChallengeBtn2">🧩 チャレンジクエストへ（スキャン）</a>
       <!-- ✅ 修正：Quest全体ホームではなく、このイベントの index.html へ戻す -->
       <a class="btn sub" href="./index.html">メニューに戻る</a>
     </div>
@@ -173,7 +175,6 @@
   // 例：monument.html?id=s01
   const params = new URLSearchParams(location.search);
   const id = params.get("id") || "s01";
-  const cCode = params.get("c") || ""; // qr.htmlから渡る（チャレンジ用）
 
   // 言語：あなたの言語選択保存キーに合わせてください
   // 例）localStorage.setItem("lang","ja")
@@ -263,16 +264,6 @@
   if (b1) b1.addEventListener("click", goChallengeScan);
   if (b2) b2.addEventListener("click", goChallengeScan);
 
-  // 解説入口でも「c=」が付いていれば、裏でチャレンジ進捗を記録済み（qr.htmlで処理）
-  if (cCode) {
-    const n = (String(cCode).match(/\d+/) || [])[0];
-    const nn = n ? parseInt(n,10) : NaN;
-    if (Number.isFinite(nn) && nn>=1 && nn<=9) {
-      const notice = document.getElementById("challengeNotice");
-      if (notice) notice.style.display = "block";
-    }
-  }
-
   (async () => {
     const d = await loadData();
 
@@ -310,6 +301,18 @@
     setText("makingDesc", d.concept?.makingDesc);
     setImage("modelPhoto", "modelWrap", d.concept?.modelPhoto);
     setImage("makingPhoto", "makingWrap", d.concept?.makingPhoto);
+
+    // ✅ チャレンジ対象かどうか（データ側で判定）
+    const cp = d.challenge_piece ?? d.challengePiece ?? d.challenge?.piece;
+    const s = (cp===null||cp===undefined) ? "" : String(cp).trim();
+    const n = parseInt(s, 10);
+    if (Number.isFinite(n) && n>=1 && n<=9) {
+      const notice = document.getElementById("challengeNotice");
+      if (notice) notice.style.display = "block";
+      // 解説で読んだ場合も進捗を裏で保持（qr.htmlでも実施。保険）
+      localStorage.setItem(`c_piece${n}`, "true");
+    }
+
   })();
 </script>
 </body>
