@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ja">
 <head>
+  <script src="event-config.js"></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>砂像案内</title>
@@ -113,6 +114,7 @@
 
   <h1 id="monumentTitle">砂像タイトル</h1>
   <p class="muted" id="monumentSub">（エリア/一言）</p>
+  <p class="muted" id="challengeNotice" style="display:none;">✅ この砂像はチャレンジ用QRです。ピースを記録しました。</p>
 
   <!-- 砂像メイン写真 -->
   <img id="monumentPhoto" class="hero" src="./images/placeholder.png" alt="砂像の写真">
@@ -171,6 +173,7 @@
   // 例：monument.html?id=s01
   const params = new URLSearchParams(location.search);
   const id = params.get("id") || "s01";
+  const cCode = params.get("c") || ""; // qr.htmlから渡る（チャレンジ用）
 
   // 言語：あなたの言語選択保存キーに合わせてください
   // 例）localStorage.setItem("lang","ja")
@@ -249,6 +252,26 @@
 
   document.getElementById("toConceptBtn").addEventListener("click", showConcept);
   document.getElementById("backToArtistBtn").addEventListener("click", hideConcept);
+
+  // チャレンジへ（スキャナー起動）
+  function goChallengeScan(){
+    localStorage.setItem("mode","challenge");
+    location.href = "scanner/qr-scanner.html";
+  }
+  const b1 = document.getElementById("toChallengeBtn");
+  const b2 = document.getElementById("toChallengeBtn2");
+  if (b1) b1.addEventListener("click", goChallengeScan);
+  if (b2) b2.addEventListener("click", goChallengeScan);
+
+  // 解説入口でも「c=」が付いていれば、裏でチャレンジ進捗を記録済み（qr.htmlで処理）
+  if (cCode) {
+    const n = (String(cCode).match(/\d+/) || [])[0];
+    const nn = n ? parseInt(n,10) : NaN;
+    if (Number.isFinite(nn) && nn>=1 && nn<=9) {
+      const notice = document.getElementById("challengeNotice");
+      if (notice) notice.style.display = "block";
+    }
+  }
 
   (async () => {
     const d = await loadData();

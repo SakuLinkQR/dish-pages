@@ -75,6 +75,14 @@
   })();
   </script>
 
+
+  <script>
+    // ✅ 確認済み端末は再参加をブロック（景品の二重交付防止）
+    if (localStorage.getItem('confirmed_family') === 'true' && location.pathname.endsWith('start.html')) {
+      location.replace('confirm.html?done=1');
+    }
+  </script>
+
 </head>
 <body>
 

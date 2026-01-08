@@ -16,6 +16,10 @@ window.QRQUEST_EVENT = {
   const keys = new Set([
     // 共通
     "mode",
+    "app_registered",
+    "app_registered_at",
+    "show_rescan_tip",
+    "pending_qr",
 
     // ファミリー（4ピース）
     "visitedIntro_family",

@@ -198,7 +198,7 @@
         const path = url.pathname;
 
         const allowed =
-          domain === "sakulink.com" &&
+          (domain === "sakulink.com" || domain === "www.sakulink.com") &&
           (
             // プロトタイプ
             path === "/qr-quest/progress.html" ||
@@ -209,6 +209,9 @@
 
             // ✅ 砂像説明ページ（monument.html）も許可
             /^\/qr-quest\/events\/[^\/]+\/monument\.html$/.test(path) ||
+
+            // ✅ 砂像QRの統合入口（qr.html）
+            /^\/qr-quest\/events\/[^\/]+\/qr\.html$/.test(path) ||
 
             // ✅ 本部QR（登録＆1枚目）
             /^\/qr-quest\/events\/[^\/]+\/family_unlock\.html$/.test(path)

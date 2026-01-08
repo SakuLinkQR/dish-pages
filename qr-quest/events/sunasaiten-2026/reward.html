@@ -109,5 +109,17 @@
       location.href = 'admin/verify.html';
     };
   </script>
+
+  <script>
+    (function(){
+      try{
+        if (localStorage.getItem('confirmed_family') === 'true') {
+          const b = document.getElementById('staffBtn');
+          if (b) b.style.display = 'none';
+        }
+      }catch(e){}
+    })();
+  </script>
+
 </body>
 </html>

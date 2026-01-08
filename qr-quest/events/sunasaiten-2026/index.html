@@ -96,20 +96,10 @@
   
 
   <!-- 追加：QRを読み取る（砂像/クエスト） -->
-  <button class=\"btn\" onclick=\"scanNow()\">📷 QRを読み取る（砂像/クエスト）</button>
+  <button class="btn" onclick=\"scanNow()\">📷 QRを読み取る（砂像/クエスト）</button>
 <!-- ✅ 砂像一覧（索引） -->
   <button class="btn sub" onclick="location.href='monuments_list.html'">📍 砂像一覧（番号・製作者・城名・エリア）</button>
-
-  <!-- 砂像詳細解説（QRから入るのが基本 / 直リンクは仮） -->
-  <button class="btn" onclick="location.href='monument.html'">🏰 砂像詳細解説（仮）</button>
-
-  <!-- チャレンジクエスト：9ピース -->
-  <button class="btn pink" onclick="startChallenge()">🧩 チャレンジクエスト（9ピース）</button>
-
-  <!-- ファミリークエスト：4ピース -->
-  <button class="btn gray" onclick="startFamily()">👨‍👩‍👧 ファミリークエスト（4ピース）</button>
-
-  <!-- カメラテスト -->
+<!-- カメラテスト -->
   <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテスト</button>
 
   <p class="muted" id="rescanTip" style="display:none;">✅ 登録が完了しました。今いる場所のQRコードを、もう一度読み取ってください。</p>
@@ -157,8 +147,15 @@
       }
     }
 
+    function scanMonument() {
+      if (!ensureSetup()) return;
+      localStorage.setItem("mode", "info");
+      window.location.href = "scanner/qr-scanner.html";
+    }
+
     function scanNow() {
       if (!ensureSetup()) return;
+      // 互換用（使う場合のみ）：現在のmodeのままスキャン
       window.location.href = "scanner/qr-scanner.html";
     }
 
