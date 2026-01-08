@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <script src="event-config.js"></script>
+<script src="event-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>砂の祭典2026 公式アプリ</title>
@@ -82,6 +82,7 @@
 </head>
 
 <body>
+
   <div class="tag">砂の祭典公式アプリ</div>
 
   <h1>砂の祭典2026</h1>
@@ -90,24 +91,19 @@
     まずは下のボタンから選んでください。
   </p>
 
-  <!-- アプリの使い方 -->
   <button class="btn sub" onclick="location.href='howto.html'">📘 アプリの使い方</button>
+  <button class="btn sub" onclick="location.href='monuments_list.html'">📋 砂像一覧</button>
 
-  
+  <button class="btn" onclick="scanMonument()">🏰 砂像解説（チャレンジ同時進行OK）</button>
 
-  <!-- 追加：QRを読み取る（砂像/クエスト） -->
-  <button class="btn" onclick=\"scanNow()\">📷 QRを読み取る（砂像/クエスト）</button>
-<!-- ✅ 砂像一覧（索引） -->
-  <button class="btn sub" onclick="location.href='monuments_list.html'">📍 砂像一覧（番号・製作者・城名・エリア）</button>
-<!-- カメラテスト -->
-  <button class="btn" onclick="location.href='test-camera.html'">📷 カメラテスト</button>
+  <button class="btn pink" onclick="startChallenge()">🧩 チャレンジクエスト（9ピース）</button>
 
-  <p class="muted" id="rescanTip" style="display:none;">✅ 登録が完了しました。今いる場所のQRコードを、もう一度読み取ってください。</p>
+  <button class="btn gray" onclick="startFamily()">👨‍👩‍👧 ファミリークエスト（4ピース）</button>
 
   <p class="muted">Powered by SakuLink</p>
 
   <script>
-    // 初回セットアップ（言語選択 → 登録）
+// 初回セットアップ（言語選択 → 登録）
     function ensureSetup() {
       const lang = localStorage.getItem("lang") || "";
       if (!lang) {
@@ -179,5 +175,6 @@
         .catch(err => console.log('Service Worker registration failed:', err));
     }
   </script>
+
 </body>
 </html>
