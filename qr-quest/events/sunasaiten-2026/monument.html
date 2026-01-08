@@ -99,6 +99,7 @@
 <body>
 <div class="wrap">
   <div class="badge">砂の祭典公式アプリ</div>
+  <div id="pieceBanner" style="display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:#ecfeff;border:1px solid #a5f3fc;color:#0e7490;font-weight:800;font-size:13px;line-height:1.5;">✅ チャレンジ：1枚目をゲットしました！</div>
 
   <h1 id="monumentTitle">砂像タイトル</h1>
   <p class="muted" id="monumentSub">（エリア/一言）</p>
@@ -167,6 +168,30 @@
 
   // ✅ 正式データ置き場は content/ （data/とは分離）
   const DATA_URL = `./content/monuments_${lang}.json`;
+
+  // ✅ チャレンジ用：このページを「1枚目QR」として使う場合（砂像解説＋ピース1獲得）
+  // 使い方例：monument.html?id=s01&mode=challenge&award=c1
+  const modeParam = params.get("mode");
+  if (modeParam === "challenge" || modeParam === "family") {
+    localStorage.setItem("mode", modeParam);
+  }
+
+  const awardChallengeP1 =
+    (params.get("award") === "c1") ||
+    (params.get("cpiece") === "1") ||
+    (params.get("c") === "1");
+
+  if (awardChallengeP1) {
+    // チャレンジとして扱う
+    localStorage.setItem("mode", "challenge");
+    // チャレンジのピースキーは result.html と同じ（c_piece1..9）
+    localStorage.setItem("c_piece1", "true");
+    localStorage.setItem("c_piece1_at", String(Date.now()));
+
+    const banner = document.getElementById("pieceBanner");
+    if (banner) banner.style.display = "block";
+  }
+
 
   // 写真が空のとき：false=プレースホルダー表示 / true=枠ごと隠す
   const HIDE_WHEN_EMPTY = false;
