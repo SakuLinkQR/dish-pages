@@ -184,16 +184,15 @@
       setTimeout(startScanner, 300);
     }
 
-    // メニューに戻る
+    // ✅ メニューに戻る：Questメニューではなく「公式ホーム(index)」へ戻す
     async function exitToMenu() {
       await stopScanner();
-      window.location.href = "../start.html";
+      window.location.href = "../index.html";
     }
 
     // ページ可視状態の変化で再起動（ブラウザ戻る等で復帰時に固まる対策）
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible" && !hasRedirected) {
-        // すでに動作中なら start は内部で弾かれるため安全
         startScanner();
       }
     });
