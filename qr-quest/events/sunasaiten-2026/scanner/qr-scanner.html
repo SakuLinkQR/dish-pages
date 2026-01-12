@@ -197,25 +197,12 @@
         const domain = url.hostname;
         const path = url.pathname;
 
-        const allowed =
-          (domain === "sakulink.com" || domain === "www.sakulink.com") &&
-          (
-            // プロトタイプ
-            path === "/qr-quest/progress.html" ||
-            path === "/qr-quest/result.html" ||
+        const allowedDomain = (domain === "sakulink.com" || domain === "www.sakulink.com");
+        const allowedProtocol = (url.protocol === "https:" || url.protocol === "http:");
+        // このアプリで読み取って遷移してよいページ（公式のみ）
+        const allowedPath = /\/(progress|result|monument|qr|family_unlock)\.html$/.test(path);
 
-            // イベント版：progress / result
-            /^\/qr-quest\/events\/[^\/]+\/(progress|result)\.html$/.test(path) ||
-
-            // ✅ 砂像説明ページ（monument.html）も許可
-            /^\/qr-quest\/events\/[^\/]+\/monument\.html$/.test(path) ||
-
-            // ✅ 砂像QRの統合入口（qr.html）
-            /^\/qr-quest\/events\/[^\/]+\/qr\.html$/.test(path) ||
-
-            // ✅ 本部QR（登録＆1枚目）
-            /^\/qr-quest\/events\/[^\/]+\/family_unlock\.html$/.test(path)
-          );
+        const allowed = allowedDomain && allowedProtocol && allowedPath;
 
         if (allowed) {
           hasRedirected = true;

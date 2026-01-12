@@ -20,6 +20,15 @@
     .btnRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
     .btn{flex:1;min-width:220px;display:inline-block;text-align:center;padding:12px 14px;border-radius:12px;border:1px solid var(--brand);background:var(--brand);color:#fff;font-weight:900;font-size:14px;cursor:pointer}
     .btn.sub{background:#fff;color:var(--brand)}
+    .securityNote{
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:700;
+      color:#7c2d12;
+      margin:10px 0 12px;
+    }
   </style>
 </head>
 <body>
@@ -29,6 +38,7 @@
     <div class="card">
       <h1>アプリ登録（初回のみ）</h1>
       <p>このアプリを使う前に、内容を確認して同意してください。</p>
+      <p class="securityNote">悪意あるQRコード詐欺防止のため、当アプリ付属のスキャナー使用を<strong>強く推奨</strong>します。（想定外のQRコードはブロックします）</p>
       <p class="muted">※ここは「同意登録」だけの簡易版です。必要なら氏名などの入力欄も追加できます。</p>
 
       <div class="btnRow">
