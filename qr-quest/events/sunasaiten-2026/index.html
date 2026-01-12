@@ -157,8 +157,8 @@
 
     function startChallenge() {
       if (!ensureSetup()) return;
-      localStorage.setItem("mode", "challenge");
-      window.location.href = "scanner/qr-scanner.html";
+      // ✅ 初回だけ intro.html → 2回目以降は start_challenge.html
+      goQuest("challenge");
     }
 
     function startFamily() {

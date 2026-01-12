@@ -94,7 +94,12 @@
       localStorage.removeItem("family_unlocked");
       localStorage.removeItem("family_unlocked_at");
 
-      location.href="index.html";
+      // ✅ 初回だけ intro.html（よくきたな ゆうじゃよ）→ 2回目以降は start.html
+      if (localStorage.getItem("visitedIntro_family") !== "true") {
+        location.href = "intro.html";
+      } else {
+        location.href = "start.html";
+      }
     });
   </script>
 </body>

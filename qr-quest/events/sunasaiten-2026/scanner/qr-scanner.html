@@ -254,8 +254,18 @@
         window.location.href = "../test-camera.html";
         return;
       }
+
+      // ✅ コース別に「戻る先」を切り替え（ボタン名は変更しない）
       const qmode = localStorage.getItem("mode") || "family";
-      window.location.href = (qmode === "challenge") ? "../start_challenge.html" : "../start.html";
+
+      if (qmode === "challenge") {
+        window.location.href = "../start_challenge.html";
+      } else if (qmode === "family") {
+        window.location.href = "../start.html";
+      } else {
+        // info（砂像詳細）はホーム（index）へ
+        window.location.href = "../index.html";
+      }
     }
 
     // ページ可視状態の変化で再起動（復帰時に固まる対策）
