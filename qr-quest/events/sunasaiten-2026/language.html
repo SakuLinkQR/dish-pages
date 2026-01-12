@@ -85,15 +85,17 @@
       // 初回でも迷わないように、デフォルト言語（ja）で進む
       selected = selected || "ja";
       saveLang();
-      // 登録へ
+      // 次の画面へ
       const reg = localStorage.getItem("app_registered") === "true";
-      location.href = reg ? "index.html" : "register.html";
+      const viewOnly = localStorage.getItem("view_only") === "true";
+      location.href = (reg || viewOnly) ? "index.html" : "mode_select.html";
     });
 
     document.getElementById("next").addEventListener("click", ()=>{
       saveLang();
       const reg = localStorage.getItem("app_registered") === "true";
-      location.href = reg ? "index.html" : "register.html";
+      const viewOnly = localStorage.getItem("view_only") === "true";
+      location.href = (reg || viewOnly) ? "index.html" : "mode_select.html";
     });
 
     setActive();

@@ -100,8 +100,10 @@
   (function(){
     const lang = localStorage.getItem("lang") || "";
     const reg  = localStorage.getItem("app_registered") === "true";
+    const viewOnly = localStorage.getItem("view_only") === "true";
     if(!lang){ location.replace("language.html"); return; }
-    if(!reg){ location.replace("register.html"); return; }
+    // 未登録でも「閲覧モード」なら解説は読める
+    if(!reg && !viewOnly){ location.replace("mode_select.html"); return; }
   })();
   </script>
 
@@ -181,6 +183,9 @@
     ? window.QRQUEST_SCANNER_AUTH.check(st, false)
     : false;
 
+  // ✅ クエスト進行（ピース記録）は「登録済み」かつ「アプリ付属スキャナー経由」のときだけ
+  const canQuest = (localStorage.getItem("app_registered") === "true") && scannedViaApp;
+
   // 言語：あなたの言語選択保存キーに合わせてください
   // 例）localStorage.setItem("lang","ja")
   const lang = localStorage.getItem("lang") || "ja";
@@ -201,8 +206,8 @@
     (params.get("c") === "1");
 
   if (awardChallengeP1) {
-    // ✅ 進捗反映は「アプリ付属スキャナー経由（stあり）」のときだけ
-    if (scannedViaApp) {
+    // ✅ 進捗反映は「登録済み」かつ「アプリ付属スキャナー経由（stあり）」のときだけ
+    if (canQuest) {
       localStorage.setItem("mode", "challenge");
       // チャレンジのピースキーは result.html と同じ（c_piece1..9）
       localStorage.setItem("c_piece1", "true");
@@ -263,6 +268,13 @@
 
   // チャレンジへ（スキャナー起動）
   function goChallengeScan(){
+    const reg  = localStorage.getItem("app_registered") === "true";
+    if (!reg) {
+      // 閲覧モードからクエストへ行こうとした場合は登録へ誘導
+      try { localStorage.setItem('pending_qr', location.href); } catch(_) {}
+      location.href = "register.html";
+      return;
+    }
     localStorage.setItem("mode","challenge");
     location.href = "scanner/qr-scanner.html";
   }
@@ -315,7 +327,7 @@
     const n = parseInt(s, 10);
     if (Number.isFinite(n) && n>=1 && n<=9) {
       // ✅ 進捗反映は「アプリ付属スキャナー経由（stあり）」のときだけ
-      if (scannedViaApp) {
+      if (canQuest) {
         const notice = document.getElementById("challengeNotice");
         if (notice) notice.style.display = "block";
         // 解説で読んだ場合も進捗を裏で保持（qr.htmlでも実施。保険）

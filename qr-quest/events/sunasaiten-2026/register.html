@@ -57,13 +57,28 @@
 
   document.getElementById("okBtn").addEventListener("click", () => {
     localStorage.setItem(REGISTER_KEY, "true");
+    try { localStorage.removeItem("view_only"); } catch(_) {}
     localStorage.setItem("app_registered_at", String(Date.now()));
     localStorage.setItem(RESCAN_TIP_KEY, "true");
-    location.href = "index.html";
+    const p = localStorage.getItem("pending_qr");
+    if (p) {
+      try { localStorage.removeItem("pending_qr"); } catch(_) {}
+      location.href = p;
+    } else {
+      location.href = "index.html";
+    }
   });
 
   document.getElementById("cancelBtn").addEventListener("click", () => {
-    location.href = "index.html";
+    // 登録しない場合は「閲覧モード」として続ける
+    localStorage.setItem("view_only", "true");
+    const p = localStorage.getItem("pending_qr");
+    if (p) {
+      try { localStorage.removeItem("pending_qr"); } catch(_) {}
+      location.href = p;
+    } else {
+      location.href = "index.html";
+    }
   });
 </script>
 </body>

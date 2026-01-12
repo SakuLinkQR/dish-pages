@@ -53,16 +53,18 @@
 
   if (!lang) {
     msg('言語選択へ移動します…');
+    try { localStorage.setItem('pending_qr', location.href); } catch(e){}
     location.replace('language.html');
     throw new Error('no lang');
   }
 
   const registered = (localStorage.getItem('app_registered') === 'true');
-  if (!registered) {
-    msg('アプリ登録へ移動します…');
+  const viewOnly = (localStorage.getItem('view_only') === 'true');
+  if (!registered && !viewOnly) {
+    msg('利用モードの選択へ移動します…');
     try { localStorage.setItem('pending_qr', location.href); } catch(e){}
-    location.replace('register.html');
-    throw new Error('not registered');
+    location.replace('mode_select.html');
+    throw new Error('not setup');
   }
 
   // モード：info / challenge / family
@@ -74,6 +76,9 @@
   const scannedViaApp = (window.QRQUEST_SCANNER_AUTH && window.QRQUEST_SCANNER_AUTH.check)
     ? window.QRQUEST_SCANNER_AUTH.check(st, false)
     : false;
+
+  // ✅ クエスト進行は「登録済み」かつ「アプリ付属スキャナー経由」のときだけ許可
+  const canQuest = registered && scannedViaApp;
 
   const DATA_URL = `./content/monuments_${lang}.json`;
 
@@ -114,7 +119,7 @@
 
     // ① チャレンジモード：resultへ（当たり/ダミーのみ）
     // ※クエスト進行は「アプリ付属スキャナー経由（stあり）」のときだけ許可
-    if (isChallengeMode && scannedViaApp) {
+    if (isChallengeMode && canQuest) {
       if (piece.kind === 'piece') {
         const code = String(piece.n).padStart(3,'0');
         msg('チャレンジクエストの結果へ…');
@@ -131,13 +136,13 @@
 
     // ② 解説モード：解説へ（当たりなら裏で進捗を記録）
     // ※進捗記録は「アプリ付属スキャナー経由（stあり）」のときだけ
-    if (scannedViaApp && piece.kind === 'piece') {
+    if (canQuest && piece.kind === 'piece') {
       recordChallengeSilently(piece.n);
     }
 
     msg('砂像解説へ移動します…');
     // monument 側で「閲覧のみ/進捗あり」を判断できるよう、st はアプリ経由の時だけ渡す
-    const next = scannedViaApp
+    const next = canQuest
       ? `monument.html?id=${encodeURIComponent(mid)}&st=${encodeURIComponent(st)}`
       : `monument.html?id=${encodeURIComponent(mid)}`;
     location.replace(next);

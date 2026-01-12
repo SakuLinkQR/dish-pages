@@ -92,8 +92,15 @@
   (function(){
     const lang = localStorage.getItem("lang") || "";
     const reg  = localStorage.getItem("app_registered") === "true";
+    const viewOnly = localStorage.getItem("view_only") === "true";
+    const mode = localStorage.getItem("mode") || "info";
     if(!lang){ location.replace("../language.html"); return; }
-    if(!reg){ location.replace("../register.html"); return; }
+    // 「閲覧モード」は info（砂像解説）スキャンだけ許可
+    if(!reg){
+      if (viewOnly && mode === "info") return;
+      location.replace(viewOnly ? "../register.html" : "../mode_select.html");
+      return;
+    }
   })();
   </script>
 

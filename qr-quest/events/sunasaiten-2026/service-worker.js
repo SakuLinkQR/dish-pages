@@ -2,13 +2,20 @@
 // v2: ナビゲーションは network-first、静的資産は cache-first、旧キャッシュの削除 & 即時適用
 
 const CACHE_PREFIX = "qr-quest-";
-const CACHE_NAME = "qr-quest-sunasaiten-2026-v1"; // ←バージョンを上げると旧キャッシュが確実に破棄されます
+const CACHE_NAME = "qr-quest-sunasaiten-2026-v2"; // ←バージョンを上げると旧キャッシュが確実に破棄されます
 const ORIGIN = self.location.origin;
 
 // できるだけ“よく使う画面・資産”を事前キャッシュ
 const urlsToCache = [
   "./",
+  "./language.html",
+  "./mode_select.html",
+  "./register.html",
   "./index.html",
+  "./howto.html",
+  "./qr.html",
+  "./monument.html",
+  "./monuments_list.html",
   "./intro.html",
   "./start.html",
   "./family_notice.html",

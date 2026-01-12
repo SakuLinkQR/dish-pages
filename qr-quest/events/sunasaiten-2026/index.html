@@ -91,14 +91,14 @@
     まずは下のボタンから選んでください。
   </p>
 
-  <button class="btn sub" onclick="location.href='howto.html'">📘 アプリの使い方</button>
-  <button class="btn sub" onclick="location.href='monuments_list.html'">📋 砂像一覧</button>
+  <button class="btn sub" id="btnHowto" onclick="location.href='howto.html'">📘 アプリの使い方</button>
+  <button class="btn sub" id="btnList" onclick="openList()">📋 砂像一覧</button>
 
-  <button class="btn" onclick="scanMonument()">🏰 砂像解説（チャレンジ同時進行OK）</button>
+  <button class="btn" id="btnInfo" onclick="scanMonument()">🏰 砂像解説（チャレンジ同時進行OK）</button>
 
-  <button class="btn pink" onclick="startChallenge()">🧩 チャレンジクエスト（9ピース）</button>
+  <button class="btn pink" id="btnChallenge" onclick="startChallenge()">🧩 チャレンジクエスト（9ピース）</button>
 
-  <button class="btn gray" onclick="startFamily()">👨‍👩‍👧 ファミリークエスト（4ピース）</button>
+  <button class="btn gray" id="btnFamily" onclick="startFamily()">👨‍👩‍👧 ファミリークエスト（4ピース）</button>
 
   <p class="muted">Powered by SakuLink</p>
 
@@ -110,13 +110,17 @@
         window.location.href = "language.html";
         return false;
       }
-      const reg = localStorage.getItem("app_registered") === "true";
-      if (!reg) {
-        window.location.href = "register.html";
+      const reg = (localStorage.getItem("app_registered") === "true");
+      const viewOnly = (localStorage.getItem("view_only") === "true");
+      // 未登録かつ閲覧モード未選択の人は、モード選択へ
+      if (!reg && !viewOnly) {
+        window.location.href = "mode_select.html";
         return false;
       }
       return true;
     }
+
+    // 閲覧モードの場合は、砂像一覧/クエストは「登録」へ誘導します（ボタン名はそのまま）
 
     // 登録後の「再スキャン案内」
     (function(){
@@ -155,14 +159,33 @@
       window.location.href = "scanner/qr-scanner.html";
     }
 
+    function openList() {
+      if (!ensureSetup()) return;
+      if (localStorage.getItem("app_registered") !== "true") {
+        window.location.href = "register.html";
+        return;
+      }
+      window.location.href = "monuments_list.html";
+    }
+
     function startChallenge() {
       if (!ensureSetup()) return;
+      // 閲覧モードでは進行できない
+      if (localStorage.getItem("app_registered") !== "true") {
+        window.location.href = "register.html";
+        return;
+      }
       // ✅ 初回だけ intro.html → 2回目以降は start_challenge.html
       goQuest("challenge");
     }
 
     function startFamily() {
       if (!ensureSetup()) return;
+      // 閲覧モードでは進行できない
+      if (localStorage.getItem("app_registered") !== "true") {
+        window.location.href = "register.html";
+        return;
+      }
       localStorage.setItem("mode", "family");
       // 本番は「本部登録後の導線」に差し替え予定
       window.location.href = "family_notice.html";
