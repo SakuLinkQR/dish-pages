@@ -205,9 +205,19 @@
         const allowed = allowedDomain && allowedProtocol && allowedPath;
 
         if (allowed) {
+          // ✅ このスキャナー経由であることを示す「通行証（st）」を付与
+          // ※標準カメラでURLを直接開いた場合は st が付かないため、クエスト進行をブロックできる
+          const st = (window.QRQUEST_SCANNER_AUTH && window.QRQUEST_SCANNER_AUTH.issue)
+            ? window.QRQUEST_SCANNER_AUTH.issue()
+            : "";
+
+          if (st) {
+            try { url.searchParams.set('st', st); } catch (_) {}
+          }
+
           hasRedirected = true;
           stopScanner().finally(() => {
-            window.location.href = decodedText;
+            window.location.href = url.toString();
           });
         } else {
           resultContainer.innerText = "これは公式QRクエスト用コードではありません。";

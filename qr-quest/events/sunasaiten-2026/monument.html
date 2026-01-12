@@ -115,6 +115,7 @@
   <h1 id="monumentTitle">砂像タイトル</h1>
   <p class="muted" id="monumentSub">（エリア/一言）</p>
   <p class="muted" id="challengeNotice" style="display:none;">✅ この砂像はチャレンジ用QRです。ピースを記録しました。</p>
+  <p class="muted" id="challengeHintExternal" style="display:none;">✅ この砂像はチャレンジ用QRです。クエスト進行はアプリ付属スキャナーで行ってください。</p>
 
   <!-- 砂像メイン写真 -->
   <img id="monumentPhoto" class="hero" src="./images/placeholder.png" alt="砂像の写真">
@@ -175,6 +176,10 @@
   // 例：monument.html?id=s01
   const params = new URLSearchParams(location.search);
   const id = params.get("id") || "s01";
+  const st = params.get('st') || '';
+  const scannedViaApp = (window.QRQUEST_SCANNER_AUTH && window.QRQUEST_SCANNER_AUTH.check)
+    ? window.QRQUEST_SCANNER_AUTH.check(st, false)
+    : false;
 
   // 言語：あなたの言語選択保存キーに合わせてください
   // 例）localStorage.setItem("lang","ja")
@@ -196,14 +201,16 @@
     (params.get("c") === "1");
 
   if (awardChallengeP1) {
-    // チャレンジとして扱う
-    localStorage.setItem("mode", "challenge");
-    // チャレンジのピースキーは result.html と同じ（c_piece1..9）
-    localStorage.setItem("c_piece1", "true");
-    localStorage.setItem("c_piece1_at", String(Date.now()));
+    // ✅ 進捗反映は「アプリ付属スキャナー経由（stあり）」のときだけ
+    if (scannedViaApp) {
+      localStorage.setItem("mode", "challenge");
+      // チャレンジのピースキーは result.html と同じ（c_piece1..9）
+      localStorage.setItem("c_piece1", "true");
+      localStorage.setItem("c_piece1_at", String(Date.now()));
 
-    const banner = document.getElementById("pieceBanner");
-    if (banner) banner.style.display = "block";
+      const banner = document.getElementById("pieceBanner");
+      if (banner) banner.style.display = "block";
+    }
   }
 
 
@@ -307,10 +314,16 @@
     const s = (cp===null||cp===undefined) ? "" : String(cp).trim();
     const n = parseInt(s, 10);
     if (Number.isFinite(n) && n>=1 && n<=9) {
-      const notice = document.getElementById("challengeNotice");
-      if (notice) notice.style.display = "block";
-      // 解説で読んだ場合も進捗を裏で保持（qr.htmlでも実施。保険）
-      localStorage.setItem(`c_piece${n}`, "true");
+      // ✅ 進捗反映は「アプリ付属スキャナー経由（stあり）」のときだけ
+      if (scannedViaApp) {
+        const notice = document.getElementById("challengeNotice");
+        if (notice) notice.style.display = "block";
+        // 解説で読んだ場合も進捗を裏で保持（qr.htmlでも実施。保険）
+        localStorage.setItem(`c_piece${n}`, "true");
+      } else {
+        const hint = document.getElementById("challengeHintExternal");
+        if (hint) hint.style.display = "block";
+      }
     }
 
   })();

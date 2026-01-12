@@ -64,6 +64,17 @@
   </div>
 
   <script>
+    // ✅ ファミリー解放（本部QR）は「アプリ付属スキャナー経由（stあり）」のみ許可
+    const params = new URLSearchParams(location.search);
+    const st = params.get('st') || '';
+    const ok = (window.QRQUEST_SCANNER_AUTH && window.QRQUEST_SCANNER_AUTH.checkAndConsume)
+      ? window.QRQUEST_SCANNER_AUTH.checkAndConsume(st)
+      : false;
+    if (!ok) {
+      location.replace('warning.html');
+      throw new Error('scanner required');
+    }
+
     // ✅ ここを読んだ＝登録完了（解放）＋ピース1獲得
     localStorage.setItem("mode", "family");
     localStorage.setItem("family_unlocked", "true");

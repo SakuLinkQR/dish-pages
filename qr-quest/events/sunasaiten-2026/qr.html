@@ -46,6 +46,7 @@
 
   const params = new URLSearchParams(location.search);
   const mid = params.get('mid') || params.get('monument') || params.get('id') || '';
+  const st = params.get('st') || '';
 
   // 言語（旧キー互換）
   const lang = localStorage.getItem('lang') || localStorage.getItem('qrquest_lang') || '';
@@ -68,6 +69,11 @@
   // ※ファミリーは本部解放が前提なので、砂像QRは原則「解説/チャレンジ」に使います
   const mode = localStorage.getItem('mode') || 'info';
   const isChallengeMode = (mode === 'challenge');
+
+  // ✅ アプリ付属スキャナー経由かどうか（標準カメラでURLを直接開いた場合は false）
+  const scannedViaApp = (window.QRQUEST_SCANNER_AUTH && window.QRQUEST_SCANNER_AUTH.check)
+    ? window.QRQUEST_SCANNER_AUTH.check(st, false)
+    : false;
 
   const DATA_URL = `./content/monuments_${lang}.json`;
 
@@ -107,28 +113,34 @@
     }
 
     // ① チャレンジモード：resultへ（当たり/ダミーのみ）
-    if (isChallengeMode) {
+    // ※クエスト進行は「アプリ付属スキャナー経由（stあり）」のときだけ許可
+    if (isChallengeMode && scannedViaApp) {
       if (piece.kind === 'piece') {
         const code = String(piece.n).padStart(3,'0');
         msg('チャレンジクエストの結果へ…');
-        location.replace(`result.html?id=${encodeURIComponent(code)}`);
+        location.replace(`result.html?id=${encodeURIComponent(code)}&st=${encodeURIComponent(st)}`);
         return;
       }
       if (piece.kind === 'dummy') {
         msg('チャレンジクエスト（ダミー）へ…');
-        location.replace(`result.html?id=DUMMY`);
+        location.replace(`result.html?id=DUMMY&st=${encodeURIComponent(st)}`);
         return;
       }
       // チャレンジ対象外の砂像は、解説へ（観光用）
     }
 
     // ② 解説モード：解説へ（当たりなら裏で進捗を記録）
-    if (piece.kind === 'piece') {
+    // ※進捗記録は「アプリ付属スキャナー経由（stあり）」のときだけ
+    if (scannedViaApp && piece.kind === 'piece') {
       recordChallengeSilently(piece.n);
     }
 
     msg('砂像解説へ移動します…');
-    location.replace(`monument.html?id=${encodeURIComponent(mid)}`);
+    // monument 側で「閲覧のみ/進捗あり」を判断できるよう、st はアプリ経由の時だけ渡す
+    const next = scannedViaApp
+      ? `monument.html?id=${encodeURIComponent(mid)}&st=${encodeURIComponent(st)}`
+      : `monument.html?id=${encodeURIComponent(mid)}`;
+    location.replace(next);
   })();
 </script>
 </body>

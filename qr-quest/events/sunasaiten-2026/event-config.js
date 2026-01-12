@@ -21,6 +21,10 @@ window.QRQUEST_EVENT = {
     "show_rescan_tip",
     "pending_qr",
 
+    // ✅ アプリ付属スキャナー経由判定（QR詐欺対策）
+    "scanner_token",
+    "scanner_token_at",
+
     // ファミリー（4ピース）
     "visitedIntro_family",
     "questTitle_family",
@@ -45,4 +49,56 @@ window.QRQUEST_EVENT = {
   ls.getItem = (k) => _get(keys.has(k) ? prefix + k : k);
   ls.setItem = (k, v) => _set(keys.has(k) ? prefix + k : k, v);
   ls.removeItem = (k) => _rem(keys.has(k) ? prefix + k : k);
+})();
+
+// ==============================
+// アプリ付属スキャナー経由の判定
+// ==============================
+// 目的：
+// - アプリ内スキャナーで読んだ「公式QR」だけ、クエスト進行（結果反映など）を許可する
+// - 標準カメラ等でURLを直接開いた場合は「閲覧のみ」（砂像詳細は見られるが進行は不可）にする
+(() => {
+  const TOKEN_KEY = "scanner_token";
+  const AT_KEY = "scanner_token_at";
+  const TTL_MS = 2 * 60 * 1000; // 2分（短時間のみ有効）
+
+  function base64url(bytes) {
+    let s = "";
+    for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+    return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  }
+
+  function issue() {
+    const a = new Uint8Array(16);
+    (crypto || window.crypto).getRandomValues(a);
+    const t = base64url(a);
+    try {
+      localStorage.setItem(TOKEN_KEY, t);
+      localStorage.setItem(AT_KEY, String(Date.now()));
+    } catch (_) {}
+    return t;
+  }
+
+  function check(st, consume = false) {
+    if (!st) return false;
+    const t = localStorage.getItem(TOKEN_KEY) || "";
+    const at = parseInt(localStorage.getItem(AT_KEY) || "0", 10) || 0;
+    if (!t || !at) return false;
+    if (st !== t) return false;
+    if (Date.now() - at > TTL_MS) return false;
+    if (consume) {
+      try {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(AT_KEY);
+      } catch (_) {}
+    }
+    return true;
+  }
+
+  window.QRQUEST_SCANNER_AUTH = {
+    issue,
+    check,
+    checkAndConsume: (st) => check(st, true),
+    ttlMs: TTL_MS,
+  };
 })();

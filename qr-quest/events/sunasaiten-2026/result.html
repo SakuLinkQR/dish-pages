@@ -106,6 +106,16 @@
     const params = new URLSearchParams(window.location.search);
     const idRaw = params.get('id') || '';
 
+    // ✅ クエスト進行ページ（result）は「アプリ付属スキャナー経由（stあり）」のみ許可
+    const st = params.get('st') || '';
+    const ok = (window.QRQUEST_SCANNER_AUTH && window.QRQUEST_SCANNER_AUTH.checkAndConsume)
+      ? window.QRQUEST_SCANNER_AUTH.checkAndConsume(st)
+      : false;
+    if (!ok) {
+      location.replace('warning.html');
+      throw new Error('scanner required');
+    }
+
     // ✅ モード判定（family=4 / challenge=9）
     const mode = localStorage.getItem('mode') || 'family';
     const isChallenge = (mode === 'challenge');
