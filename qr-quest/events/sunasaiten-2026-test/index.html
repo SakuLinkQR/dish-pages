@@ -4,7 +4,7 @@
 <script src="event-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>砂の祭典（TEST）2026 公式アプリ</title>
+  <title>QRクエスト in 砂の祭典2026</title>
 
   <!-- PWA関連 -->
   <link rel="manifest" href="manifest.json" />
@@ -83,22 +83,16 @@
 
 <body>
 
-  <div class="tag">砂の祭典公式アプリ</div>
+  <div class="tag">QRクエスト</div>
 
-  <h1>砂の祭典2026</h1>
-  <p>
-    砂像の解説を見たり、QRクエストに参加できます。<br>
-    まずは下のボタンから選んでください。
-  </p>
+<h1>QRクエスト<br>in 砂の祭典2026</h1>
+<p>
+  受付でスタートQRを読み込んでから、クエストに参加できます。<br>
+  まずは下のボタンから選んでください。
+</p>
 
-  <button class="btn sub" id="btnHowto" onclick="location.href='howto.html'">📘 アプリの使い方</button>
-  <button class="btn sub" id="btnList" onclick="openList()">📋 砂像一覧</button>
-
-  <button class="btn" id="btnInfo" onclick="scanMonument()">🏰 砂像解説（チャレンジ同時進行OK）</button>
-
-  <button class="btn pink" id="btnChallenge" onclick="startChallenge()">🧩 チャレンジクエスト（9ピース）</button>
-
-  <button class="btn gray" id="btnFamily" onclick="startFamily()">👨‍👩‍👧 ファミリークエスト（4ピース）</button>
+<button class="btn sub" id="btnHowto" onclick="location.href='howto.html'">📘 アプリの使い方</button>
+<button class="btn" id="btnQuest" onclick="goQRQuest()">🧩 QRクエストへGO！</button>
 
   <p class="muted">Powered by SakuLink</p>
 
@@ -133,7 +127,28 @@
     })();
 
 
-    function goQuest(mode){
+    
+
+function goQRQuest(){
+  // QRクエスト（今回は一本化：family側の導線を利用）
+  if (!ensureSetup()) return;
+
+  // 受付スタートが必要な仕様（未スタートなら誘導）
+  if (localStorage.getItem("qrquest_started") !== "true") {
+    window.location.href = "need_start.html";
+    return;
+  }
+
+  localStorage.setItem("mode", "family");
+
+  // 初回だけ intro へ、2回目以降は start
+  if (localStorage.getItem("visitedIntro_family") !== "true") {
+    window.location.href = "intro.html";
+  } else {
+    window.location.href = "start.html";
+  }
+}
+function goQuest(mode){
       localStorage.setItem("mode", mode);
 
       const introKey = (mode === "challenge") ? "visitedIntro_challenge" : "visitedIntro_family";
