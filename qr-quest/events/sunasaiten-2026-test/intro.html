@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ぼうけんのはじまり</title>
+  <style>
+    body {
+      background-image: url('images/map_background_b.png');
+      background-size: cover;
+      background-position: center;
+      color: #3b2c14;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    #overlay {
+      background-color: rgba(255, 248, 220, 0.75);
+      padding: 40px;
+      border-radius: 15px;
+      display: inline-block;
+      max-width: 720px;
+    }
+    #text-box {
+      font-size: 22px;
+      line-height: 1.8;
+      white-space: pre-line;
+      min-height: 200px;
+    }
+    .next-button {
+      display: none;
+      margin-top: 40px;
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #deb887;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+
+  <script>
+  (function(){
+    const lang = localStorage.getItem("lang") || "";
+    const reg  = localStorage.getItem("app_registered") === "true";
+    if(!lang){ location.replace("language.html"); return; }
+    if(!reg){ location.replace("register.html"); return; }
+  })();
+  </script>
+
+</head>
+<body>
+  <div id="overlay">
+    <div id="text-box"></div>
+    <button class="next-button" onclick="goToStart()">▶ たんけんを はじめる</button>
+  </div>
+
+  <script>
+    // モード：index.html で family / challenge をセット
+    const mode = localStorage.getItem('mode') || 'family';
+
+    const introKey = (mode === 'challenge') ? 'visitedIntro_challenge' : 'visitedIntro_family';
+    const titleKey = (mode === 'challenge') ? 'questTitle_challenge' : 'questTitle_family';
+    const startUrl  = (mode === 'challenge') ? 'start_challenge.html' : 'start.html';
+
+    // タイトル（必要ならstart画面でも使える）
+    const questTitle = (mode === 'challenge') ? 'ぴーすを うばいもどせ！' : 'ぴーすをさがせ！';
+
+    // 導入文（①）
+    const messagePart1 = (mode === 'challenge') ? `
+よくきた、つわものよ。
+あたらしい　たんけんの とびらが
+いま、ひらかれようとしている…。\n
+さあ、すすむがよい。
+` : `
+よくきた、ゆうじゃよ。
+あたらしい　たんけんの とびらが
+いま、ひらかれようとしている…。\n
+さあ、すすむがよい。
+`;
+
+    // ミッション説明（②）
+    const missionText = (mode === 'challenge') ? `
+たいへんじゃ！
+えが バラバラにされて しまった。
+あちこちに ちらばった 9まいの ピースを さがし、
+もとどおりに するのじゃ！
+` : `
+たいへんじゃ！
+えが バラバラにされて しまった。
+あちこちに ちらばった 4まいの ピースを さがし、
+もとどおりに するのじゃ！
+`;
+
+    const textBox = document.getElementById("text-box");
+    const nextButton = document.querySelector(".next-button");
+    let index = 0;
+
+    function typeText(text, callback) {
+      if (index < text.length) {
+        textBox.innerHTML += text[index] === "\n" ? "<br>" : text[index];
+        index++;
+        setTimeout(() => typeText(text, callback), 70);
+      } else if (callback) {
+        setTimeout(callback, 800);
+      }
+    }
+
+    function goToStart() {
+      localStorage.setItem(introKey, "true");
+      localStorage.setItem(titleKey, questTitle);
+      location.href = startUrl;
+    }
+
+    window.onload = () => {
+      typeText(messagePart1, () => {
+        index = 0;
+        textBox.innerHTML += "<br><br>";
+        typeText(missionText, () => {
+          nextButton.style.display = "inline-block";
+        });
+      });
+    };
+  </script>
+</body>
+</html>

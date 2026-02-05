@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>アプリ登録</title>
+  <style>
+    :root{
+      --bg:#f6f9ff; --card:#fff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --brand:#1e88e5;
+      --shadow:0 10px 24px rgba(0,0,0,.08); --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;margin:0;padding:18px;line-height:1.7;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:720px;margin:0 auto}
+    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#e8f3ff;color:#1e5aa8;font-size:12px;font-weight:900}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-top:14px;text-align:left}
+    h1{margin:10px 0 8px;font-size:18px}
+    p{margin:0 0 10px}
+    .muted{color:var(--muted);font-size:12px}
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .btn{flex:1;min-width:220px;display:inline-block;text-align:center;padding:12px 14px;border-radius:12px;border:1px solid var(--brand);background:var(--brand);color:#fff;font-weight:900;font-size:14px;cursor:pointer}
+    .btn.sub{background:#fff;color:var(--brand)}
+    .securityNote{
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      padding:12px 14px;
+      border-radius:14px;
+      font-weight:700;
+      color:#7c2d12;
+      margin:10px 0 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="badge">砂の祭典（TEST）公式アプリ</div>
+
+    <div class="card">
+      <h1>アプリ登録（初回のみ）</h1>
+      <p>このアプリを使う前に、内容を確認して同意してください。</p>
+      <p class="securityNote">
+        悪意あるQRコード詐欺防止のため、当アプリ付属のスキャナー使用を<strong>強く推奨</strong>します。（想定外のQRコードはブロックします）<br>
+        デジタルスタンプラリー<strong>「QRクエスト」</strong>は、アプリ付属のスキャナーを使用しなければ進行できません。
+      </p>
+      <p class="muted">※ここは「同意登録」だけの簡易版です。必要なら氏名などの入力欄も追加できます。</p>
+
+      <div class="btnRow">
+        <button class="btn" id="okBtn">同意して登録する</button>
+        <button class="btn sub" id="cancelBtn">いまは登録しない（ホームへ）</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const REGISTER_KEY = "app_registered";
+  const RESCAN_TIP_KEY = "show_rescan_tip";
+
+  document.getElementById("okBtn").addEventListener("click", () => {
+    localStorage.setItem(REGISTER_KEY, "true");
+    try { localStorage.removeItem("view_only"); } catch(_) {}
+    localStorage.setItem("app_registered_at", String(Date.now()));
+    localStorage.setItem(RESCAN_TIP_KEY, "true");
+    const p = localStorage.getItem("pending_qr");
+    if (p) {
+      try { localStorage.removeItem("pending_qr"); } catch(_) {}
+      location.href = p;
+    } else {
+      location.href = "index.html";
+    }
+  });
+
+  document.getElementById("cancelBtn").addEventListener("click", () => {
+    // 登録しない場合は「閲覧モード」として続ける
+    localStorage.setItem("view_only", "true");
+    const p = localStorage.getItem("pending_qr");
+    if (p) {
+      try { localStorage.removeItem("pending_qr"); } catch(_) {}
+      location.href = p;
+    } else {
+      location.href = "index.html";
+    }
+  });
+</script>
+</body>
+</html>

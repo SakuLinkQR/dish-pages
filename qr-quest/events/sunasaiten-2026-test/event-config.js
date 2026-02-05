@@ -1,9 +1,9 @@
 // events/sunasaiten-2026/event-config.js
 // このイベント固有の設定（イベントごとにここだけ変更すればOK）
 window.QRQUEST_EVENT = {
-  id: "SUNASAITEN_2026",
-  prefix: "sun26__",
-  name: "砂の祭典 2026"
+  id: "SUNASAITEN_2026_TEST",
+  prefix: "sun26t__",
+  name: "砂の祭典 2026（TEST）"
 };
 
 // localStorageのキーをイベント別に分ける（別イベントと進捗が混ざらないように）

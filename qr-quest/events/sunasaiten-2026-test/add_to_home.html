@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>砂の祭典2026 - ホーム画面に追加</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- このイベントフォルダ内にあるmanifest/iconsを使う -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background-color: #fff7fa;
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 600px;
+      margin: auto;
+      color: #333;
+    }
+
+    h1 { font-size: 1.8em; color: #ff4081; margin-bottom: 12px; }
+    p { font-size: 1.05em; margin-bottom: 18px; }
+
+    .instruction {
+      background-color: #fff3f8;
+      padding: 18px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    /* B案の補足文 */
+    .note{
+      margin: 0 0 18px;
+      font-size: 0.95em;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .next-button {
+      padding: 12px 24px;
+      font-size: 1.1em;
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .next-button:hover { background-color: #e03570; }
+
+    /* 下部の控えめ表記 */
+    .powered{
+      margin-top: 26px;
+      font-size: 12px;
+      color: #888;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>砂の祭典公式アプリ</h1>
+  <p>使いやすくするため、ホーム画面に追加するのがおすすめです。</p>
+
+  <!-- B案：追加した人も、しない人も、このボタンで進める -->
+  <p class="note">
+    追加できた方は、追加後にこの画面へ戻って、下のボタンを押してください。<br>
+    追加しない方も、そのまま押してOKです。
+  </p>
+
+  <div class="instruction">
+    <p><strong>📱 iPhone（Safari）</strong><br>
+      画面下の <strong>共有ボタン</strong>（🔗）→ <strong>「ホーム画面に追加」</strong>
+    </p>
+
+    <p><strong>📱 Android（Chrome）</strong><br>
+      右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>
+    </p>
+  </div>
+
+  <!-- 次は splash → language(自動) → ... の流れ -->
+  <button class="next-button" onclick="location.href='./splash.html'">
+    追加後（または追加せず）に進む（アプリ起動）
+  </button>
+
+  <div class="powered">Powered by SakuLink</div>
+</body>
+</html>

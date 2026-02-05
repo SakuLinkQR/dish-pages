@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>アプリの使い方 | 砂の祭典2026</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#222;
+      --muted:#666;
+      --card:#f7f7f7;
+      --line:#e9e9e9;
+      --brand:#1e88e5;
+      --brand2:#ff4081;
+    }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+      line-height:1.7;
+    }
+    .wrap{
+      max-width:720px;
+      margin:0 auto;
+      padding:16px 14px 90px;
+    }
+    .badge{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#eef6ff;
+      color:#1e5aa8;
+      font-size:12px;
+      font-weight:700;
+    }
+    h1{
+      margin:10px 0 6px;
+      font-size:22px;
+      line-height:1.3;
+    }
+    .lead{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .card{
+      margin:14px 0;
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--card);
+    }
+    .card h2{
+      margin:0 0 8px;
+      font-size:16px;
+    }
+    .card p{
+      margin:8px 0;
+      font-size:14px;
+    }
+    .card ul{
+      margin:10px 0 0 18px;
+      padding:0;
+      font-size:14px;
+    }
+    .note{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:#fff;
+      border:1px dashed #d9d9d9;
+      color:#333;
+      font-size:13px;
+    }
+
+    .btns{
+      position:fixed;
+      left:0; right:0; bottom:0;
+      background:rgba(255,255,255,.92);
+      backdrop-filter: blur(6px);
+      border-top:1px solid var(--line);
+      padding:10px 12px;
+    }
+    .btnRow{
+      max-width:720px;
+      margin:0 auto;
+      display:flex;
+      gap:10px;
+    }
+    .btn{
+      flex:1;
+      display:block;
+      text-align:center;
+      padding:14px 12px;
+      border-radius:14px;
+      border:1px solid var(--brand);
+      background:var(--brand);
+      color:#fff;
+      text-decoration:none;
+      font-weight:800;
+      font-size:15px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn.sub{
+      background:#fff;
+      color:var(--brand);
+    }
+    .btn.pink{
+      border-color:var(--brand2);
+      background:var(--brand2);
+    }
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <span class="badge">砂の祭典公式アプリ</span>
+    <h1>アプリの使い方</h1>
+    <p class="lead">
+      砂像の解説を楽しみながら、クエストにも参加できます。<br>
+      ※言語の切替は、画面右上の 🍔 メニューにあります（今後追加）。
+    </p>
+
+    <!-- 砂像詳細解説 -->
+    <div class="card">
+      <h2>砂像詳細解説</h2>
+      <p>
+        制作者のプロフィールや、砂像の詳しい解説を見ることができます。
+      </p>
+      <ul>
+        <li>解説を読みたい砂像だけ読む、でもOKです。</li>
+        <li>各砂像QRを読み込むと、必要に応じて次へ進めます。</li>
+      </ul>
+      <div class="note">
+        📌 重要：砂像QRを読み込むと、<strong>チャレンジクエストの進捗が端末内に自動記録</strong>されます（個人情報は保存しません）。<br>
+        クエストに参加しない方は、そのままホームに戻ってOKです。
+      </div>
+    </div>
+
+    <!-- チャレンジクエスト -->
+    <div class="card">
+      <h2>チャレンジクエスト（9ピース）</h2>
+      <p>
+        市役所エリア・本町（ほんまち）エリア・麓エリアの砂像をめぐって、<strong>9枚の写真ピース</strong>を集めよう！
+      </p>
+      <ul>
+        <li>9枚そろうと、祭典終了後の<strong>抽選会（ギフト券など）</strong>に応募できます。</li>
+        <li>クエストがメインの方は、ホームの「チャレンジクエスト」から始められます。</li>
+        <li>砂像解説を読まずに、連続スキャンで当たりを探すこともできます。</li>
+      </ul>
+    </div>
+
+    <!-- ファミリークエスト -->
+    <div class="card">
+      <h2>ファミリークエスト（4ピース・有料）</h2>
+      <p>
+        小さなお子様と一緒に遊べる、デジタルスタンプラリーです。<strong>4枚のピース</strong>を集めると参加賞（お菓子など）がもらえます。
+      </p>
+      <ul>
+        <li><strong>有料</strong>のため、市役所前の本部テントで登録してから参加します。</li>
+        <li>登録後、そこで<strong>1枚目のQR</strong>をゲットしてください。</li>
+        <li>その後、市役所・本町・麓の各エリアで「ファミリークエスト」と書かれたQRを探してください。</li>
+      </ul>
+      <div class="note">
+        👮 本部での確認（スタッフ操作）により、二重交付を防止します。
+      </div>
+    </div>
+
+    <p class="small">Powered by SakuLink</p>
+  </div>
+
+  <!-- 下固定ボタン（スマホ向け） -->
+  <div class="btns">
+    <div class="btnRow">
+      <a class="btn sub" href="./index.html">🏠 ホームへ</a>
+      <a class="btn" href="./scanner/qr-scanner.html">📷 スキャンする</a>
+    </div>
+  </div>
+</body>
+</html>

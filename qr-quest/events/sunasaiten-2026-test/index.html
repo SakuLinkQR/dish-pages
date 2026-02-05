@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>砂の祭典（TEST）2026 公式アプリ</title>
+
+  <!-- PWA関連 -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      text-align: center;
+      padding: 40px 20px 110px;
+      background-color: #f0f8ff;
+      margin: 0;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin: 10px 0 14px;
+      line-height: 1.25;
+    }
+    p {
+      font-size: 1.05rem;
+      margin: 0 0 22px;
+      line-height: 1.6;
+    }
+    .btn {
+      display: block;
+      width: 86%;
+      max-width: 340px;
+      margin: 10px auto;
+      padding: 14px 18px;
+      font-size: 1.12rem;
+      border: none;
+      border-radius: 10px;
+      background-color: #4fa3ff;
+      color: white;
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .btn:hover { background-color: #1e88e5; }
+
+    .btn.sub {
+      background-color: #ffffff;
+      color: #1e88e5;
+      border: 2px solid #1e88e5;
+    }
+    .btn.sub:hover { background-color: #e8f3ff; }
+
+    .btn.gray {
+      background-color: #7f8c8d;
+    }
+    .btn.gray:hover { background-color: #6c7a7b; }
+
+    .btn.pink {
+      background-color: #ff4081;
+    }
+    .btn.pink:hover { background-color: #e03570; }
+
+    .tag {
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#e8f3ff;
+      color:#1e5aa8;
+      font-size:12px;
+      margin-bottom:10px;
+      font-weight: 800;
+    }
+
+    .muted {
+      color: #3b3b3b;
+      font-size: 0.95rem;
+      margin-top: 14px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="tag">砂の祭典公式アプリ</div>
+
+  <h1>砂の祭典2026</h1>
+  <p>
+    砂像の解説を見たり、QRクエストに参加できます。<br>
+    まずは下のボタンから選んでください。
+  </p>
+
+  <button class="btn sub" id="btnHowto" onclick="location.href='howto.html'">📘 アプリの使い方</button>
+  <button class="btn sub" id="btnList" onclick="openList()">📋 砂像一覧</button>
+
+  <button class="btn" id="btnInfo" onclick="scanMonument()">🏰 砂像解説（チャレンジ同時進行OK）</button>
+
+  <button class="btn pink" id="btnChallenge" onclick="startChallenge()">🧩 チャレンジクエスト（9ピース）</button>
+
+  <button class="btn gray" id="btnFamily" onclick="startFamily()">👨‍👩‍👧 ファミリークエスト（4ピース）</button>
+
+  <p class="muted">Powered by SakuLink</p>
+
+  <script>
+// 初回セットアップ（言語選択 → 登録）
+    function ensureSetup() {
+      const lang = localStorage.getItem("lang") || "";
+      if (!lang) {
+        window.location.href = "language.html";
+        return false;
+      }
+      const reg = (localStorage.getItem("app_registered") === "true");
+      const viewOnly = (localStorage.getItem("view_only") === "true");
+      // 未登録かつ閲覧モード未選択の人は、モード選択へ
+      if (!reg && !viewOnly) {
+        window.location.href = "mode_select.html";
+        return false;
+      }
+      return true;
+    }
+
+    // 閲覧モードの場合は、砂像一覧/クエストは「登録」へ誘導します（ボタン名はそのまま）
+
+    // 登録後の「再スキャン案内」
+    (function(){
+      const tip = document.getElementById("rescanTip");
+      if (!tip) return;
+      if (localStorage.getItem("show_rescan_tip") === "true") {
+        tip.style.display = "block";
+        localStorage.removeItem("show_rescan_tip");
+      }
+    })();
+
+
+    function goQuest(mode){
+      localStorage.setItem("mode", mode);
+
+      const introKey = (mode === "challenge") ? "visitedIntro_challenge" : "visitedIntro_family";
+      const startUrl = (mode === "challenge") ? "start_challenge.html" : "start.html";
+
+      // 初回だけintroへ（モード別に1回ずつ）
+      if (localStorage.getItem(introKey) !== "true") {
+        window.location.href = "intro.html";
+      } else {
+        window.location.href = startUrl;
+      }
+    }
+
+    function scanMonument() {
+      if (!ensureSetup()) return;
+      localStorage.setItem("mode", "info");
+      window.location.href = "scanner/qr-scanner.html";
+    }
+
+    function scanNow() {
+      if (!ensureSetup()) return;
+      // 互換用（使う場合のみ）：現在のmodeのままスキャン
+      window.location.href = "scanner/qr-scanner.html";
+    }
+
+    function openList() {
+      if (!ensureSetup()) return;
+      if (localStorage.getItem("app_registered") !== "true") {
+        window.location.href = "register.html";
+        return;
+      }
+      window.location.href = "monuments_list.html";
+    }
+
+    function startChallenge() {
+      if (!ensureSetup()) return;
+      // 閲覧モードでは進行できない
+      if (localStorage.getItem("app_registered") !== "true") {
+        window.location.href = "register.html";
+        return;
+      }
+      // ✅ 初回だけ intro.html → 2回目以降は start_challenge.html
+      goQuest("challenge");
+    }
+
+    function startFamily() {
+      if (!ensureSetup()) return;
+      // 閲覧モードでは進行できない
+      if (localStorage.getItem("app_registered") !== "true") {
+        window.location.href = "register.html";
+        return;
+      }
+      localStorage.setItem("mode", "family");
+      // 本番は「本部登録後の導線」に差し替え予定
+      window.location.href = "family_notice.html";
+    }
+
+    // Service Worker 登録（PWA化用）
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered with scope:', reg.scope))
+        .catch(err => console.log('Service Worker registration failed:', err));
+    }
+  </script>
+
+</body>
+</html>

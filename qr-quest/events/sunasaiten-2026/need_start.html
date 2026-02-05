@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>受付でスタートしてください</title>
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#fffaf2;margin:0;padding:24px;text-align:center;color:#3b2f1a}
+    .card{max-width:560px;margin:0 auto;background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:18px;box-shadow:0 10px 22px rgba(0,0,0,.08)}
+    h1{margin:0 0 10px;font-size:1.35rem}
+    p{margin:10px 0;line-height:1.7}
+    .btn{display:block;width:100%;max-width:320px;margin:12px auto 0;padding:12px 14px;border:none;border-radius:12px;background:#4fa3ff;color:#fff;font-weight:800;font-size:1rem;cursor:pointer}
+    .btn.secondary{background:#fff;color:#1f2937;border:1px solid #e5e7eb}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>まずは受付でスタート！</h1>
+    <p>
+      このQRクエストは<strong>有料受付</strong>でスタートキーを読み込んでから進行できます。<br>
+      近くの受付（市役所／本町／麓）でお手続きのうえ、スタートキーを読み込んでください。
+    </p>
+    <button class="btn" onclick="location.href='index.html'">ホームに戻る</button>
+    <button class="btn secondary" onclick="location.href='scanner/qr-scanner.html?return=index.html'">スキャナーを開く</button>
+  </div>
+</body>
+</html>

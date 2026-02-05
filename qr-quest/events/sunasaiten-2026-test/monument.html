@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>砂像案内</title>
+
+  <style>
+    body{
+      font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+      margin:0;
+      padding:16px;
+      line-height:1.7;
+      background:#fff;
+    }
+    .wrap{max-width:820px;margin:0 auto}
+    .badge{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#eef6ff;
+      color:#1e5aa8;
+      font-size:12px;
+    }
+    h1{margin:10px 0 6px;font-size:22px}
+    .muted{color:#666;font-size:14px;margin:0 0 10px}
+
+    .hero{
+      width:100%;
+      max-height:380px;
+      object-fit:cover;
+      border-radius:14px;
+      border:1px solid #eee;
+      background:#f5f5f5;
+      display:block;
+    }
+
+    .card{
+      margin:14px 0;
+      padding:14px;
+      border:1px solid #eee;
+      border-radius:14px;
+      background:#fafafa;
+    }
+    .card h2{margin:0 0 10px;font-size:16px}
+
+    .kv{
+      display:grid;
+      grid-template-columns:110px 1fr;
+      gap:10px;
+      align-items:start;
+      margin:8px 0;
+    }
+    .k{color:#555;font-size:13px}
+    .v{font-size:15px}
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+    @media (min-width:780px){
+      .grid{grid-template-columns:1fr 1fr;}
+    }
+
+    .img{
+      width:100%;
+      max-height:280px;
+      object-fit:cover;
+      border-radius:12px;
+      border:1px solid #e9e9e9;
+      background:#f5f5f5;
+      display:block;
+    }
+    .cap{font-size:12px;color:#666;margin-top:6px}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .btn{
+      display:inline-block;
+      flex:1;
+      min-width:220px;
+      text-align:center;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid #1e88e5;
+      background:#1e88e5;
+      color:#fff;
+      text-decoration:none;
+      font-weight:700;
+    }
+    .btn.sub{background:#fff;color:#1e88e5}
+    .btn.gray{border-color:#999;background:#999}
+
+    /* ②は最初は隠す */
+    #conceptSection{display:none;}
+  </style>
+
+  <script>
+  (function(){
+    const lang = localStorage.getItem("lang") || "";
+    const reg  = localStorage.getItem("app_registered") === "true";
+    const viewOnly = localStorage.getItem("view_only") === "true";
+    if(!lang){ location.replace("language.html"); return; }
+    // 未登録でも「閲覧モード」なら解説は読める
+    if(!reg && !viewOnly){ location.replace("mode_select.html"); return; }
+  })();
+  </script>
+
+</head>
+
+<body>
+<div class="wrap">
+  <div class="badge">砂の祭典公式アプリ</div>
+  <div id="pieceBanner" style="display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:#ecfeff;border:1px solid #a5f3fc;color:#0e7490;font-weight:800;font-size:13px;line-height:1.5;">✅ チャレンジ：1枚目をゲットしました！</div>
+
+  <h1 id="monumentTitle">砂像タイトル</h1>
+  <p class="muted" id="monumentSub">（エリア/一言）</p>
+  <p class="muted" id="challengeNotice" style="display:none;">✅ この砂像はチャレンジ用QRです。ピースを記録しました。</p>
+  <p class="muted" id="challengeHintExternal" style="display:none;">✅ この砂像はチャレンジ用QRです。クエスト進行はアプリ付属スキャナーで行ってください。</p>
+
+  <!-- 砂像メイン写真 -->
+  <img id="monumentPhoto" class="hero" src="./images/placeholder.png" alt="砂像の写真">
+
+  <!-- ① 製作者プロフ（最初に表示） -->
+  <div class="card" id="artistSection">
+    <h2>① 製作者プロフィール</h2>
+
+    <div class="kv"><div class="k">名前</div><div class="v" id="artistName">—</div></div>
+    <div class="kv"><div class="k">国籍</div><div class="v" id="artistCountry">—</div></div>
+    <div class="kv"><div class="k">略歴</div><div class="v" id="artistBio">—</div></div>
+
+    <!-- 作家写真（任意） -->
+    <div style="margin-top:10px;" id="artistPhotoWrap">
+      <img id="artistPhoto" class="img" src="./images/placeholder.png" alt="製作者写真">
+      <div class="cap">製作者（任意）</div>
+    </div>
+
+    <div class="row">
+      <a class="btn" href="javascript:void(0)" id="toConceptBtn">次へ（砂像説明へ）</a>
+      <a class="btn pink" href="javascript:void(0)" id="toChallengeBtn">🧩 チャレンジクエストへ（スキャン）</a>
+      <!-- ✅ 修正：Quest全体ホームではなく、このイベントの index.html へ戻す -->
+      <a class="btn sub" href="./index.html">メニューに戻る</a>
+    </div>
+  </div>
+
+  <!-- ② 砂像コンセプト（ボタンで表示） -->
+  <div class="card" id="conceptSection">
+    <h2>② 砂像コンセプト</h2>
+    <p id="conceptText" style="margin:0 0 10px;">—</p>
+
+    <div class="grid">
+      <!-- モデル（城）の写真と説明 -->
+      <div id="modelWrap">
+        <img id="modelPhoto" class="img" src="./images/placeholder.png" alt="モデル（城）の写真">
+        <div class="cap">モデル（城）</div>
+        <p class="muted" id="modelDesc" style="margin-top:8px;">—</p>
+      </div>
+
+      <!-- 制作様子の写真と説明 -->
+      <div id="makingWrap">
+        <img id="makingPhoto" class="img" src="./images/placeholder.png" alt="制作様子の写真">
+        <div class="cap">制作の様子</div>
+        <p class="muted" id="makingDesc" style="margin-top:8px;">—</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <a class="btn gray" href="javascript:void(0)" id="backToArtistBtn">作者プロフィールに戻る</a>
+      <a class="btn pink" href="javascript:void(0)" id="toChallengeBtn2">🧩 チャレンジクエストへ（スキャン）</a>
+      <!-- ✅ 修正：Quest全体ホームではなく、このイベントの index.html へ戻す -->
+      <a class="btn sub" href="./index.html">メニューに戻る</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 例：monument.html?id=s01
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id") || "s01";
+  const st = params.get('st') || '';
+  const scannedViaApp = (window.QRQUEST_SCANNER_AUTH && window.QRQUEST_SCANNER_AUTH.check)
+    ? window.QRQUEST_SCANNER_AUTH.check(st, false)
+    : false;
+
+  // ✅ クエスト進行（ピース記録）は「登録済み」かつ「アプリ付属スキャナー経由」のときだけ
+  const canQuest = (localStorage.getItem("app_registered") === "true") && scannedViaApp;
+
+  // 言語：あなたの言語選択保存キーに合わせてください
+  // 例）localStorage.setItem("lang","ja")
+  const lang = localStorage.getItem("lang") || "ja";
+
+  // ✅ 正式データ置き場は content/ （data/とは分離）
+  const DATA_URL = `./content/monuments_${lang}.json`;
+
+  // ✅ チャレンジ用：このページを「1枚目QR」として使う場合（砂像解説＋ピース1獲得）
+  // 使い方例：monument.html?id=s01&mode=challenge&award=c1
+  const modeParam = params.get("mode");
+  if (modeParam === "challenge" || modeParam === "family") {
+    localStorage.setItem("mode", modeParam);
+  }
+
+  const awardChallengeP1 =
+    (params.get("award") === "c1") ||
+    (params.get("cpiece") === "1") ||
+    (params.get("c") === "1");
+
+  if (awardChallengeP1) {
+    // ✅ 進捗反映は「登録済み」かつ「アプリ付属スキャナー経由（stあり）」のときだけ
+    if (canQuest) {
+      localStorage.setItem("mode", "challenge");
+      // チャレンジのピースキーは result.html と同じ（c_piece1..9）
+      localStorage.setItem("c_piece1", "true");
+      localStorage.setItem("c_piece1_at", String(Date.now()));
+
+      const banner = document.getElementById("pieceBanner");
+      if (banner) banner.style.display = "block";
+    }
+  }
+
+
+  // 写真が空のとき：false=プレースホルダー表示 / true=枠ごと隠す
+  const HIDE_WHEN_EMPTY = false;
+
+  function setText(elId, value, fallback="—"){
+    document.getElementById(elId).textContent =
+      (value && String(value).trim()) ? value : fallback;
+  }
+
+  function setImage(imgId, wrapId, src, placeholder="./images/placeholder.png"){
+    const img = document.getElementById(imgId);
+    const wrap = wrapId ? document.getElementById(wrapId) : null;
+    const s = (src && String(src).trim()) ? src : "";
+
+    if (!s && HIDE_WHEN_EMPTY){
+      if (wrap) wrap.style.display = "none";
+      else img.style.display = "none";
+      return;
+    }
+
+    if (wrap) wrap.style.display = "";
+    img.style.display = "block";
+    img.src = s || placeholder;
+  }
+
+  async function loadData(){
+    try{
+      const res = await fetch(DATA_URL, { cache: "no-store" });
+      if(!res.ok) throw new Error("fetch failed");
+      const all = await res.json();
+      return all[id] || null;
+    }catch(e){
+      return null;
+    }
+  }
+
+  function showConcept(){
+    document.getElementById("conceptSection").style.display = "block";
+    document.getElementById("conceptSection").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  function hideConcept(){
+    document.getElementById("conceptSection").style.display = "none";
+    document.getElementById("artistSection").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  document.getElementById("toConceptBtn").addEventListener("click", showConcept);
+  document.getElementById("backToArtistBtn").addEventListener("click", hideConcept);
+
+  // チャレンジへ（スキャナー起動）
+  function goChallengeScan(){
+    const reg  = localStorage.getItem("app_registered") === "true";
+    if (!reg) {
+      // 閲覧モードからクエストへ行こうとした場合は登録へ誘導
+      try { localStorage.setItem('pending_qr', location.href); } catch(_) {}
+      location.href = "register.html";
+      return;
+    }
+    localStorage.setItem("mode","challenge");
+    location.href = "scanner/qr-scanner.html";
+  }
+  const b1 = document.getElementById("toChallengeBtn");
+  const b2 = document.getElementById("toChallengeBtn2");
+  if (b1) b1.addEventListener("click", goChallengeScan);
+  if (b2) b2.addEventListener("click", goChallengeScan);
+
+  (async () => {
+    const d = await loadData();
+
+    // データが無い時（ID間違い/未投入など）の安全表示
+    if(!d){
+      setText("monumentTitle", "データ準備中");
+      setText("monumentSub", `ID: ${id}`);
+      setText("artistName", "—");
+      setText("artistCountry", "—");
+      setText("artistBio", "この砂像の情報は準備中です。");
+      setText("conceptText", "—");
+      setText("modelDesc", "—");
+      setText("makingDesc", "—");
+      setImage("monumentPhoto", null, "");
+      setImage("artistPhoto", "artistPhotoWrap", "");
+      setImage("modelPhoto", "modelWrap", "");
+      setImage("makingPhoto", "makingWrap", "");
+      return;
+    }
+
+    // 上部
+    setText("monumentTitle", d.monumentTitle);
+    setText("monumentSub", d.monumentSub);
+    setImage("monumentPhoto", null, d.monumentPhoto);
+
+    // 作者
+    setText("artistName", d.artist?.name);
+    setText("artistCountry", d.artist?.country);
+    setText("artistBio", d.artist?.bio);
+    setImage("artistPhoto", "artistPhotoWrap", d.artist?.photo);
+
+    // コンセプト
+    setText("conceptText", d.concept?.text);
+    setText("modelDesc", d.concept?.modelDesc);
+    setText("makingDesc", d.concept?.makingDesc);
+    setImage("modelPhoto", "modelWrap", d.concept?.modelPhoto);
+    setImage("makingPhoto", "makingWrap", d.concept?.makingPhoto);
+
+    // ✅ チャレンジ対象かどうか（データ側で判定）
+    const cp = d.challenge_piece ?? d.challengePiece ?? d.challenge?.piece;
+    const s = (cp===null||cp===undefined) ? "" : String(cp).trim();
+    const n = parseInt(s, 10);
+    if (Number.isFinite(n) && n>=1 && n<=9) {
+      // ✅ 進捗反映は「アプリ付属スキャナー経由（stあり）」のときだけ
+      if (canQuest) {
+        const notice = document.getElementById("challengeNotice");
+        if (notice) notice.style.display = "block";
+        // 解説で読んだ場合も進捗を裏で保持（qr.htmlでも実施。保険）
+        localStorage.setItem(`c_piece${n}`, "true");
+      } else {
+        const hint = document.getElementById("challengeHintExternal");
+        if (hint) hint.style.display = "block";
+      }
+    }
+
+  })();
+</script>
+</body>
+</html>

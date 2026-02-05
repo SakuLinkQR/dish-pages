@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QR読み込み</title>
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;margin:0;background:#f6f9ff;color:#1f2937}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
+    .card{width:100%;max-width:520px;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.08);padding:16px}
+    h1{margin:0 0 6px;font-size:16px}
+    p{margin:0;color:#6b7280;line-height:1.7;font-size:13px}
+    .spin{width:22px;height:22px;border-radius:50%;border:3px solid #e5e7eb;border-top-color:#1e88e5;animation:spin 1s linear infinite;margin:12px 0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .btn{display:inline-block;margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#fff;color:#1f2937;font-weight:800;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>読み込み中…</h1>
+      <div class="spin" aria-hidden="true"></div>
+      <p id="msg">ページを移動します。</p>
+      <a class="btn" href="index.html">ホームへ戻る</a>
+    </div>
+  </div>
+
+<script>
+  // ✅ 砂像QRは「1個だけ」で運用するための入口（ルーター）
+  // QRは mid だけ固定にするのがおすすめ（当たり/はずれを後で入れ替えてもQR作り直し不要）
+  // 例：.../qr.html?mid=s01
+  //
+  // 当たり/はずれ（チャレンジ9ピース）は、JSON（将来的にCSVから生成）側で判定します：
+  //   challenge_piece: 1〜9  → 当たり（そのピース）
+  //   challenge_piece: "DUMMY" or 0 → ダミー（ハズレ）
+  //   未設定/空欄 → クエスト対象外（解説のみ）
+  //
+  // 動作：
+  // - 未セットアップ：language → register → index（登録後は再スキャン案内）
+  // - セットアップ済み：
+  //    mode=challenge：当たり/ダミーを result へ（解説スキップ）
+  //    mode=info     ：monument へ（当たりなら裏で進捗も記録）
+  //
+  const msg = (t)=>{ const el=document.getElementById('msg'); if(el) el.textContent=t; };
+
+  const params = new URLSearchParams(location.search);
+  const mid = params.get('mid') || params.get('monument') || params.get('id') || '';
+  const st = params.get('st') || '';
+
+  // 言語（旧キー互換）
+  const lang = localStorage.getItem('lang') || localStorage.getItem('qrquest_lang') || '';
+
+  if (!lang) {
+    msg('言語選択へ移動します…');
+    try { localStorage.setItem('pending_qr', location.href); } catch(e){}
+    location.replace('language.html');
+    throw new Error('no lang');
+  }
+
+  const registered = (localStorage.getItem('app_registered') === 'true');
+  const viewOnly = (localStorage.getItem('view_only') === 'true');
+  if (!registered && !viewOnly) {
+    msg('利用モードの選択へ移動します…');
+    try { localStorage.setItem('pending_qr', location.href); } catch(e){}
+    location.replace('mode_select.html');
+    throw new Error('not setup');
+  }
+
+  // モード：info / challenge / family
+  // ※ファミリーは本部解放が前提なので、砂像QRは原則「解説/チャレンジ」に使います
+  const mode = localStorage.getItem('mode') || 'info';
+  const isChallengeMode = (mode === 'challenge');
+
+  // ✅ アプリ付属スキャナー経由かどうか（標準カメラでURLを直接開いた場合は false）
+  const scannedViaApp = (window.QRQUEST_SCANNER_AUTH && window.QRQUEST_SCANNER_AUTH.check)
+    ? window.QRQUEST_SCANNER_AUTH.check(st, false)
+    : false;
+
+  // ✅ クエスト進行は「登録済み」かつ「アプリ付属スキャナー経由」のときだけ許可
+  const canQuest = registered && scannedViaApp;
+
+  const DATA_URL = `./content/monuments_${lang}.json`;
+
+  function normalizePiece(v){
+    if (v === null || v === undefined) return { kind:'none' };
+    const s = String(v).trim();
+    if (!s) return { kind:'none' };
+    if (s.toUpperCase() === 'DUMMY' || s === '0') return { kind:'dummy' };
+    const n = parseInt(s, 10);
+    if (Number.isFinite(n) && n>=1 && n<=9) return { kind:'piece', n };
+    return { kind:'none' };
+  }
+
+  function recordChallengeSilently(n){
+    localStorage.setItem(`c_piece${n}`, 'true');
+  }
+
+  (async ()=>{
+    // mid が無い＝砂像ではないQR（このイベントでは基本使わない）
+    if (!mid) {
+      msg('ホームへ移動します…');
+      location.replace('index.html');
+      return;
+    }
+
+    // JSONを読んで、当たり/はずれを判定
+    let piece = { kind:'none' };
+    try{
+      const res = await fetch(DATA_URL, { cache:'no-store' });
+      const all = await res.json();
+      const d = all[mid];
+      // 互換：challenge_piece / challengePiece / challenge.piece
+      piece = normalizePiece(d?.challenge_piece ?? d?.challengePiece ?? d?.challenge?.piece);
+    }catch(e){
+      // 読めない場合は安全に解説へ
+      piece = { kind:'none' };
+    }
+
+    // ① チャレンジモード：resultへ（当たり/ダミーのみ）
+    // ※クエスト進行は「アプリ付属スキャナー経由（stあり）」のときだけ許可
+    if (isChallengeMode && canQuest) {
+      if (piece.kind === 'piece') {
+        const code = String(piece.n).padStart(3,'0');
+        msg('チャレンジクエストの結果へ…');
+        location.replace(`result.html?id=${encodeURIComponent(code)}&st=${encodeURIComponent(st)}`);
+        return;
+      }
+      if (piece.kind === 'dummy') {
+        msg('チャレンジクエスト（ダミー）へ…');
+        location.replace(`result.html?id=DUMMY&st=${encodeURIComponent(st)}`);
+        return;
+      }
+      // チャレンジ対象外の砂像は、解説へ（観光用）
+    }
+
+    // ② 解説モード：解説へ（当たりなら裏で進捗を記録）
+    // ※進捗記録は「アプリ付属スキャナー経由（stあり）」のときだけ
+    if (canQuest && piece.kind === 'piece') {
+      recordChallengeSilently(piece.n);
+    }
+
+    msg('砂像解説へ移動します…');
+    // monument 側で「閲覧のみ/進捗あり」を判断できるよう、st はアプリ経由の時だけ渡す
+    const next = canQuest
+      ? `monument.html?id=${encodeURIComponent(mid)}&st=${encodeURIComponent(st)}`
+      : `monument.html?id=${encodeURIComponent(mid)}`;
+    location.replace(next);
+  })();
+</script>
+</body>
+</html>

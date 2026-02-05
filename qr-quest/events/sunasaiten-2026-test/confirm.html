@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>確認完了</title>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'DotGothic16', sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      background-color: #f0fff4;
+      margin: 0;
+    }
+    h1 {
+      font-size: 2.0rem;
+      color: #2e7d32;
+      margin: 0 0 10px;
+    }
+    p {
+      font-size: 1.1rem;
+      margin: 0 0 24px;
+      color: #444;
+      line-height: 1.8;
+    }
+    .btn {
+      padding: 12px 20px;
+      font-size: 1.0rem;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 92%;
+      max-width: 320px;
+      font-weight: 800;
+    }
+  </style>
+
+  <script>
+  (function(){
+    const lang = localStorage.getItem("lang") || "";
+    const reg  = localStorage.getItem("app_registered") === "true";
+    if(!lang){ location.replace("language.html"); return; }
+    if(!reg){ location.replace("register.html"); return; }
+  })();
+  </script>
+
+</head>
+<body>
+  <h1>✅ 確認完了！</h1>
+  <p id="msg">本部で確認済みにしました。<br>画面を閉じるか、ホームへ戻ってください。</p>
+  <button class="btn" onclick="finish()">🏁 ホームへ戻る</button>
+
+  <script>
+    const mode = localStorage.getItem('mode') || 'family';
+    const confirmedKey = (mode === 'challenge') ? 'confirmed_challenge' : 'confirmed_family';
+    const rewardKey = (mode === 'challenge') ? 'reward_unlocked_challenge' : 'reward_unlocked_family';
+    const visitedKey = (mode === 'challenge') ? 'visitedIntro_challenge' : 'visitedIntro_family';
+
+    // ✅ 本部確認済みフラグ
+    localStorage.setItem(confirmedKey, 'true');
+
+    function finish(){
+      // 完了後は、同じ端末で再参加できるように「このモードの進捗」だけ消す
+      if(mode === 'challenge'){
+        for(let i=1;i<=9;i++) localStorage.removeItem(`c_piece${i}`);
+      } else {
+        for(let i=1;i<=4;i++) localStorage.removeItem(`piece${i}`);
+      }
+      localStorage.removeItem(rewardKey);
+      localStorage.removeItem(visitedKey);
+
+      // 次の参加者のために、confirmed は一旦消す（本部側での二重確認防止は verify.html 側で行う想定）
+      // ※「確認済み表示を残したい」場合はこの1行を消してください
+      localStorage.removeItem(confirmedKey);
+
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
