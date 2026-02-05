@@ -196,5 +196,21 @@
 })();
 </script>
 
+
+<script>
+function isStarted(){
+  try { return localStorage.getItem('started') === 'true'; } catch(e){ return false; }
+}
+function goQuestHowto(){
+  if(!isStarted()){
+    const box = document.getElementById('qrquest-start-warning-howto');
+    if(box){ box.style.display='block'; box.scrollIntoView({behavior:'smooth', block:'center'}); }
+    else { alert('まだ受付スタートが完了していません。受付でスタートQRを読み込んでください。'); }
+    return;
+  }
+  location.href = 'quest_go.html';
+}
+</script>
+
 </body>
 </html>
