@@ -171,5 +171,30 @@
       <a class="btn" href="./quest_go.html">🧩 QRクエストへGO！</a>
     </div>
   </div>
+
+<div id="qrquest-start-warning-howto" style="display:none; margin:12px auto; max-width:520px; padding:10px 12px; border:1px solid #f0c36d; background:#fff8e1; border-radius:10px; font-size:0.95rem; line-height:1.5;">
+  まだ受付スタートが完了していません。受付でスタートQRを読み込んでからクエストを開始してください。
+</div>
+<script>
+(function(){
+  function getStarted(){
+    try{
+      return localStorage.getItem('started') === 'true' || localStorage.getItem('qrquest_started') === 'true';
+    }catch(e){ return false; }
+  }
+  var btn = document.getElementById('btnQuestGoHowto');
+  if(btn){
+    btn.addEventListener('click', function(ev){
+      if(!getStarted()){
+        ev.preventDefault();
+        var box = document.getElementById('qrquest-start-warning-howto');
+        if(box){ box.style.display = 'block'; box.scrollIntoView({behavior:'smooth', block:'center'}); }
+        else{ alert('まだ受付スタートが完了していません。受付でスタートQRを読み込んでください。'); }
+      }
+    });
+  }
+})();
+</script>
+
 </body>
 </html>

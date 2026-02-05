@@ -84,5 +84,30 @@
   <button class="btn" onclick="location.href='quest_go.html'">🧩 QRクエストへGO！</button>
 
   <p class="muted">Powered by SakuLink</p>
+
+<div id="qrquest-start-warning" style="display:none; margin:12px auto; max-width:520px; padding:10px 12px; border:1px solid #f0c36d; background:#fff8e1; border-radius:10px; font-size:0.95rem; line-height:1.5;">
+  まだ受付スタートが完了していません。受付でスタートQRを読み込んでから「QRクエストへGO！」を押してください。
+</div>
+<script>
+(function(){
+  function getStarted(){
+    try{
+      return localStorage.getItem('started') === 'true' || localStorage.getItem('qrquest_started') === 'true';
+    }catch(e){ return false; }
+  }
+  var btn = document.getElementById('btnQuestGo');
+  if(btn){
+    btn.addEventListener('click', function(ev){
+      if(!getStarted()){
+        ev.preventDefault();
+        var box = document.getElementById('qrquest-start-warning');
+        if(box){ box.style.display = 'block'; box.scrollIntoView({behavior:'smooth', block:'center'}); }
+        else{ alert('まだ受付スタートが完了していません。受付でスタートQRを読み込んでください。'); }
+      }
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
