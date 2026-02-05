@@ -61,7 +61,7 @@
 </head>
 
 <body>
-  <h1>砂の祭典公式アプリ</h1>
+  <h1>QRクエスト in 砂の祭典2026</h1>
   <p>使いやすくするため、ホーム画面に追加するのがおすすめです。</p>
 
   <!-- B案：追加した人も、しない人も、このボタンで進める -->
@@ -81,8 +81,8 @@
   </div>
 
   <!-- 次は splash → language(自動) → ... の流れ -->
-  <button class="next-button" onclick="location.href='./splash.html'">
-    追加後（または追加せず）に進む（アプリ起動）
+  <button class="next-button" onclick="localStorage.setItem('setup_done', 'true'); location.href='./index.html'">
+    追加後（または追加せず）にホームへ
   </button>
 
   <div class="powered">Powered by SakuLink</div>

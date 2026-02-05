@@ -87,23 +87,6 @@
     setVh();
     window.addEventListener('resize', setVh);
   </script>
-
-  <script>
-  (function(){
-    const lang = localStorage.getItem("lang") || "";
-    const reg  = localStorage.getItem("app_registered") === "true";
-    const viewOnly = localStorage.getItem("view_only") === "true";
-    const mode = localStorage.getItem("mode") || "info";
-    if(!lang){ location.replace("../language.html"); return; }
-    // 「閲覧モード」は info（砂像解説）スキャンだけ許可
-    if(!reg){
-      if (viewOnly && mode === "info") return;
-      location.replace(viewOnly ? "../register.html" : "../mode_select.html");
-      return;
-    }
-  })();
-  </script>
-
 </head>
 
 <body>
@@ -247,13 +230,9 @@
         navigator.vibrate?.(60);
         hasRedirected = true;
         stopScanner().finally(() => {
-          // アプリ設定（register）→ホームへ
-          const registered = (localStorage.getItem("app_registered") === "true");
-          if (!registered) {
-            window.location.href = "../register.html";
-          } else {
-            window.location.href = "../index.html";
-          }
+          // 受付スタート後：ホーム画面に追加案内 → ホーム
+          const setupDone = (localStorage.getItem("setup_done") === "true");
+          window.location.href = setupDone ? "../index.html" : "../add_to_home.html";
         });
         return;
       }

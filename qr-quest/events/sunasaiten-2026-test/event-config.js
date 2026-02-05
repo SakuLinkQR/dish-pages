@@ -57,6 +57,8 @@ window.QRQUEST_EVENT = {
     "area_fumoto",
     "reward_claimed",
     "reward_claimed_at",
+    "setup_done",
+    "visitedIntro_qrquest",
     "test_mode"
   ]);
 

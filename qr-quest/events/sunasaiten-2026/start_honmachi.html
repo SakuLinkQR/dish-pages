@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>スタート（本町）</title>
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#fffaf2;margin:0;padding:24px;text-align:center;color:#3b2f1a}
+    .card{max-width:600px;margin:0 auto;background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:18px;box-shadow:0 10px 22px rgba(0,0,0,.08)}
+    h1{margin:0 0 10px;font-size:1.35rem}
+    p{margin:10px 0;line-height:1.7}
+    .btn{display:block;width:100%;max-width:340px;margin:14px auto 0;padding:12px 14px;border:none;border-radius:12px;background:#4fa3ff;color:#fff;font-weight:800;font-size:1rem;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>スタートしました（本町）</h1>
+    <p>
+      まずは、ホーム画面に追加（アイコン設置）するのがおすすめです。<br>
+      下のボタンを押してください。
+    </p>
+    <button class="btn" onclick="location.href='add_to_home.html'">ホーム画面に追加へ進む</button>
+  </div>
+
+<script>
+  // 受付スタート処理：2ピースを自動でオープン
+  localStorage.setItem('started','true');
+  localStorage.setItem('start_area','honmachi');
+  localStorage.setItem('q_piece1','true');
+  localStorage.setItem('q_piece5','true');
+</script>
+</body>
+</html>

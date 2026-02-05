@@ -4,9 +4,8 @@
   <script src="event-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QRクエスト（9分割）</title>
+  <title>QRクエスト（ホーム）</title>
 
-  <!-- 冒険風ドットフォント -->
   <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 
   <style>
@@ -20,7 +19,7 @@
       color: #f9f2dc;
       text-align: center;
       padding: 40px 20px;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -38,6 +37,8 @@
       font-size: 0.95rem;
       opacity: 0.95;
       text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+      max-width: 720px;
+      line-height: 1.6;
     }
     .button-group {
       margin-top: 70px;
@@ -64,74 +65,54 @@
       background-color: #ffb300;
       transform: scale(1.05);
     }
+    .rewardLine{
+      margin-top: 18px;
+      font-size: 0.95rem;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    }
   </style>
+</head>
+<body>
+
+  <h1>QRクエスト</h1>
+  <div class="sub">（写真 9分割）</div>
+
+  <div class="button-group" id="btnGroup">
+    <button onclick="location.href='scanner/qr-scanner.html?return=start.html'">SCAN</button>
+    <button onclick="location.href='progress.html'">写真確認</button>
+    <button onclick="location.href='index.html'">ホーム画面に戻る</button>
+  </div>
+
+  <div id="rewardArea" class="rewardLine"></div>
 
   <script>
-    // QRクエストの開始チェック（受付スタート必須）
-    const started = (localStorage.getItem('started') === 'true');
-    if (!started) {
+    // 受付スタート必須
+    if (localStorage.getItem('started') !== 'true') {
       location.replace('need_start.html');
-      throw new Error('not started');
     }
 
-    function goBackToIndex() {
-      location.href = 'index.html';
-    }
+    const rewardArea = document.getElementById('rewardArea');
+    const btnGroup = document.getElementById('btnGroup');
 
-    // 参加賞の表示制御
     const eligible =
       localStorage.getItem('area_shiyakusho') === 'true' &&
       localStorage.getItem('area_honmachi') === 'true' &&
       localStorage.getItem('area_fumoto') === 'true';
 
     const claimed = (localStorage.getItem('reward_claimed') === 'true');
-    const rewardArea = document.getElementById('rewardArea');
 
     if (claimed) {
       rewardArea.textContent = '✅ 参加賞ゲット済み';
     } else if (eligible) {
-      // ボタンを動的に追加（条件達成時のみ）
       const btn = document.createElement('button');
       btn.textContent = '🎁 参加賞ゲット！';
-      btn.style.marginTop = '10px';
       btn.onclick = () => location.href = 'reward_intro.html';
-      document.querySelector('.button-group').appendChild(btn);
+      btnGroup.appendChild(btn);
+      rewardArea.textContent = '各エリア（市役所・本町・麓）で最低1つずつ見つけました！';
     } else {
-      rewardArea.textContent = '各エリアでポイントを最低1つずつ見つけると参加賞ボタンが出ます。';
+      rewardArea.textContent = '各エリアでポイントを最低1つずつ見つけると、参加賞ボタンが出ます。';
     }
   </script>
 
-
-  <script>
-    // ✅ 確認済み端末は再参加をブロック（景品の二重交付防止）
-    if (localStorage.getItem('confirmed_family') === 'true' && location.pathname.endsWith('start.html')) {
-      location.replace('confirm.html?done=1');
-    }
-  </script>
-
-</head>
-<body>
-
-  <h1>QRクエスト</h1>
-  <div class="sub">（9分割）</div>
-
-  <div class="button-group">
-    <button onclick="location.href='scanner/qr-scanner.html?return=start.html'">QRをスキャン！</button>
-    <button onclick="location.href='progress.html'">どこまでみつけた？</button>
-    <button onclick="goBackToIndex()">さいしょにもどる</button>
-  </div>
-
-  <div id="rewardArea" class="sub" style="margin-top:18px;"></div>
-
-  <script>
-    // ファミリー用
-    localStorage.setItem('mode', 'family');
-
-    function goBackToIndex() {
-      // introをもう一度見たい場合は削除（ファミリーだけ）
-      localStorage.removeItem('visitedIntro_family');
-      location.href = 'index.html';
-    }
-  </script>
 </body>
 </html>
