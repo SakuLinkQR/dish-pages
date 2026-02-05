@@ -8,16 +8,21 @@
 </head>
 <body>
 <script>
-  // 受付スタート必須
+  // テスト用：受付なしで開始できる
+  // ※本番とは別フォルダなので、ここで started を自動セットしても本番には影響しません
   if (localStorage.getItem("started") !== "true") {
-    location.replace("need_start.html");
+    localStorage.setItem("started", "true");
+    localStorage.setItem("start_area", "test");
+    // 受付で2枚オープン（本番と同じ）
+    localStorage.setItem("q_piece1", "true");
+    localStorage.setItem("q_piece5", "true");
+  }
+
+  // 初回だけオープニングへ
+  if (localStorage.getItem("visitedIntro_qrquest") !== "true") {
+    location.replace("intro.html");
   } else {
-    // 初回だけオープニングへ
-    if (localStorage.getItem("visitedIntro_qrquest") !== "true") {
-      location.replace("intro.html");
-    } else {
-      location.replace("start.html");
-    }
+    location.replace("start.html");
   }
 </script>
 </body>
