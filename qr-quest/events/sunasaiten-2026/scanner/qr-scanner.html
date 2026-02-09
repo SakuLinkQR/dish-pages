@@ -1,206 +1,195 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <script src="../event-config.js"></script>
-  <script src="./lib/html5-qrcode.min.js"></script>
-
   <meta charset="UTF-8" />
   <title>QRクエスト - スキャナー</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <style>
-    /* iPhoneでvhが暴れる対策 */
-    :root { --vh: 1vh; }
-    html, body { margin:0; padding:0; }
-
     body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      font-family: sans-serif;
       background-color: #fefefe;
       text-align: center;
-      padding: 10px 12px 18px;
+      padding: 10px;
+      margin: 0;
       overflow-x: hidden;
-      min-height: calc(var(--vh) * 100);
-      min-height: 100dvh;
-      box-sizing: border-box;
-      padding-bottom: env(safe-area-inset-bottom);
     }
 
     h1 {
       color: #007bff;
-      font-size: 1.35rem;
-      margin: 10px 0 10px;
+      font-size: 1.6rem;
+      margin-bottom: 12px;
       line-height: 1.4;
     }
 
-    /* 固定300×300をやめる（縮み/崩れ対策） */
     #preview {
-      width: min(86vw, 360px);
-      aspect-ratio: 1 / 1;
+      width: 300px;
+      height: 300px;
       border: 1px solid #ccc;
-      border-radius: 12px;
-      margin: 14px auto 10px;
-      background: #000;
+      margin: 20px auto;
+      background: black;
       position: relative;
+      border-radius: 12px;
       overflow: hidden;
     }
 
-    #preview video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
     #status {
-      color: #666;
+      margin: 8px auto;
+      max-width: 520px;
       font-size: 0.95rem;
-      margin: 6px 0 2px;
+      line-height: 1.5;
+      color: #444;
     }
 
     #result {
-      font-size: 1rem;
-      color: #d32f2f;
-      margin: 6px 0 12px;
-      min-height: 1.2em;
-      padding: 0 10px;
-      word-break: break-word;
-      white-space: pre-wrap;
+      margin: 8px auto;
+      max-width: 520px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #444;
+      word-break: break-all;
     }
 
     .btn {
-      margin: 6px;
-      padding: 10px 18px;
-      background-color: #4caf50;
-      color: #fff;
+      display: inline-block;
+      margin: 10px 6px;
+      padding: 12px 14px;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
+      background: #007bff;
+      color: #fff;
       font-size: 1rem;
       cursor: pointer;
-      min-width: 140px;
     }
 
-    .btn-exit { background-color: #ff7043; }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-exit {
+      background: #6c757d;
+    }
   </style>
 
-  
+  <!-- Local bundled library (CDNなし) -->
+  <script src="./lib/html5-qrcode.min.js"></script>
+</head>
 
-<script>window.addEventListener('load', startScan);</script>
+<body>
+  <h1>QRクエスト - スキャナー</h1>
 
-<script>
-(function(){
-  // ---- State ----
-  let qr = null;
-  let scanning = false;
+  <div id="preview"></div>
 
-  // ---- UI helpers ----
-  function $(id){ return document.getElementById(id); }
-  function showError(msg){
-    const el = $('scanError');
-    const text = (msg && (msg.message || msg.toString())) ? (msg.message || msg.toString()) : String(msg);
-    if(el){ el.textContent = text; el.style.display='block'; }
-    console.warn(text);
-  }
-  function setButtonsEnabled(on){
-    const b1 = $('btnRescan');
-    const b2 = $('btnBackToMenu');
-    if(b1) b1.disabled = !on;
-    if(b2) b2.disabled = !on;
-  }
+  <div id="status">カメラを起動中…</div>
+  <div id="result"></div>
 
-  // ---- Scan callbacks ----
-  window.onScanSuccess = window.onScanSuccess || function(decodedText){
-    try{
-      // existing handler may be defined elsewhere; if so, call it
-      if(window.__onScanSuccessOriginal){ return window.__onScanSuccessOriginal(decodedText); }
-    }catch(e){}
-    // fallback: just show decoded text
-    alert(decodedText);
-  };
-  window.onScanFailure = window.onScanFailure || function(_err){};
+  <div>
+    <button id="btnRescan" onclick="rescan()" class="btn">🔄 再スキャン</button>
+    <button id="btnExit" onclick="exitToMenu()" class="btn btn-exit">🏠 メニューに戻る</button>
+  </div>
 
-  async function ensureInstance(){
-    if(qr) return true;
-    // Library check
-    if(typeof Html5Qrcode === 'undefined'){
-      showError('スキャナーライブラリの読み込みに失敗しました。通信環境を確認して、再読み込みしてください。');
-      return false;
+  <script>
+    // html5-qrcode instance
+    const html5QrCode = new Html5Qrcode("preview");
+    const statusText = document.getElementById("status");
+    const resultContainer = document.getElementById("result");
+    const btnRescan = document.getElementById("btnRescan");
+    const btnExit = document.getElementById("btnExit");
+
+    // debounce
+    let lastText = "";
+    let lastAt = 0;
+    let hasRedirected = false;
+    let isScanning = false;
+
+    function setButtonsEnabled(on){
+      btnRescan.disabled = !on;
+      btnExit.disabled = !on;
     }
-    let reader = $('reader');
-    if(!reader){
-      // auto-create
-      reader = document.createElement('div');
-      reader.id = 'reader';
-      reader.style.cssText = 'width:300px;height:300px;margin:20px auto;background:black;border-radius:12px;overflow:hidden;';
-      const h1 = document.querySelector('h1');
-      if(h1 && h1.parentNode){ h1.parentNode.insertBefore(reader, h1.nextSibling); }
-      else { document.body.insertBefore(reader, document.body.firstChild); }
+
+    async function startScanner() {
+      try {
+        setButtonsEnabled(false);
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: 250 },
+          onScanSuccess,
+          onScanFailure
+        );
+        isScanning = true;
+        statusText.innerText = "カメラが起動しました。QRコードをかざしてください。";
+        setButtonsEnabled(true);
+      } catch (e) {
+        isScanning = false;
+        statusText.innerText = "カメラの起動に失敗しました。ブラウザのカメラ許可を確認してください。";
+        resultContainer.innerText = String(e);
+        setButtonsEnabled(true);
+      }
     }
-    qr = new Html5Qrcode('reader');
-    // expose for debugging / old code compatibility
-    window.html5QrCode = qr;
-    return true;
-  }
 
-  async function start(){
-    const ok = await ensureInstance();
-    if(!ok) return;
-    if(scanning) return;
-    try{
-      scanning = true;
-      const config = { fps: 10, qrbox: 250 };
-      await qr.start({ facingMode: "environment" }, config, window.onScanSuccess, window.onScanFailure);
-      setButtonsEnabled(true);
-    }catch(e){
-      scanning = false;
-      showError(e);
-      setButtonsEnabled(true);
+    async function stopScanner() {
+      try{
+        if(isScanning){
+          await html5QrCode.stop();
+          isScanning = false;
+        }
+      }catch(e){
+        // ignore
+      }
+      try{
+        await html5QrCode.clear();
+      }catch(e){
+        // ignore
+      }
     }
-  }
 
-  async function stop(){
-    if(!qr || !scanning) return;
-    try{
-      await qr.stop();
-    }catch(e){
-      // ignore stop error
-      console.warn(e);
-    }finally{
-      scanning = false;
-      try{ await qr.clear(); }catch(e){ /* ignore */ }
+    function onScanFailure(_error) {
+      // ignore noisy scan errors
     }
-  }
 
-  // Public buttons
-  window.safeRescan = async function(){
-    // Prevent "can't clear while scan is ongoing"
-    setButtonsEnabled(false);
-    await stop();
-    // Small delay for stability
-    setTimeout(()=>{ start(); }, 150);
-  };
+    async function onScanSuccess(decodedText, _decodedResult) {
+      const now = Date.now();
+      if (decodedText === lastText && (now - lastAt) < 1200) return;
+      lastText = decodedText;
+      lastAt = now;
 
-  window.backToMenu = async function(){
-    setButtonsEnabled(false);
-    await stop();
-    location.href = '../start.html';
-  };
+      resultContainer.innerText = decodedText;
 
-  // init on load
-  window.addEventListener('load', function(){
-    // Ensure error div exists
-    if(!$('scanError')){
-      const box = document.createElement('div');
-      box.id = 'scanError';
-      box.style.cssText = 'display:none;margin:10px auto;max-width:520px;padding:10px 12px;border:1px solid #f5c2c7;background:#fff5f5;border-radius:10px;font-size:0.95rem;line-height:1.5;';
-      const h1 = document.querySelector('h1');
-      if(h1 && h1.parentNode){ h1.parentNode.insertBefore(box, h1.nextSibling); }
-      else { document.body.insertBefore(box, document.body.firstChild); }
+      if (hasRedirected) return;
+      hasRedirected = true;
+
+      // Stop to avoid double fire
+      await stopScanner();
+
+      // Save and return to quest flow
+      try{
+        localStorage.setItem("scan_text", decodedText);
+        localStorage.setItem("last_scan_text", decodedText);
+      }catch(e){}
+
+      // Return to start (it will interpret scan_text)
+      location.href = "../start.html";
     }
-    setButtonsEnabled(false);
-    start();
-  });
-})();
-</script>
 
+    async function rescan() {
+      // Safe rescan: stop->clear->start
+      statusText.innerText = "再スキャン準備中…";
+      await stopScanner();
+      hasRedirected = false;
+      lastText = "";
+      lastAt = 0;
+      setTimeout(() => startScanner(), 150);
+    }
+
+    async function exitToMenu() {
+      statusText.innerText = "メニューへ戻ります…";
+      await stopScanner();
+      location.href = "../start.html";
+    }
+
+    window.addEventListener("load", startScanner);
+    window.addEventListener("pagehide", stopScanner);
+    window.addEventListener("beforeunload", stopScanner);
+  </script>
 </body>
 </html>
