@@ -92,11 +92,12 @@
 <body>
   <h1 id="title">🎯 QRコードを読み取って<br>クエストを進めよう</h1>
 
-  <div id="preview"></div>
+  <div id="scanError" style="display:none; margin:10px auto; max-width:520px; padding:10px 12px; border:1px solid #f5c2c7; background:#fff5f5; border-radius:10px; font-size:0.95rem; line-height:1.5;"></div>
+<div id="preview"></div>
   <p id="status">カメラを起動中…</p>
   <div id="result"></div>
 
-  <button onclick="rescan()" class="btn">🔄 再スキャン</button>
+  <button onclick="safeRescan()" class="btn">🔄 再スキャン</button>
   <button onclick="exitToMenu()" class="btn btn-exit" id="exitBtn">🏠 メニューに戻る</button>
 
   <!-- html5-qrcode 本体 -->
@@ -129,7 +130,7 @@
     // カメラ開始
     async function startScanner() {
       try {
-        await html5QrCode.start(
+        await window.html5QrCode.start(
           { facingMode: "environment" },
           { fps: 10, qrbox: 250 },
           onScanSuccess,
@@ -354,5 +355,58 @@
     // 初回起動
     startScanner();
   </script>
+
+<script>
+function showError(e){
+  const msg = (e && (e.message || e.toString())) ? (e.message || e.toString()) : String(e);
+  const el = document.getElementById('scanError');
+  if(el){ el.textContent = msg; el.style.display = 'block'; }
+  else{ console.warn(msg); }
+}
+</script>
+
+
+<script>
+let __isScanning = false;
+
+async function startScan(){
+  try{
+    if(!window.html5QrCode){ return; }
+    // If already scanning, do nothing
+    if(__isScanning){ return; }
+    __isScanning = true;
+    const config = { fps: 10, qrbox: 250 };
+    await window.html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure);
+  }catch(e){
+    __isScanning = false;
+    showError(e);
+  }
+}
+
+async function stopScan(){
+  try{
+    if(!window.html5QrCode){ return; }
+    if(!__isScanning){ return; }
+    await window.html5QrCode.stop();
+    __isScanning = false;
+    // clear() is safe only after stop()
+    try{ await window.html5QrCode.clear(); }catch(_e){}
+  }catch(e){
+    __isScanning = false;
+    // Even if stop fails, try to clear UI
+    try{ await window.html5QrCode.clear(); }catch(_e){}
+    showError(e);
+  }
+}
+
+async function safeRescan(){
+  // 버튼 "再SCAN" 用：スキャン中なら止めてから再開する
+  await stopScan();
+  // 少しだけ待ってから再開（端末によって安定）
+  setTimeout(() => { startScan(); }, 150);
+}
+</script>
+
+<script>window.addEventListener('load', startScan);</script>
 </body>
 </html>
