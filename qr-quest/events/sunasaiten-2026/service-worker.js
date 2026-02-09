@@ -2,7 +2,7 @@
 // v2: ナビゲーションは network-first、静的資産は cache-first、旧キャッシュの削除 & 即時適用
 
 const CACHE_PREFIX = "qr-quest-";
-const CACHE_NAME = `${CACHE_PREFIX}sunasaiten-2026-v9`; // ←バージョンを上げると旧キャッシュが確実に破棄されます
+const CACHE_NAME = `${CACHE_PREFIX}sunasaiten-2026-v10`; // ←バージョンを上げると旧キャッシュが確実に破棄されます
 const ORIGIN = self.location.origin;
 
 // できるだけ“よく使う画面・資産”を事前キャッシュ
@@ -29,7 +29,6 @@ const urlsToCache = [
   "./warning.html",
   "./admin/verify.html",
   "./scanner/qr-scanner.html",
-  "./scan-result.html",
   "./test-camera.html",
 
   // PWAメタ
