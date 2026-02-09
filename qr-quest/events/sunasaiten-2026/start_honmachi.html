@@ -29,6 +29,15 @@
   localStorage.setItem('start_area','honmachi');
   localStorage.setItem('q_piece1','true');
   localStorage.setItem('q_piece5','true');
+
+
+      // 互換キー（万一、別ページが違うキーを見ていても2枚が出るように）
+      try {
+        localStorage.setItem('piece1','true');
+        localStorage.setItem('piece5','true');
+        localStorage.setItem('qrquest_piece1','true');
+        localStorage.setItem('qrquest_piece5','true');
+      } catch(e){}
 </script>
 </body>
 </html>

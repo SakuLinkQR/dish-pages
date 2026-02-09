@@ -2,33 +2,53 @@
 // v2: ナビゲーションは network-first、静的資産は cache-first、旧キャッシュの削除 & 即時適用
 
 const CACHE_PREFIX = "qr-quest-";
-const CACHE_NAME = `${CACHE_PREFIX}sunasaiten-2026-test-v3`; // v3: cache更新 & 旧キャッシュ確実削除
+const CACHE_NAME = "qr-quest-sunasaiten-2026-v2"; // ←バージョンを上げると旧キャッシュが確実に破棄されます
 const ORIGIN = self.location.origin;
 
 // できるだけ“よく使う画面・資産”を事前キャッシュ
 const urlsToCache = [
   "./",
+  "./language.html",
+  "./mode_select.html",
+  "./register.html",
   "./index.html",
   "./howto.html",
-  "./quest_go.html",
+  "./qr.html",
+  "./monument.html",
+  "./monuments_list.html",
   "./intro.html",
   "./start.html",
+  "./family_notice.html",
+  "./family_unlock.html",
+  "./family_need_hq.html",
   "./progress.html",
+  "./result.html",
   "./reward_intro.html",
   "./reward.html",
-  "./need_start.html",
-  "./add_to_home.html",
-  "./start_shiyakusho.html",
-  "./start_honmachi.html",
-  "./start_fumoto.html",
+  "./confirm.html",
+  "./warning.html",
+  "./admin/verify.html",
   "./scanner/qr-scanner.html",
+  "./test-camera.html",
+
+  // PWAメタ
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+
+  // 画像・音
+  "./images/piece1.png",
+  "./images/piece2.png",
+  "./images/piece3.png",
+  "./images/piece4.png",
+  "./images/goal.png",
   "./images/background_grandcanyon.png",
   "./images/map_background_b.png",
   "./sounds/fanfare.mp3",
-  "./event-config.js"
+
+  // JS
+  "./js/check_referrer.js"
+  // ※ CDNの html5-qrcode はクロスオリジンのためここでは事前キャッシュしません
 ];
 
 self.addEventListener("install", (event) => {

@@ -122,7 +122,7 @@
     let found = 0;
     for (let n = 1; n <= total; n++) {
       const img = document.createElement('img');
-      const has = localStorage.getItem(`q_piece${n}`) === 'true';
+      const has = (localStorage.getItem(`q_piece${n}`) === 'true' || localStorage.getItem(`piece${n}`) === 'true' || localStorage.getItem(`qrquest_piece${n}`) === 'true');
       if (has) found++;
       img.alt = `ピース${n}`;
       img.src = has ? `images/challenge/piece${n}.png` : 'images/blank.png';
@@ -163,7 +163,7 @@
   <div class="grid" id="grid" aria-label="puzzle grid"></div>
 
   <div class="row">
-    <button class="btn btn-sub" id="backBtn">⬅ メニューに戻る</button>
+    <button class="btn btn-sub" id="backBtn" onclick="location.href=\'start.html\'">⬅ メニューに戻る</button>
     <button class="btn" onclick="location.href='scanner/qr-scanner.html'">📷 スキャンへ戻る</button>
   </div>
 
