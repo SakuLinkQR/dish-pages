@@ -80,333 +80,120 @@
     .btn-exit { background-color: #ff7043; }
   </style>
 
-  <script>
-    function setVh(){
-      document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
-    }
-    setVh();
-    window.addEventListener('resize', setVh);
-  </script>
-</head>
-
-<body>
-  <h1 id="title">🎯 QRコードを読み取って<br>クエストを進めよう</h1>
-
-  <div id="scanError" style="display:none; margin:10px auto; max-width:520px; padding:10px 12px; border:1px solid #f5c2c7; background:#fff5f5; border-radius:10px; font-size:0.95rem; line-height:1.5;"></div>
-<div id="preview"></div>
-  <p id="status">カメラを起動中…</p>
-  <div id="result"></div>
-
-  <button onclick="safeRescan()" class="btn">🔄 再スキャン</button>
-  <button onclick="exitToMenu()" class="btn btn-exit" id="exitBtn">🏠 メニューに戻る</button>
-
-  <!-- html5-qrcode 本体 -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
-
-  <script>
-    // mode=test のときは「テスト用挙動」にする
-    const params = new URLSearchParams(location.search);
-    const mode = params.get("mode"); // "test" or null
-
-    const titleEl = document.getElementById("title");
-    const exitBtn = document.getElementById("exitBtn");
-
-    if (mode === "test") {
-      titleEl.innerHTML = "📷 カメラテスト<br>QRを1つ読み取ってみてください";
-      exitBtn.textContent = "↩ テスト画面に戻る";
-    }
-
-    const html5QrCode = new Html5Qrcode("preview");
-    const statusText = document.getElementById("status");
-    const resultContainer = document.getElementById("result");
-
-    // 同一コードの連続判定を抑制するためのデバウンス
-    let lastText = "";
-    let lastAt = 0;
-
-    // 遷移時の多重スタート防止フラグ
-    let hasRedirected = false;
-
-    // カメラ開始
-    async function startScanner() {
-      try {
-        await window.html5QrCode.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
-          onScanSuccess,
-          onScanFailure
-        );
-        statusText.innerText = "カメラが起動しました。QRコードをかざしてください。";
-      } catch (err) {
-        statusText.innerText = "カメラエラー：" + err;
-      }
-    }
-
-    // カメラ停止
-    async function stopScanner() {
-      try {
-        if (html5QrCode._isScanning) {
-          await html5QrCode.stop();
-        }
-      } catch (_) {
-        // 失敗は握りつぶし
-      } finally {
-        document.getElementById("preview").innerHTML = "";
-      }
-    }
-
-    // スキャン成功時
-    function onScanSuccess(decodedText) {
-      if (hasRedirected) return;
-
-      // 同一内容の連続ヒットは1.5秒無視
-      const now = Date.now();
-      if (decodedText === lastText && now - lastAt < 1500) return;
-      lastText = decodedText;
-      lastAt = now;
-
-      // ▼テストモード：読み取れたらOK表示して停止（どこにも飛ばない）
-      if (mode === "test") {
-        resultContainer.innerText = "✅ 読み取り成功！\n" + decodedText;
-        statusText.innerText = "テストOKです。戻るボタンで戻ってください。";
-        navigator.vibrate?.(60);
-        stopScanner();
-        return;
-      }
-
-      // ==============================
-      // QRクエスト：コード文字列を処理する（URLではなくコード推奨）
-      // ==============================
-      const code = (decodedText || "").trim();
-
-      // ▼ここでイベント用のコード定義（必要なら後で差し替え）
-      const START_CODES = {
-        "SS26-START-SHIYAKUSHO": "shiyakusho",
-        "SS26-START-HONMACHI": "honmachi",
-        "SS26-START-FUMOTO": "fumoto"
-      };
-
-      // 7ポイント（=残り7ピース）
-      const POINT_CODES = {
-        "SS26-P-SHIYAKUSHO": { area: "shiyakusho", piece: 2 },
-        "SS26-P-HONMACHI-1": { area: "honmachi", piece: 3 },
-        "SS26-P-HONMACHI-2": { area: "honmachi", piece: 4 },
-        "SS26-P-FUMOTO-1": { area: "fumoto", piece: 6 },
-        "SS26-P-FUMOTO-2": { area: "fumoto", piece: 7 },
-        "SS26-P-FUMOTO-3": { area: "fumoto", piece: 8 },
-        "SS26-P-FUMOTO-4": { area: "fumoto", piece: 9 }
-      };
-
-      // 参加賞交付（係員用）
-      const STAFF_REWARD_CODE = "SS26-STAFF-REWARD";
-
-      // 9分割（受付で2枚オープン）
-      const OPEN_ON_START = [1, 5]; // ←必要なら変更（中央+角がわかりやすい）
-
-      // helper
-      const setPiece = (n) => localStorage.setItem(`q_piece${n}`, "true");
-      const isStarted = () => localStorage.getItem("started") === "true";
-      const setAreaCleared = (area) => {
-        if (area === "shiyakusho") localStorage.setItem("area_shiyakusho", "true");
-        if (area === "honmachi")   localStorage.setItem("area_honmachi", "true");
-        if (area === "fumoto")     localStorage.setItem("area_fumoto", "true");
-      };
-      const isRewardEligible = () => (
-        localStorage.getItem("area_shiyakusho") === "true" &&
-        localStorage.getItem("area_honmachi") === "true" &&
-        localStorage.getItem("area_fumoto") === "true"
-      );
-
-      // ▼スタートキー
-      if (START_CODES[code]) {
-        const area = START_CODES[code];
-
-        // 既に開始済みでも「開始受付エリア」を更新（現場運用向け）
-        localStorage.setItem("started", "true");
-        localStorage.setItem("start_area", area);
-
-        // 受付で2ピースを自動オープン
-        for (const n of OPEN_ON_START) setPiece(n);
-
-        navigator.vibrate?.(60);
-        hasRedirected = true;
-        stopScanner().finally(() => {
-          // 受付スタート後：ホーム画面に追加案内 → ホーム
-          const setupDone = (localStorage.getItem("setup_done") === "true");
-          window.location.href = setupDone ? "../index.html" : "../add_to_home.html";
-        });
-        return;
-      }
-
-      // ▼参加賞交付（係員用）
-      if (code === STAFF_REWARD_CODE) {
-        if (!isStarted()) {
-          resultContainer.innerText = "まだ受付でスタートしていません。";
-          statusText.innerText = "受付でスタートキーを読み込んでください。";
-          navigator.vibrate?.(80);
-          return;
-        }
-        const claimed = (localStorage.getItem("reward_claimed") === "true");
-        if (claimed) {
-          resultContainer.innerText = "参加賞はすでに受け取り済みです。";
-          statusText.innerText = "ありがとうございました。";
-          navigator.vibrate?.(60);
-          return;
-        }
-        if (!isRewardEligible()) {
-          resultContainer.innerText = "条件未達のため、まだ交付できません。";
-          statusText.innerText = "各エリアのポイントを最低1つずつ見つけてください。";
-          navigator.vibrate?.(80);
-          return;
-        }
-
-        localStorage.setItem("reward_claimed", "true");
-        localStorage.setItem("reward_claimed_at", String(Date.now()));
-        navigator.vibrate?.(120);
-
-        hasRedirected = true;
-        stopScanner().finally(() => {
-          window.location.href = "../start.html";
-        });
-        return;
-      }
-
-      // ▼ポイント（7箇所）
-      if (POINT_CODES[code]) {
-        if (!isStarted()) {
-          hasRedirected = true;
-          stopScanner().finally(() => {
-            window.location.href = "../need_start.html";
-          });
-          return;
-        }
-
-        const info = POINT_CODES[code];
-        setPiece(info.piece);
-        setAreaCleared(info.area);
-
-        navigator.vibrate?.(60);
-
-        hasRedirected = true;
-        stopScanner().finally(() => {
-          window.location.href = "../progress.html";
-        });
-        return;
-      }
-
-      // ▼URL（古いQRなど）を読み取った場合は「公式ではありません」
-      if (code.startsWith("http")) {
-        resultContainer.innerText = "このQRは現在のQRクエストでは使用できません。";
-        statusText.innerText = "受付またはポイントのQRコードを読み込んでください。";
-        navigator.vibrate?.(80);
-        return;
-      }
-
-      // ▼不明コード
-      resultContainer.innerText = "無効なQRコードです。";
-      statusText.innerText = "もう一度かざしてください。";
-      navigator.vibrate?.(80);
-      return;
-
-    }
-
-    // スキャン失敗時（フレーム毎の失敗通知。何もしない）
-    function onScanFailure(_) { /* no-op */ }
-
-    // 再スキャン
-    async function rescan() {
-      hasRedirected = false;
-      resultContainer.innerText = "";
-      statusText.innerText = "再スキャンを準備中…";
-      await stopScanner();
-      setTimeout(startScanner, 300);
-    }
-
-    // メニューに戻る
-    async function exitToMenu() {
-      await stopScanner();
-      if (mode === "test") {
-        window.location.href = "../test-camera.html";
-        return;
-      }
-
-      // return=xxx があればそこへ戻る（例：return=start.html）
-      const ret = params.get("return");
-      if (ret) {
-        window.location.href = ret.startsWith("../") ? ret : ("../" + ret);
-        return;
-      }
-
-      // デフォルトはQRクエストのメニューへ
-      window.location.href = "../start.html";
-    }
-
-// ページ可視状態の変化で再起動（復帰時に固まる対策）
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible" && !hasRedirected) {
-        startScanner();
-      }
-    });
-
-    // ページ遷移/破棄時は明示停止
-    window.addEventListener("pagehide", stopScanner);
-    window.addEventListener("beforeunload", stopScanner);
-
-    // 初回起動
-    startScanner();
-  </script>
-
-<script>
-function showError(e){
-  const msg = (e && (e.message || e.toString())) ? (e.message || e.toString()) : String(e);
-  const el = document.getElementById('scanError');
-  if(el){ el.textContent = msg; el.style.display = 'block'; }
-  else{ console.warn(msg); }
-}
-</script>
-
-
-<script>
-let __isScanning = false;
-
-async function startScan(){
-  try{
-    if(!window.html5QrCode){ return; }
-    // If already scanning, do nothing
-    if(__isScanning){ return; }
-    __isScanning = true;
-    const config = { fps: 10, qrbox: 250 };
-    await window.html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure);
-  }catch(e){
-    __isScanning = false;
-    showError(e);
-  }
-}
-
-async function stopScan(){
-  try{
-    if(!window.html5QrCode){ return; }
-    if(!__isScanning){ return; }
-    await window.html5QrCode.stop();
-    __isScanning = false;
-    // clear() is safe only after stop()
-    try{ await window.html5QrCode.clear(); }catch(_e){}
-  }catch(e){
-    __isScanning = false;
-    // Even if stop fails, try to clear UI
-    try{ await window.html5QrCode.clear(); }catch(_e){}
-    showError(e);
-  }
-}
-
-async function safeRescan(){
-  // 버튼 "再SCAN" 用：スキャン中なら止めてから再開する
-  await stopScan();
-  // 少しだけ待ってから再開（端末によって安定）
-  setTimeout(() => { startScan(); }, 150);
-}
-</script>
+  
 
 <script>window.addEventListener('load', startScan);</script>
+
+<script>
+(function(){
+  // ---- State ----
+  let qr = null;
+  let scanning = false;
+
+  // ---- UI helpers ----
+  function $(id){ return document.getElementById(id); }
+  function showError(msg){
+    const el = $('scanError');
+    const text = (msg && (msg.message || msg.toString())) ? (msg.message || msg.toString()) : String(msg);
+    if(el){ el.textContent = text; el.style.display='block'; }
+    console.warn(text);
+  }
+  function setButtonsEnabled(on){
+    const b1 = $('btnRescan');
+    const b2 = $('btnBackToMenu');
+    if(b1) b1.disabled = !on;
+    if(b2) b2.disabled = !on;
+  }
+
+  // ---- Scan callbacks ----
+  window.onScanSuccess = window.onScanSuccess || function(decodedText){
+    try{
+      // existing handler may be defined elsewhere; if so, call it
+      if(window.__onScanSuccessOriginal){ return window.__onScanSuccessOriginal(decodedText); }
+    }catch(e){}
+    // fallback: just show decoded text
+    alert(decodedText);
+  };
+  window.onScanFailure = window.onScanFailure || function(_err){};
+
+  async function ensureInstance(){
+    if(qr) return true;
+    // Library check
+    if(typeof Html5Qrcode === 'undefined'){
+      showError('スキャナーライブラリの読み込みに失敗しました。通信環境を確認して、再読み込みしてください。');
+      return false;
+    }
+    const reader = $('reader');
+    if(!reader){
+      showError('reader要素が見つかりません（HTMLのID不整合）');
+      return false;
+    }
+    qr = new Html5Qrcode('reader');
+    // expose for debugging / old code compatibility
+    window.html5QrCode = qr;
+    return true;
+  }
+
+  async function start(){
+    const ok = await ensureInstance();
+    if(!ok) return;
+    if(scanning) return;
+    try{
+      scanning = true;
+      const config = { fps: 10, qrbox: 250 };
+      await qr.start({ facingMode: "environment" }, config, window.onScanSuccess, window.onScanFailure);
+      setButtonsEnabled(true);
+    }catch(e){
+      scanning = false;
+      showError(e);
+      setButtonsEnabled(true);
+    }
+  }
+
+  async function stop(){
+    if(!qr || !scanning) return;
+    try{
+      await qr.stop();
+    }catch(e){
+      // ignore stop error
+      console.warn(e);
+    }finally{
+      scanning = false;
+      try{ await qr.clear(); }catch(e){ /* ignore */ }
+    }
+  }
+
+  // Public buttons
+  window.safeRescan = async function(){
+    // Prevent "can't clear while scan is ongoing"
+    setButtonsEnabled(false);
+    await stop();
+    // Small delay for stability
+    setTimeout(()=>{ start(); }, 150);
+  };
+
+  window.backToMenu = async function(){
+    setButtonsEnabled(false);
+    await stop();
+    location.href = '../start.html';
+  };
+
+  // init on load
+  window.addEventListener('load', function(){
+    // Ensure error div exists
+    if(!$('scanError')){
+      const box = document.createElement('div');
+      box.id = 'scanError';
+      box.style.cssText = 'display:none;margin:10px auto;max-width:520px;padding:10px 12px;border:1px solid #f5c2c7;background:#fff5f5;border-radius:10px;font-size:0.95rem;line-height:1.5;';
+      const h1 = document.querySelector('h1');
+      if(h1 && h1.parentNode){ h1.parentNode.insertBefore(box, h1.nextSibling); }
+      else { document.body.insertBefore(box, document.body.firstChild); }
+    }
+    setButtonsEnabled(false);
+    start();
+  });
+})();
+</script>
+
 </body>
 </html>
