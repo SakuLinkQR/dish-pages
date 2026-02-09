@@ -125,10 +125,15 @@
       showError('スキャナーライブラリの読み込みに失敗しました。通信環境を確認して、再読み込みしてください。');
       return false;
     }
-    const reader = $('reader');
+    let reader = $('reader');
     if(!reader){
-      showError('reader要素が見つかりません（HTMLのID不整合）');
-      return false;
+      // auto-create
+      reader = document.createElement('div');
+      reader.id = 'reader';
+      reader.style.cssText = 'width:300px;height:300px;margin:20px auto;background:black;border-radius:12px;overflow:hidden;';
+      const h1 = document.querySelector('h1');
+      if(h1 && h1.parentNode){ h1.parentNode.insertBefore(reader, h1.nextSibling); }
+      else { document.body.insertBefore(reader, document.body.firstChild); }
     }
     qr = new Html5Qrcode('reader');
     // expose for debugging / old code compatibility
