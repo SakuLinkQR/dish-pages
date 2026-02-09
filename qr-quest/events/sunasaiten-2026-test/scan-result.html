@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRクエスト - 読み取り処理</title>
+  <style>
+    body { font-family:sans-serif; padding:16px; }
+    .box { max-width:560px; margin:0 auto; border:1px solid #ddd; border-radius:12px; padding:14px; }
+    .small { color:#555; font-size:0.95rem; line-height:1.5; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="small" id="msg">読み取り結果を処理中です…</div>
+  </div>
+
+<script>
+(function(){
+  function getParam(name){
+    const u = new URL(location.href);
+    return u.searchParams.get(name);
+  }
+  const text = getParam('text') || '';
+  // Save for debugging
+  try{ localStorage.setItem('last_scan_text', text); }catch(e){}
+
+  // Existing projects often use handleScanResult(text) in start.html or a shared script.
+  // We'll try to call a handler via localStorage convention: set scan_text then redirect back to start.html where logic exists.
+  try{ localStorage.setItem('scan_text', text); }catch(e){}
+
+  // Redirect back to quest home; it should read scan_text and apply.
+  setTimeout(()=>{ location.href = './start.html'; }, 50);
+})();
+</script>
+</body>
+</html>

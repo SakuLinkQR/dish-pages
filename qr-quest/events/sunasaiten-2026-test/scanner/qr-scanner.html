@@ -1,199 +1,142 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <script src="../event-config.js"></script>
   <meta charset="UTF-8" />
   <title>QRクエスト - スキャナー</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <style>
-    /* iPhoneでvhが暴れる対策 */
-    :root { --vh: 1vh; }
-    html, body { margin:0; padding:0; }
-
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
-      background-color: #fefefe;
-      text-align: center;
-      padding: 10px 12px 18px;
-      overflow-x: hidden;
-      min-height: calc(var(--vh) * 100);
-      min-height: 100dvh;
-      box-sizing: border-box;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    h1 {
-      color: #007bff;
-      font-size: 1.35rem;
-      margin: 10px 0 10px;
-      line-height: 1.4;
-    }
-
-    /* 固定300×300をやめる（縮み/崩れ対策） */
-    #preview {
-      width: min(86vw, 360px);
-      aspect-ratio: 1 / 1;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      margin: 14px auto 10px;
-      background: #000;
-      position: relative;
-      overflow: hidden;
-    }
-
-    #preview video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    #status {
-      color: #666;
-      font-size: 0.95rem;
-      margin: 6px 0 2px;
-    }
-
-    #result {
-      font-size: 1rem;
-      color: #d32f2f;
-      margin: 6px 0 12px;
-      min-height: 1.2em;
-      padding: 0 10px;
-      word-break: break-word;
-      white-space: pre-wrap;
-    }
-
-    .btn {
-      margin: 6px;
-      padding: 10px 18px;
-      background-color: #4caf50;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      min-width: 140px;
-    }
-
-    .btn-exit { background-color: #ff7043; }
+    body { font-family: sans-serif; background:#fefefe; text-align:center; padding:10px; margin:0; }
+    h1 { color:#007bff; font-size:1.4rem; margin:12px 0; line-height:1.4; }
+    #video { width: 92vw; max-width: 420px; border:1px solid #ccc; border-radius:12px; background:black; }
+    .btn { display:inline-block; margin:10px 6px; padding:12px 14px; border:none; border-radius:12px; background:#007bff; color:#fff; font-size:1rem; cursor:pointer; }
+    .btn:disabled { opacity:0.5; cursor:not-allowed; }
+    #scanError { display:none; margin:10px auto; max-width:520px; padding:10px 12px; border:1px solid #f5c2c7; background:#fff5f5; border-radius:10px; font-size:0.95rem; line-height:1.5; }
+    #hint { margin:8px auto 0; max-width:520px; color:#444; font-size:0.95rem; line-height:1.5; }
   </style>
-
-  
-
-<script>window.addEventListener('load', startScan);</script>
+</head>
+<body>
+  <h1>QRクエスト - スキャナー</h1>
+  <div id="scanError"></div>
+  <video id="video" playsinline></video>
+  <div style="margin-top:6px;">
+    <button id="btnRescan" class="btn" type="button">再SCAN</button>
+    <button id="btnBackToMenu" class="btn" type="button">メニューに帰る</button>
+  </div>
+  <div id="hint">カメラが起動しない場合は、ブラウザのカメラ許可（許可/ブロック）を確認してください。</div>
 
 <script>
 (function(){
-  // ---- State ----
-  let qr = null;
+  const video = document.getElementById('video');
+  const errBox = document.getElementById('scanError');
+  const btnRescan = document.getElementById('btnRescan');
+  const btnBack = document.getElementById('btnBackToMenu');
+
+  let stream = null;
+  let detector = null;
+  let rafId = null;
   let scanning = false;
 
-  // ---- UI helpers ----
-  function $(id){ return document.getElementById(id); }
   function showError(msg){
-    const el = $('scanError');
     const text = (msg && (msg.message || msg.toString())) ? (msg.message || msg.toString()) : String(msg);
-    if(el){ el.textContent = text; el.style.display='block'; }
+    errBox.textContent = text;
+    errBox.style.display = 'block';
     console.warn(text);
   }
+  function clearError(){
+    errBox.textContent = '';
+    errBox.style.display = 'none';
+  }
   function setButtonsEnabled(on){
-    const b1 = $('btnRescan');
-    const b2 = $('btnBackToMenu');
-    if(b1) b1.disabled = !on;
-    if(b2) b2.disabled = !on;
+    btnRescan.disabled = !on;
+    btnBack.disabled = !on;
   }
 
-  // ---- Scan callbacks ----
-  window.onScanSuccess = window.onScanSuccess || function(decodedText){
-    try{
-      // existing handler may be defined elsewhere; if so, call it
-      if(window.__onScanSuccessOriginal){ return window.__onScanSuccessOriginal(decodedText); }
-    }catch(e){}
-    // fallback: just show decoded text
-    alert(decodedText);
-  };
-  window.onScanFailure = window.onScanFailure || function(_err){};
-
-  async function ensureInstance(){
-    if(qr) return true;
-    // Library check
-    if(typeof Html5Qrcode === 'undefined'){
-      showError('スキャナーライブラリの読み込みに失敗しました。通信環境を確認して、再読み込みしてください。');
-      return false;
+  async function stopCamera(){
+    scanning = false;
+    if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+    if(stream){
+      stream.getTracks().forEach(t => { try{ t.stop(); }catch(e){} });
+      stream = null;
     }
-    const reader = $('reader');
-    if(!reader){
-      showError('reader要素が見つかりません（HTMLのID不整合）');
-      return false;
-    }
-    qr = new Html5Qrcode('reader');
-    // expose for debugging / old code compatibility
-    window.html5QrCode = qr;
-    return true;
+    try{ video.srcObject = null; }catch(e){}
   }
 
-  async function start(){
-    const ok = await ensureInstance();
-    if(!ok) return;
-    if(scanning) return;
+  async function startCamera(){
+    clearError();
+    setButtonsEnabled(false);
+
+    // BarcodeDetector availability
+    if(!('BarcodeDetector' in window)){
+      showError('このブラウザはQR読み取り（BarcodeDetector）に対応していません。別の端末/最新OSでお試しください。');
+      return;
+    }
+    detector = new BarcodeDetector({ formats: ['qr_code'] });
+
     try{
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio:false });
+      video.srcObject = stream;
+      await video.play();
       scanning = true;
-      const config = { fps: 10, qrbox: 250 };
-      await qr.start({ facingMode: "environment" }, config, window.onScanSuccess, window.onScanFailure);
       setButtonsEnabled(true);
+      tick();
     }catch(e){
-      scanning = false;
-      showError(e);
+      showError('カメラの起動に失敗しました。ブラウザのカメラ許可を確認してください。\n' + e);
       setButtonsEnabled(true);
     }
   }
 
-  async function stop(){
-    if(!qr || !scanning) return;
+  async function tick(){
+    if(!scanning) return;
     try{
-      await qr.stop();
+      const barcodes = await detector.detect(video);
+      if(barcodes && barcodes.length){
+        const text = barcodes[0].rawValue || '';
+        if(text){
+          // stop scanning quickly to avoid double fires
+          await stopCamera();
+          // Pass result to parent flow: use localStorage and redirect to handler page
+          // We keep compatibility: store lastScanText and go to scan-handler.html if exists, else alert.
+          try{
+            localStorage.setItem('last_scan_text', text);
+          }catch(e){}
+          // If your project has a handler, use it. Otherwise just alert.
+          if(location.href.indexOf('/scanner/') !== -1){
+            // go back to start with param
+            location.href = '../scan-result.html?text=' + encodeURIComponent(text);
+          }else{
+            alert(text);
+          }
+          return;
+        }
+      }
     }catch(e){
-      // ignore stop error
+      // Detection errors are usually transient; show once and continue
       console.warn(e);
-    }finally{
-      scanning = false;
-      try{ await qr.clear(); }catch(e){ /* ignore */ }
     }
+    rafId = requestAnimationFrame(tick);
   }
 
-  // Public buttons
-  window.safeRescan = async function(){
-    // Prevent "can't clear while scan is ongoing"
+  // Buttons
+  btnRescan.addEventListener('click', async function(){
+    // full restart: stop then start
     setButtonsEnabled(false);
-    await stop();
-    // Small delay for stability
-    setTimeout(()=>{ start(); }, 150);
-  };
-
-  window.backToMenu = async function(){
-    setButtonsEnabled(false);
-    await stop();
-    location.href = '../start.html';
-  };
-
-  // init on load
-  window.addEventListener('load', function(){
-    // Ensure error div exists
-    if(!$('scanError')){
-      const box = document.createElement('div');
-      box.id = 'scanError';
-      box.style.cssText = 'display:none;margin:10px auto;max-width:520px;padding:10px 12px;border:1px solid #f5c2c7;background:#fff5f5;border-radius:10px;font-size:0.95rem;line-height:1.5;';
-      const h1 = document.querySelector('h1');
-      if(h1 && h1.parentNode){ h1.parentNode.insertBefore(box, h1.nextSibling); }
-      else { document.body.insertBefore(box, document.body.firstChild); }
-    }
-    setButtonsEnabled(false);
-    start();
+    await stopCamera();
+    setTimeout(()=>{ startCamera(); }, 150);
   });
+
+  btnBack.addEventListener('click', async function(){
+    setButtonsEnabled(false);
+    await stopCamera();
+    location.href = '../start.html';
+  });
+
+  window.addEventListener('pagehide', stopCamera);
+  window.addEventListener('beforeunload', stopCamera);
+
+  // Start on load
+  window.addEventListener('load', startCamera);
 })();
 </script>
-
 </body>
 </html>
