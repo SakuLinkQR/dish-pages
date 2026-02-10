@@ -2,7 +2,7 @@
 // v2: ナビゲーションは network-first、静的資産は cache-first、旧キャッシュの削除 & 即時適用
 
 const CACHE_PREFIX = "qr-quest-";
-const CACHE_NAME = `${CACHE_PREFIX}sunasaiten-2026-test-v19`; // ←バージョンを上げると旧キャッシュが確実に破棄されます
+const CACHE_NAME = `${CACHE_PREFIX}sunasaiten-2026-test-v15`; // ←バージョンを上げると旧キャッシュが確実に破棄されます
 const ORIGIN = self.location.origin;
 
 // できるだけ“よく使う画面・資産”を事前キャッシュ
@@ -111,7 +111,7 @@ async function networkFirst(req) {
     const cached = await cache.match(req);
     return (
       cached ||
-      (await caches.match("./index.html")) // 最低限アプリを開けるようフォールバック
+      (await caches.match(req)) || (await caches.match("./progress.html")) || (await caches.match("./start.html")) || (await caches.match("./index.html")) // 最低限アプリを開けるようフォールバック
     );
   }
 }

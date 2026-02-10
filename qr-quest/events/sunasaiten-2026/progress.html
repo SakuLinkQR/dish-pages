@@ -93,25 +93,7 @@
   </style>
 
   <script>
-window.addEventListener('DOMContentLoaded', () => {
-// 受付スタート必須
-    // 初期2枚（1番・5番）を必ずセット（受付スタート後の保険）
-    // - すでにセット済みなら何もしない
-    // - 1回だけ実行するため seeded_1_5 を使う
-    try{
-      const started = (localStorage.getItem('started') === 'true');
-      const seeded = (localStorage.getItem('seeded_1_5') === 'true');
-      if(started && !seeded){
-        localStorage.setItem('q_piece1','true');
-        localStorage.setItem('q_piece5','true');
-        localStorage.setItem('piece1','true');
-        localStorage.setItem('piece5','true');
-        localStorage.setItem('qrquest_piece1','true');
-        localStorage.setItem('qrquest_piece5','true');
-        localStorage.setItem('seeded_1_5','true');
-      }
-    }catch(e){}
-
+    // 受付スタート必須
     const started = (localStorage.getItem('started') === 'true');
     if (!started) {
       location.replace('need_start.html');
@@ -170,18 +152,18 @@ window.addEventListener('DOMContentLoaded', () => {
       note.textContent = '応募フォームに進み、メールアドレスを登録してください。';
       document.body.appendChild(note);
     }
-});
-</script>
+  </script>
+
 </head>
 <body>
 
   <h1 id="title">🧭 みつけた お宝ピース！</h1>
-  <p class="sub" id="sub">0 / 9</p>
+  <p class="sub" id="sub">0 / 0</p>
 
   <div class="grid" id="grid" aria-label="puzzle grid"></div>
 
   <div class="row">
-    <button class="btn btn-sub" id="backBtn" type="button">⬅ メニューに戻る</button>
+    <button class="btn btn-sub" id="backBtn" onclick="location.href=\'start.html\'" onclick="location.href=\'start.html\'">⬅ メニューに戻る</button>
     <button class="btn" onclick="location.href='scanner/qr-scanner.html'">📷 スキャンへ戻る</button>
   </div>
 
@@ -272,18 +254,6 @@ window.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(rewardBtn);
     }
   </script>
-
-
-<script>
-(function(){
-  const backBtn = document.getElementById('backBtn');
-  if(backBtn){
-    backBtn.addEventListener('click', function(){
-      location.href = 'start.html';
-    });
-  }
-})();
-</script>
 
 </body>
 </html>
