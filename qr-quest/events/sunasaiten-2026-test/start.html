@@ -110,6 +110,15 @@
       btnGroup.appendChild(btn);
       rewardArea.textContent = '各エリア（市役所・本町・麓）で最低1つずつ見つけました！';
     } else {
+
+  // --- seed migration: 1&5 -> 1&9 ---
+  if (localStorage.getItem('seeded_1_5') === 'true' && localStorage.getItem('seeded_1_9') !== 'true') {
+    try{
+      localStorage.removeItem('q_piece5'); localStorage.removeItem('piece5'); localStorage.removeItem('qrquest_piece5');
+      localStorage.setItem('q_piece9','true'); localStorage.setItem('piece9','true'); localStorage.setItem('qrquest_piece9','true');
+      localStorage.setItem('seeded_1_9','true');
+    }catch(e){}
+  }
       rewardArea.textContent = '各エリアでポイントを最低1つずつ見つけると、参加賞ボタンが出ます。';
     }
   </script>
