@@ -93,7 +93,8 @@
   </style>
 
   <script>
-    // 受付スタート必須
+window.addEventListener('DOMContentLoaded', () => {
+// 受付スタート必須
     // 初期2枚（1番・5番）を必ずセット（受付スタート後の保険）
     // - すでにセット済みなら何もしない
     // - 1回だけ実行するため seeded_1_5 を使う
@@ -169,8 +170,8 @@
       note.textContent = '応募フォームに進み、メールアドレスを登録してください。';
       document.body.appendChild(note);
     }
-  </script>
-
+});
+</script>
 </head>
 <body>
 
