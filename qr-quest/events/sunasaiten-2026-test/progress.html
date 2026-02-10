@@ -94,6 +94,23 @@
 
   <script>
     // 受付スタート必須
+    // 初期2枚（1番・5番）を必ずセット（受付スタート後の保険）
+    // - すでにセット済みなら何もしない
+    // - 1回だけ実行するため seeded_1_5 を使う
+    try{
+      const started = (localStorage.getItem('started') === 'true');
+      const seeded = (localStorage.getItem('seeded_1_5') === 'true');
+      if(started && !seeded){
+        localStorage.setItem('q_piece1','true');
+        localStorage.setItem('q_piece5','true');
+        localStorage.setItem('piece1','true');
+        localStorage.setItem('piece5','true');
+        localStorage.setItem('qrquest_piece1','true');
+        localStorage.setItem('qrquest_piece5','true');
+        localStorage.setItem('seeded_1_5','true');
+      }
+    }catch(e){}
+
     const started = (localStorage.getItem('started') === 'true');
     if (!started) {
       location.replace('need_start.html');
