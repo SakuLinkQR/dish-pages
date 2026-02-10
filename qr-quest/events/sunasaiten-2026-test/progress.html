@@ -100,24 +100,6 @@
       throw new Error('not started');
     }
 
-    // 初期ピース（1と5）を確実にセット（受付スタート後に反映されないケース対策）
-    try {
-      const started = (localStorage.getItem('started') === 'true');
-      const has1 = (localStorage.getItem('q_piece1') === 'true' || localStorage.getItem('piece1') === 'true' || localStorage.getItem('qrquest_piece1') === 'true');
-      const has5 = (localStorage.getItem('q_piece5') === 'true' || localStorage.getItem('piece5') === 'true' || localStorage.getItem('qrquest_piece5') === 'true');
-      const seeded = (localStorage.getItem('seeded_1_5') === 'true');
-      if (started && !seeded && (!has1 || !has5)) {
-        localStorage.setItem('q_piece1','true');
-        localStorage.setItem('q_piece5','true');
-        localStorage.setItem('piece1','true');
-        localStorage.setItem('piece5','true');
-        localStorage.setItem('qrquest_piece1','true');
-        localStorage.setItem('qrquest_piece5','true');
-        localStorage.setItem('seeded_1_5','true');
-      }
-    } catch(e) {}
-
-
     // 9分割（q_piece1..9）
     const total = 9;
     const cols = 3;
@@ -176,12 +158,12 @@
 <body>
 
   <h1 id="title">🧭 みつけた お宝ピース！</h1>
-  <p class="sub" id="sub">0 / 0</p>
+  <p class="sub" id="sub">0 / 9</p>
 
   <div class="grid" id="grid" aria-label="puzzle grid"></div>
 
   <div class="row">
-    <button class="btn btn-sub" id="backBtn" onclick="location.href=\'start.html\'" onclick="location.href=\'start.html\'">⬅ メニューに戻る</button>
+    <button class="btn btn-sub" id="backBtn" type="button">⬅ メニューに戻る</button>
     <button class="btn" onclick="location.href='scanner/qr-scanner.html'">📷 スキャンへ戻る</button>
   </div>
 
@@ -272,6 +254,18 @@
       document.body.appendChild(rewardBtn);
     }
   </script>
+
+
+<script>
+(function(){
+  const backBtn = document.getElementById('backBtn');
+  if(backBtn){
+    backBtn.addEventListener('click', function(){
+      location.href = 'start.html';
+    });
+  }
+})();
+</script>
 
 </body>
 </html>
