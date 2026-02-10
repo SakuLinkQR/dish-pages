@@ -102,6 +102,10 @@
     let hasRedirected = false;
     let isScanning = false;
 
+    const params = new URLSearchParams(location.search);
+    const returnTarget = params.get('return') || '../start.html';
+    const mode = params.get('mode') || 'normal';
+
     function setButtonsEnabled(on){
       btnRescan.disabled = !on;
       btnExit.disabled = !on;
@@ -168,7 +172,19 @@
       }catch(e){}
 
       // Return to start (it will interpret scan_text)
-      location.href = "../start.html";
+            // rewardモードなら、参加賞用QRだけを受け付ける
+      if(mode === 'reward'){
+        const ok = (decodedText && (decodedText.includes('reward') || decodedText.includes('REWARD')));
+        if(!ok){
+          alert('参加賞ゲット用QRではありません。係員のQRを読み込んでください。');
+          hasRedirected = false;
+          setTimeout(()=>rescan(), 100);
+          return;
+        }
+        try{ localStorage.setItem('reward_scan_text', decodedText); }catch(e){}
+      }
+
+      location.href = returnTarget;
     }
 
     async function rescan() {
@@ -184,7 +200,19 @@
     async function exitToMenu() {
       statusText.innerText = "メニューへ戻ります…";
       await stopScanner();
-      location.href = "../start.html";
+            // rewardモードなら、参加賞用QRだけを受け付ける
+      if(mode === 'reward'){
+        const ok = (decodedText && (decodedText.includes('reward') || decodedText.includes('REWARD')));
+        if(!ok){
+          alert('参加賞ゲット用QRではありません。係員のQRを読み込んでください。');
+          hasRedirected = false;
+          setTimeout(()=>rescan(), 100);
+          return;
+        }
+        try{ localStorage.setItem('reward_scan_text', decodedText); }catch(e){}
+      }
+
+      location.href = returnTarget;
     }
 
     window.addEventListener("load", startScanner);

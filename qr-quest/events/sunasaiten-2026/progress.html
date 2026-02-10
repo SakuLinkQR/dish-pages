@@ -124,6 +124,7 @@
 
   <div class="row">
     <button class="btn btn-sub" id="backBtn">🏠 メニューに戻る</button>
+    <div id="rewardZone" style="margin:14px auto 0;max-width:560px;"></div>
   </div>
 
   <script>
@@ -135,10 +136,10 @@
     }
 
     // ✅ 初期ピース（1番と5番）を保険として必ずセット（まだ無い場合のみ）
-    const seedKey = 'seeded_1_5';
+    const seedKey = 'seeded_1_9';
     if(localStorage.getItem(seedKey) !== 'true') {
       if(localStorage.getItem('q_piece1') !== 'true') localStorage.setItem('q_piece1','true');
-      if(localStorage.getItem('q_piece5') !== 'true') localStorage.setItem('q_piece5','true');
+      if(localStorage.getItem('q_piece9') !== 'true') localStorage.setItem('q_piece9','true');
       localStorage.setItem(seedKey,'true');
     }
 

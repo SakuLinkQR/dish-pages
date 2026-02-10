@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>参加賞の受け取り</title>
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#fffaf2;margin:0;padding:24px;text-align:center;color:#3b2f1a}
+    .card{max-width:620px;margin:0 auto;background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:18px;box-shadow:0 10px 22px rgba(0,0,0,.08)}
+    h1{margin:0 0 10px;font-size:1.25rem}
+    p{margin:10px 0;line-height:1.7}
+    .btn{display:block;width:100%;max-width:320px;margin:12px auto 0;padding:12px 14px;border:none;border-radius:12px;background:#4fa3ff;color:#fff;font-weight:900;font-size:1rem;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎁 参加賞の受け取り</h1>
+    <p id="msg">確認中…</p>
+    <button class="btn" onclick="location.href='start.html'">🏠 ホームへ帰る</button>
+  </div>
+
+<script>
+(function(){
+  const msg = document.getElementById('msg');
+
+  if(localStorage.getItem('started') !== 'true'){
+    location.replace('need_start.html'); return;
+  }
+
+  // scannerが保存したテキスト
+  const t =
+    localStorage.getItem('reward_scan_text') ||
+    localStorage.getItem('scan_text') ||
+    localStorage.getItem('last_scan_text') ||
+    '';
+
+  // 参加賞用QRかどうか（reward を含む想定）
+  const ok = (t && (t.includes('reward') || t.includes('REWARD')));
+
+  if(!ok){
+    msg.textContent = '参加賞ゲット用QRが読み取れていません。もう一度お試しください。';
+    return;
+  }
+
+  // 確定（二重交付防止）
+  localStorage.setItem('reward_claimed','true');
+  localStorage.setItem('reward_claimed_at', String(Date.now()));
+  msg.textContent = '✅ 参加賞ゲット済みにしました！係員に確認してもらってください。';
+})();
+</script>
+</body>
+</html>
