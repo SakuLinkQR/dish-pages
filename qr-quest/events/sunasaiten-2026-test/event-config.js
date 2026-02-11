@@ -61,6 +61,8 @@ window.QRQUEST_EVENT = {
     "area_fumoto",
     "reward_claimed",
     "reward_claimed_at",
+    "final_quiz_passed",
+    "final_quiz_passed_at",
     "setup_done",
     "visitedIntro_qrquest",
     "test_mode"

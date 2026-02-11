@@ -3,7 +3,9 @@
 window.QRQUEST_EVENT = {
   id: "SUNASAITEN_2026",
   prefix: "sun26__",
-  name: "砂の祭典 2026"
+  name: "砂の祭典 2026",
+  // 抽選会応募フォーム（Googleフォーム等）URL：ここを後で差し替え
+  formUrl: ""
 };
 
 // localStorageのキーをイベント別に分ける（別イベントと進捗が混ざらないように）
@@ -61,6 +63,8 @@ window.QRQUEST_EVENT = {
     "area_fumoto",
     "reward_claimed",
     "reward_claimed_at",
+    "final_quiz_passed",
+    "final_quiz_passed_at",
     "setup_done",
     "visitedIntro_qrquest",
     "test_mode"
