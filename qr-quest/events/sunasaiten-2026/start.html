@@ -78,7 +78,7 @@
   <div class="sub">（写真 9分割）</div>
 
   <div class="button-group" id="btnGroup">
-    <button onclick="location.href='scanner/qr-scanner.html?return=start.html'">SCAN</button>
+    <button onclick="location.href='scanner/qr-scanner.html?return=../start.html'">SCAN</button>
     <button onclick="location.href='progress.html'">写真確認</button>
     <button onclick="location.href='index.html'">ホーム画面に戻る</button>
   </div>
@@ -102,7 +102,67 @@
     const claimed = (localStorage.getItem('reward_claimed') === 'true');
 
     if (claimed) {
-      rewardArea.textContent = '✅ 参加賞ゲット済み';
+      
+    // --- SCAN結果の反映（ポイントQR→ピース/エリア） ---
+    (function(){
+      const raw = (localStorage.getItem('scan_text') || localStorage.getItem('last_scan_text') || '').trim();
+      if(!raw) return;
+
+      // 参加賞QR（reward）はここでは扱わない（reward_get.htmlで確定）
+      if(raw.includes('reward') || raw.includes('REWARD')) return;
+
+      // URLでもテキストでも拾えるように、とにかく小文字で判定
+      const s = raw.toLowerCase();
+
+      // ポイントIDを推定（含まれていればOK）
+      function pick(){
+        if(s.includes('shiyakusho') || s.includes('cityhall') || s.includes('市役所')) return 'shiyakusho';
+        if(s.includes('honmachi1') || s.includes('honmachi-1') || s.includes('honmachi_1') || s.includes('本町1')) return 'honmachi1';
+        if(s.includes('honmachi2') || s.includes('honmachi-2') || s.includes('honmachi_2') || s.includes('本町2')) return 'honmachi2';
+        if(s.includes('fumoto1') || s.includes('fumoto-1') || s.includes('fumoto_1') || s.includes('麓1')) return 'fumoto1';
+        if(s.includes('fumoto2') || s.includes('fumoto-2') || s.includes('fumoto_2') || s.includes('麓2')) return 'fumoto2';
+        if(s.includes('fumoto3') || s.includes('fumoto-3') || s.includes('fumoto_3') || s.includes('麓3')) return 'fumoto3';
+        if(s.includes('fumoto4') || s.includes('fumoto-4') || s.includes('fumoto_4') || s.includes('麓4')) return 'fumoto4';
+        return '';
+      }
+
+      const pid = pick();
+      if(!pid){
+        // 想定外は無視（誤爆防止）
+        try{ localStorage.removeItem('scan_text'); }catch(e){}
+        return;
+      }
+
+      // ✅ ピース割当（初期：1&9 / 7ポイント：2-8）
+      const map = {
+        shiyakusho: 2,
+        honmachi1: 3,
+        honmachi2: 4,
+        fumoto4: 5,   // ★中央をラストにしたい
+        fumoto1: 6,
+        fumoto2: 7,
+        fumoto3: 8
+      };
+
+      const piece = map[pid];
+      if(piece){
+        try{
+          localStorage.setItem('q_piece' + piece, 'true');
+        }catch(e){}
+      }
+
+      // エリア達成フラグ（参加賞判定用）
+      try{
+        if(pid === 'shiyakusho') localStorage.setItem('area_shiyakusho','true');
+        if(pid.startsWith('honmachi')) localStorage.setItem('area_honmachi','true');
+        if(pid.startsWith('fumoto')) localStorage.setItem('area_fumoto','true');
+      }catch(e){}
+
+      // 使い終わったら消す（同じ結果を二重反映しない）
+      try{ localStorage.removeItem('scan_text'); }catch(e){}
+    })();
+
+    rewardArea.textContent = '✅ 参加賞ゲット済み';
     } else if (eligible) {
       const btn = document.createElement('button');
       btn.textContent = '🎁 参加賞ゲット！';
