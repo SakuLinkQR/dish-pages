@@ -1,3 +1,13 @@
+// QRQUEST_CANONICAL_HOST
+(function(){
+  try{
+    var canonical = "www.sakulink.com";
+    if(location.hostname === "sakulink.com"){
+      location.replace(location.protocol + "//" + canonical + location.pathname + location.search + location.hash);
+    }
+  }catch(e){}
+})();
+
 // events/sunasaiten-2026/event-config.js
 // このイベント固有の設定（イベントごとにここだけ変更すればOK）
 window.QRQUEST_EVENT = {
