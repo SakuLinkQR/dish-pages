@@ -5,7 +5,13 @@ window.QRQUEST_EVENT = {
   prefix: "sun26__",
   name: "砂の祭典 2026",
   // 抽選会応募フォーム（Googleフォーム等）URL：ここを後で差し替え
-  formUrl: ""
+  formUrl: "",
+  // 9/9完成後の最終クイズ（後で差し替え可能）
+  finalQuiz: {
+    question: "最終クイズじゃ！　『砂の祭典』が開催される市はどこ？",
+    choices: ["南さつま市","鹿児島市","指宿市"],
+    answerIndex: 0
+  }
 };
 
 // localStorageのキーをイベント別に分ける（別イベントと進捗が混ざらないように）

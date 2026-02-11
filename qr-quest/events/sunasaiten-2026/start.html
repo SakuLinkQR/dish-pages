@@ -83,7 +83,6 @@
     <button onclick="location.href='index.html'">ホーム画面に戻る</button>
   </div>
 
-  <div id="rewardArea" class="rewardLine"></div>
 
   <script>
     // 受付スタート必須
@@ -121,7 +120,6 @@
       try{ localStorage.removeItem('scan_text'); }catch(e){}
     })();
 
-    const rewardArea = document.getElementById('rewardArea');
     const btnGroup = document.getElementById('btnGroup');
 
     const eligible =
@@ -129,16 +127,12 @@
       localStorage.getItem('area_honmachi') === 'true' &&
       localStorage.getItem('area_fumoto') === 'true';
 
-    const claimed = (localStorage.getItem('reward_claimed') === 'true');
 
     if (claimed) {
-    rewardArea.textContent = '✅ 参加賞ゲット済み';
     } else if (eligible) {
       const btn = document.createElement('button');
-      btn.textContent = '🎁 参加賞ゲット！';
       btn.onclick = () => location.href = 'reward_intro.html';
       btnGroup.appendChild(btn);
-      rewardArea.textContent = '各エリア（市役所・本町・麓）で最低1つずつ見つけました！';
     } else {
 
   // --- seed migration: 1&5 -> 1&9 ---
@@ -149,7 +143,6 @@
       localStorage.setItem('seeded_1_9','true');
     }catch(e){}
   }
-      rewardArea.textContent = '各エリアでポイントを最低1つずつ見つけると、参加賞ボタンが出ます。';
     }
   </script>
 

@@ -126,6 +126,9 @@
     <button class="btn btn-sub" id="backBtn">🏠 メニューに戻る</button>
 </div>
 
+  <div id="rewardWrap" style="max-width:560px;margin:16px auto 0;"></div>
+  <div id="quizWrap" style="max-width:560px;margin:12px auto 0;"></div>
+
   <script>
   (function(){
     const started = (localStorage.getItem('started') === 'true');
@@ -187,37 +190,88 @@
       }
 
       if(subEl) subEl.textContent = found + ' / ' + total;
+// --- 参加賞ボタン（3エリア達成で表示：画像の下） ---
+const rewardWrap = document.getElementById('rewardWrap');
+const quizWrap = document.getElementById('quizWrap');
+const eligible =
+  localStorage.getItem('area_shiyakusho') === 'true' &&
+  localStorage.getItem('area_honmachi') === 'true' &&
+  localStorage.getItem('area_fumoto') === 'true';
+
+const claimed = (localStorage.getItem('reward_claimed') === 'true');
+
+if (rewardWrap) {
+  rewardWrap.innerHTML = '';
+  if (claimed) {
+    rewardWrap.innerHTML = '<div style="background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:14px;">✅ 参加賞ゲット済み</div>';
+  } else if (eligible) {
+    rewardWrap.innerHTML = `
+      <div style="background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:14px;">
+        <div style="font-weight:900;margin-bottom:10px;">各エリア（市役所・本町・麓）で最低1つずつ見つけました！</div>
+        <button id="rewardBtn" style="display:block;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#4fa3ff;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
+          🎁 参加賞ゲット！
+        </button>
+      </div>`;
+    const rb = document.getElementById('rewardBtn');
+    if (rb) rb.addEventListener('click', ()=> location.href = 'reward_intro.html');
+  }
+}
+
+// --- 最終クイズ（9/9完成で表示） ---
+const isComplete = (found >= 9);
+
+if (quizWrap) {
+  quizWrap.innerHTML = '';
+  if (isComplete) {
+    const ev = (window.QRQUEST_EVENT || {});
+    const quiz = ev.finalQuiz || {
+      question: '最終クイズじゃ！　「砂の祭典」が開催される市はどこ？',
+      choices: ['南さつま市', '鹿児島市', '指宿市'],
+      answerIndex: 0
+    };
+    quizWrap.innerHTML = `
+      <div style="background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:14px;text-align:left;">
+        <div style="font-weight:900;margin-bottom:8px;">🧠 最終クイズじゃ！</div>
+        <div style="margin-bottom:10px;line-height:1.6;">${quiz.question}</div>
+        <div id="quizChoices" style="display:grid;gap:8px;"></div>
+        <div id="quizMsg" style="margin-top:10px;font-weight:900;"></div>
+        <button id="formBtn" style="display:none;margin-top:12px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#38b000;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
+          📩 抽選会へ応募（メール登録）
+        </button>
+      </div>`;
+    const cc = document.getElementById('quizChoices');
+    const msg = document.getElementById('quizMsg');
+    const formBtn = document.getElementById('formBtn');
+    if (cc) {
+      quiz.choices.forEach((label, idx) => {
+        const b = document.createElement('button');
+        b.textContent = label;
+        b.style.cssText = 'width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:12px;background:#fff;font-weight:800;cursor:pointer;';
+        b.addEventListener('click', () => {
+          if (idx === quiz.answerIndex) {
+            msg.textContent = '✅ 正解じゃ！応募フォームへ進めるぞ。';
+            msg.style.color = '#0a7a0a';
+            localStorage.setItem('final_quiz_passed','true');
+            if (formBtn) formBtn.style.display = 'block';
+          } else {
+            msg.textContent = '❌ ちがうのう。もう一度じゃ！';
+            msg.style.color = '#b00020';
+          }
+        });
+        cc.appendChild(b);
+      });
+    }
+    if (formBtn) {
+      const url = (ev.formUrl || '').trim();
+      formBtn.addEventListener('click', () => {
+        if (!url) { alert('応募フォームURLがまだ設定されていません（event-config.js の formUrl）。'); return; }
+        location.href = url;
+      });
+      // if already passed, show button immediately
+      if (localStorage.getItem('final_quiz_passed') === 'true') formBtn.style.display = 'block';
+    }
+  }
+}
     });
   })();
   </script>
-
-
-<script>
-(function(){
-  function getBool(key){
-    try { return localStorage.getItem(key) === 'true'; } catch(e){ return false; }
-  }
-  function setSrcIfFound(n){
-    var img = document.getElementById('piece'+n);
-    if(!img) return;
-    var found = getBool('q_piece'+n);
-    img.src = found ? ('./images/challenge/piece'+n+'.png') : ('./images/challenge/blank.png');
-  }
-  function updatePiecesGrid(){
-    for(var i=1;i<=9;i++) setSrcIfFound(i);
-    // counter
-    var found = 0;
-    for(var i=1;i<=9;i++) if(getBool('q_piece'+i)) found++;
-    var counter = document.getElementById('countText');
-    if(counter) counter.textContent = found + '/9';
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', updatePiecesGrid);
-  }else{
-    updatePiecesGrid();
-  }
-})();
-</script>
-
-</body>
-</html>
