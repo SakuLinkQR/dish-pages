@@ -114,10 +114,12 @@
   }
 
   async function exitToMenu() {
-    statusText.innerText = "戻ります…";
-    await stopScanner();
-    location.href = returnTarget;
-  }
+      statusText.innerText = "メニューへ戻ります…";
+      setButtonsEnabled(false);
+      await stopScanner();
+      await new Promise(r=>setTimeout(r,150));
+      location.href = "../start.html";
+    }
 
   btnRescan.addEventListener('click', rescan);
   btnExit.addEventListener('click', exitToMenu);
