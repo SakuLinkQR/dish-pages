@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>スタート確認</title>
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#fffaf2;margin:0;padding:24px;text-align:center;color:#3b2f1a}
+    .card{max-width:620px;margin:0 auto;background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:18px;box-shadow:0 10px 22px rgba(0,0,0,.08)}
+    h1{margin:0 0 10px;font-size:1.25rem}
+    p{margin:10px 0;line-height:1.7}
+    .btn{display:block;width:100%;max-width:340px;margin:12px auto 0;padding:12px 14px;border:none;border-radius:12px;background:#4fa3ff;color:#fff;font-weight:900;font-size:1rem;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>✅ スタートQRを確認しました</h1>
+    <p id="msg">開始処理中…</p>
+    <button class="btn" onclick="location.href='start.html'">クエストへ進む</button>
+  </div>
+
+<script>
+(function(){
+  const msg = document.getElementById('msg');
+  const t =
+    localStorage.getItem('start_scan_text') ||
+    localStorage.getItem('scan_text') ||
+    localStorage.getItem('last_scan_text') || '';
+  if(!t){
+    msg.textContent = 'スタートQRが読み取れていません。もう一度お試しください。';
+    return;
+  }
+
+  // スタート判定（最低限）
+  const ok = (t.includes('start') || t.includes('START') || t.includes('shiyakusho') || t.includes('honmachi') || t.includes('fumoto'));
+  if(!ok){
+    msg.textContent = 'スタートQRではない可能性があります。受付で配布されたQRを読み込んでください。';
+    return;
+  }
+
+  localStorage.setItem('started','true');
+  localStorage.setItem('started_at', String(Date.now()));
+
+  // 初期ピース（1＆9）
+  localStorage.setItem('q_piece1','true');
+  localStorage.setItem('q_piece9','true');
+
+  msg.textContent = '開始済みとして記録しました。クエストへ進めます。';
+})();
+</script>
+</body>
+</html>

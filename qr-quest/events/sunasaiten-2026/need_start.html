@@ -24,5 +24,26 @@
     <button class="btn" onclick="location.href='index.html'">ホームに戻る</button>
     <button class="btn secondary" onclick="location.href='scanner/qr-scanner.html?return=index.html'">スキャナーを開く</button>
   </div>
+
+<div style="max-width:720px;margin:14px auto 0;background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:14px 16px;box-shadow:0 10px 22px rgba(0,0,0,.06);text-align:left;">
+  <div style="font-weight:900;margin-bottom:8px;">⚠️ 受付スタートQRが必要です</div>
+  <div style="line-height:1.7;">
+    QRクエストは、<b>受付で配布される「スタートQR」</b>を読み込むと開始できます。<br>
+    なお、iPhoneの「ホーム画面アイコン」から起動した場合、Safariで試した履歴があっても<b>初回だけ</b>スタートQRの再読み込みが必要なことがあります（iOSの動作仕様によるものです）。<br>
+    下のボタンからスタートQRを読み込んでください。
+  </div>
+</div>
+
+<div style="max-width:720px;margin:12px auto 0;">
+  <button id="btnStartScan" style="display:block;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#4fa3ff;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
+    📷 スタートQRを読み込む
+  </button>
+</div>
+
+<script>
+document.getElementById('btnStartScan')?.addEventListener('click', ()=>{
+  location.href = 'scanner/qr-scanner.html?mode=startkey&return=../start_after_key.html';
+});
+</script>
 </body>
 </html>
