@@ -27,20 +27,22 @@
   // 受付スタート処理：2ピースを自動でオープン
   localStorage.setItem('started','true');
   localStorage.setItem('start_area','honmachi');
+  // 初期ピース：1番と9番
   localStorage.setItem('q_piece1','true');
-  localStorage.setItem('q_piece5','true');
-  localStorage.setItem('seeded_1_5','true');
+  localStorage.setItem('q_piece9','true');
+  localStorage.setItem('seeded_1_9','true');
 
 
       
   // 旧版の互換（1&9で保存されていた場合の掃除）
-  try{ localStorage.removeItem('q_piece9'); localStorage.removeItem('piece9'); localStorage.removeItem('qrquest_piece9'); }catch(e){}
+  // 旧互換の掃除（1&5が残っていたら消す）
+  try{ localStorage.removeItem('q_piece5'); localStorage.removeItem('piece5'); localStorage.removeItem('qrquest_piece5'); }catch(e){}
 // 互換キー（万一、別ページが違うキーを見ていても2枚が出るように）
       try {
         localStorage.setItem('piece1','true');
-        localStorage.setItem('piece5','true');
+        localStorage.setItem('piece9','true');
         localStorage.setItem('qrquest_piece1','true');
-        localStorage.setItem('qrquest_piece5','true');
+        localStorage.setItem('qrquest_piece9','true');
       } catch(e){}
 </script>
 </body>

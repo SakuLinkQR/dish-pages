@@ -39,10 +39,10 @@
   localStorage.setItem('started','true');
   localStorage.setItem('started_at', String(Date.now()));
 
-  // ✅ 初期ピース（1＆5）
+  // ✅ 初期ピース（1＆9）
   localStorage.setItem('q_piece1','true');
-  localStorage.setItem('q_piece5','true');
-  localStorage.setItem('seeded_1_5','true');
+  localStorage.setItem('q_piece9','true');
+  localStorage.setItem('seeded_1_9','true');
 
   // ✅ startQRの読み取り文字列は「地点判定」に使わないので掃除しておく
   try{ localStorage.removeItem('scan_text'); }catch(e){}
