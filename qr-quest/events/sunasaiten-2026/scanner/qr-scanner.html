@@ -50,6 +50,8 @@
   const backTarget = backParam || returnTarget;
 
   const html5QrCode = new Html5Qrcode("preview");
+  // stopScannerSafely() 用に公開
+  window.__html5QrCodeInstance = html5QrCode;
   const statusText = document.getElementById("status");
   const resultContainer = document.getElementById("result");
   const btnRescan = document.getElementById("btnRescan");
@@ -93,12 +95,32 @@
   function onScanFailure(_error) {}
 
   async function onScanSuccess(decodedText, _decodedResult) {
-        // STARTKEY_ONLY: 受付スタートQRを読んだ場合は、開始フラグだけ保存して終了（ピース解放はしない）
+        // STARTKEY_ONLY: 受付スタートQRは「文字列を保存 → 受付判定ページへ遷移」だけ行う（ここでは started を立てない）
         if (typeof isStartKeyMode !== 'undefined' && isStartKeyMode) {
+          const t = (decodedText || '').trim();
+          const tl = t.toLowerCase();
+          const looksLikeStart =
+            tl.includes('start') ||
+            tl.includes('shiyakusho') || tl.includes('cityhall') || tl.includes('市役所') ||
+            tl.includes('honmachi')   || tl.includes('本町') ||
+            tl.includes('fumoto')     || tl.includes('麓');
+
+          if(!looksLikeStart){
+            alert('これはスタートQRではないようです。受付で配布されたスタートQRを読み込んでください。');
+            // もう一度スキャンできるように戻す
+            hasRedirected = false;
+            setTimeout(()=>rescan(), 120);
+            return;
+          }
+
           try {
-            localStorage.setItem('started','true');
-            localStorage.setItem('started_at', String(Date.now()));
+            // start_after_key.html で判定に使う
+            localStorage.setItem('start_scan_text', t);
+            // 既存ロジックとの互換（念のため）
+            localStorage.setItem('scan_text', t);
+            localStorage.setItem('last_scan_text', t);
           } catch(e) {}
+
           Promise.race([stopScannerSafely(), new Promise(r=>setTimeout(r,600))]).finally(() => {
             setTimeout(()=>{ window.location.replace(returnTarget); }, 120);
           });
@@ -154,6 +176,19 @@
   btnExit.addEventListener('click', exitToMenu);
 
   window.addEventListener("load", startScanner);
+  // iOS(PWA) でホームアイコン起動・復帰時に bfcache で状態が残り、遷移しない事があるため再初期化
+  window.addEventListener("pageshow", (ev)=>{
+    if(ev && ev.persisted){
+      hasRedirected = false; lastText = ""; lastAt = 0;
+      setTimeout(()=>rescan(), 120);
+    }
+  });
+  window.addEventListener("visibilitychange", ()=>{
+    if(document.visibilityState === "visible" && !isScanning){
+      // バックグラウンド復帰でカメラ停止していた場合
+      setTimeout(()=>startScanner(), 120);
+    }
+  });
   window.addEventListener("pagehide", stopScanner);
   window.addEventListener("beforeunload", stopScanner);
 </script>
