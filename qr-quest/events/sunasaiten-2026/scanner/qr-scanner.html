@@ -14,7 +14,19 @@
     .btn:disabled { opacity:.5; cursor:not-allowed; }
     .btn-exit { background:#6c757d; }
   </style>
-  <script src="./lib/html5-qrcode.min.js"></script>
+  <script src="./lib/html5-qrcode.min.js">
+    function stopScannerSafely(){
+      try{
+        if (window.__html5QrCodeInstance && window.__html5QrCodeInstance.isScanning) {
+          return window.__html5QrCodeInstance.stop().catch(()=>{});
+        }
+        if (window.html5QrCode && window.html5QrCode.isScanning) {
+          return window.html5QrCode.stop().catch(()=>{});
+        }
+      }catch(e){}
+      return Promise.resolve();
+    }
+</script>
 </head>
 <body>
   <h1>QRクエスト - スキャナー</h1>
@@ -30,6 +42,8 @@
   const params = new URLSearchParams(location.search);
   // returnは "start.html" のように渡されるので、同階層へ戻す
   const mode = params.get('mode') || 'normal';
+    // startkey モードでは「開始済み」をセットするだけで、ポイント（ピース）の解放は行いません。
+    const isStartKeyMode = (mode === 'startkey');
   const returnParam = params.get('return');
   const returnTargetDefault = (mode === 'reward') ? '../reward_get.html' : '../start.html';
   const returnTarget = returnParam || returnTargetDefault;
@@ -78,6 +92,18 @@
   function onScanFailure(_error) {}
 
   async function onScanSuccess(decodedText, _decodedResult) {
+        // STARTKEY_ONLY: 受付スタートQRを読んだ場合は、開始フラグだけ保存して終了
+        if (typeof isStartKeyMode !== 'undefined' && isStartKeyMode) {
+          try {
+            localStorage.setItem('started','true');
+            localStorage.setItem('started_at', String(Date.now()));
+          } catch(e) {}
+          stopScannerSafely().finally(() => {
+            setTimeout(()=>{ window.location.replace(returnTarget.replace(/^\.\//,'')); }, 150);
+          });
+          return;
+        }
+
     const now = Date.now();
     if (decodedText === lastText && (now - lastAt) < 1200) return;
     lastText = decodedText;
