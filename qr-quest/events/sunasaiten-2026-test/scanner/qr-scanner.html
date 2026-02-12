@@ -45,8 +45,10 @@
     // startkey モードでは「開始済み」をセットするだけで、ポイント（ピース）の解放は行いません。
     const isStartKeyMode = (mode === 'startkey');
   const returnParam = params.get('return');
+  const backParam = params.get('back');
   const returnTargetDefault = (mode === 'reward') ? '../reward_get.html' : '../start.html';
   const returnTarget = returnParam || returnTargetDefault;
+  const backTarget = backParam || returnTarget;
 
   const html5QrCode = new Html5Qrcode("preview");
   const statusText = document.getElementById("status");
@@ -98,8 +100,8 @@
             localStorage.setItem('started','true');
             localStorage.setItem('started_at', String(Date.now()));
           } catch(e) {}
-          stopScannerSafely().finally(() => {
-            setTimeout(()=>{ window.location.replace(returnTarget); }, 150);
+          Promise.race([stopScannerSafely(), new Promise(r=>setTimeout(r,600))]).finally(() => {
+            setTimeout(()=>{ window.location.replace(returnTarget); }, 120);
           });
           return;
         }
@@ -124,7 +126,7 @@
       try{ localStorage.setItem('reward_scan_text', decodedText); }catch(e){}
     }
 
-    await stopScanner();
+    await Promise.race([stopScanner(), new Promise(r=>setTimeout(r,600))]);
     try{
       localStorage.setItem("scan_text", decodedText);
       localStorage.setItem("last_scan_text", decodedText);
@@ -134,7 +136,7 @@
 
   async function rescan() {
     statusText.innerText = "再スキャン準備中…";
-    await stopScanner();
+    await Promise.race([stopScanner(), new Promise(r=>setTimeout(r,600))]);
     hasRedirected = false;
     lastText = "";
     lastAt = 0;
@@ -144,9 +146,9 @@
   async function exitToMenu() {
       statusText.innerText = "メニューへ戻ります…";
       setButtonsEnabled(false);
-      await stopScanner();
-      await new Promise(r=>setTimeout(r,150));
-      location.href = "../start.html";
+      await Promise.race([stopScanner(), new Promise(r=>setTimeout(r,600))]);
+      await new Promise(r=>setTimeout(r,120));
+      location.href = backTarget;
     }
 
   btnRescan.addEventListener('click', rescan);
