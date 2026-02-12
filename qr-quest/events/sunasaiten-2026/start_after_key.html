@@ -17,7 +17,7 @@
   <div class="card">
     <h1>✅ スタートQRを確認しました</h1>
     <p id="msg">開始処理中…</p>
-    <button class="btn" onclick="location.href='start.html'">クエストへ進む</button>
+    <button class="btn" onclick="location.href='intro.html'">クエストへ進む</button>
   </div>
 
 <script>
@@ -45,7 +45,9 @@
   localStorage.setItem('q_piece9','true');
   localStorage.setItem('seeded_1_9','true');
 
-  // ✅ startQRの読み取り文字列は「地点判定」に使わないので掃除しておく
+  // ✅ startQRを読み直した場合は、オープニングをもう一度見せたいのでフラグをリセット
+  try{ localStorage.removeItem('visitedIntro_qrquest'); }catch(e){}
+// ✅ startQRの読み取り文字列は「地点判定」に使わないので掃除しておく
   try{ localStorage.removeItem('scan_text'); }catch(e){}
   try{ localStorage.removeItem('last_scan_text'); }catch(e){}
   try{ localStorage.removeItem('start_scan_text'); }catch(e){}
