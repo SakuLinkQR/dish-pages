@@ -29,10 +29,10 @@
 <script>
   const params = new URLSearchParams(location.search);
   // returnは "start.html" のように渡されるので、同階層へ戻す
-  const returnParam = params.get('return');
-    const returnTargetDefault = (mode === 'reward') ? '../reward_get.html' : '../start.html';
-    const returnTarget = returnParam || returnTargetDefault;
   const mode = params.get('mode') || 'normal';
+  const returnParam = params.get('return');
+  const returnTargetDefault = (mode === 'reward') ? '../reward_get.html' : '../start.html';
+  const returnTarget = returnParam || returnTargetDefault;
 
   const html5QrCode = new Html5Qrcode("preview");
   const statusText = document.getElementById("status");
