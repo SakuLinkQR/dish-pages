@@ -92,14 +92,14 @@
   function onScanFailure(_error) {}
 
   async function onScanSuccess(decodedText, _decodedResult) {
-        // STARTKEY_ONLY: 受付スタートQRを読んだ場合は、開始フラグだけ保存して終了
+        // STARTKEY_ONLY: 受付スタートQRを読んだ場合は、開始フラグだけ保存して終了（ピース解放はしない）
         if (typeof isStartKeyMode !== 'undefined' && isStartKeyMode) {
           try {
             localStorage.setItem('started','true');
             localStorage.setItem('started_at', String(Date.now()));
           } catch(e) {}
           stopScannerSafely().finally(() => {
-            setTimeout(()=>{ window.location.replace(returnTarget.replace(/^\.\//,'')); }, 150);
+            setTimeout(()=>{ window.location.replace(returnTarget); }, 150);
           });
           return;
         }
