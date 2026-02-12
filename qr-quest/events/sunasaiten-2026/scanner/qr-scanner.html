@@ -14,19 +14,18 @@
     .btn:disabled { opacity:.5; cursor:not-allowed; }
     .btn-exit { background:#6c757d; }
   </style>
-  <script src="./lib/html5-qrcode.min.js">
+  <script src="./lib/html5-qrcode.min.js"></script>
+  <script>
+    // 読み取り完了後、停止処理が詰まっても遷移できるように安全停止ヘルパーを用意
     function stopScannerSafely(){
       try{
         if (window.__html5QrCodeInstance && window.__html5QrCodeInstance.isScanning) {
           return window.__html5QrCodeInstance.stop().catch(()=>{});
         }
-        if (window.html5QrCode && window.html5QrCode.isScanning) {
-          return window.html5QrCode.stop().catch(()=>{});
-        }
       }catch(e){}
       return Promise.resolve();
     }
-</script>
+  </script>
 </head>
 <body>
   <h1>QRクエスト - スキャナー</h1>
@@ -93,7 +92,7 @@
 
   function onScanFailure(_error) {}
 
-  async async function onScanSuccess(decodedText, _decodedResult) {
+  async function onScanSuccess(decodedText, _decodedResult) {
         // STARTKEY_ONLY: 受付スタートQRを読んだ場合は、開始フラグだけ保存して終了（ピース解放はしない）
         if (typeof isStartKeyMode !== 'undefined' && isStartKeyMode) {
           try {
