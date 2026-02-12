@@ -138,10 +138,19 @@
     }
 
     // ✅ 初期ピース（1番と5番）を保険として必ずセット（まだ無い場合のみ）
-    const seedKey = 'seeded_1_9';
+    // 以前の版では「1&9」で保存されている可能性があるため、ここで移行する
+    if(localStorage.getItem('seeded_1_9') === 'true' && localStorage.getItem('seeded_1_5') !== 'true') {
+      try{
+        if(localStorage.getItem('q_piece1') !== 'true') localStorage.setItem('q_piece1','true');
+        if(localStorage.getItem('q_piece5') !== 'true') localStorage.setItem('q_piece5','true');
+        localStorage.removeItem('q_piece9');
+        localStorage.setItem('seeded_1_5','true');
+      }catch(e){}
+    }
+    const seedKey = 'seeded_1_5';
     if(localStorage.getItem(seedKey) !== 'true') {
       if(localStorage.getItem('q_piece1') !== 'true') localStorage.setItem('q_piece1','true');
-      if(localStorage.getItem('q_piece9') !== 'true') localStorage.setItem('q_piece9','true');
+      if(localStorage.getItem('q_piece5') !== 'true') localStorage.setItem('q_piece5','true');
       localStorage.setItem(seedKey,'true');
     }
 

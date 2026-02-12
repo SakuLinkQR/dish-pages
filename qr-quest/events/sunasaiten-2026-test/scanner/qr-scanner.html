@@ -116,9 +116,9 @@
           try {
             // start_after_key.html で判定に使う
             localStorage.setItem('start_scan_text', t);
-            // 既存ロジックとの互換（念のため）
-            localStorage.setItem('scan_text', t);
-            localStorage.setItem('last_scan_text', t);
+            // ✅ startQRは「進行用のscan_text」に入れない
+            // （start.html側の地点QR判定が誤作動して、ピース2などが最初から付与されるのを防ぐ）
+            // 互換が必要なら start_scan_text を参照する
           } catch(e) {}
 
           Promise.race([stopScannerSafely(), new Promise(r=>setTimeout(r,600))]).finally(() => {

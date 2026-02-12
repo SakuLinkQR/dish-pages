@@ -23,10 +23,7 @@
 <script>
 (function(){
   const msg = document.getElementById('msg');
-  const t =
-    localStorage.getItem('start_scan_text') ||
-    localStorage.getItem('scan_text') ||
-    localStorage.getItem('last_scan_text') || '';
+  const t = (localStorage.getItem('start_scan_text') || '').trim();
   if(!t){
     msg.textContent = 'スタートQRが読み取れていません。もう一度お試しください。';
     return;
@@ -42,9 +39,15 @@
   localStorage.setItem('started','true');
   localStorage.setItem('started_at', String(Date.now()));
 
-  // 初期ピース（1＆9）
+  // ✅ 初期ピース（1＆5）
   localStorage.setItem('q_piece1','true');
-  localStorage.setItem('q_piece9','true');
+  localStorage.setItem('q_piece5','true');
+  localStorage.setItem('seeded_1_5','true');
+
+  // ✅ startQRの読み取り文字列は「地点判定」に使わないので掃除しておく
+  try{ localStorage.removeItem('scan_text'); }catch(e){}
+  try{ localStorage.removeItem('last_scan_text'); }catch(e){}
+  try{ localStorage.removeItem('start_scan_text'); }catch(e){}
 
   msg.textContent = '開始済みとして記録しました。クエストへ進めます。';
 })();

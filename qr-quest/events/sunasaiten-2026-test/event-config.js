@@ -61,6 +61,8 @@ window.QRQUEST_EVENT = {
     // QRクエスト（9分割・受付スタート・参加賞）
     "started",
     "start_area",
+    "seeded_1_5",
+    "seeded_1_9",
     "q_piece1",
     "q_piece2",
     "q_piece3",

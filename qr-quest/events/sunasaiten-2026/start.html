@@ -135,12 +135,13 @@
       btnGroup.appendChild(btn);
     } else {
 
-  // --- seed migration: 1&5 -> 1&9 ---
-  if (localStorage.getItem('seeded_1_5') === 'true' && localStorage.getItem('seeded_1_9') !== 'true') {
+  // --- seed migration: 旧版(1&9) -> 正式版(1&5) ---
+  if (localStorage.getItem('seeded_1_9') === 'true' && localStorage.getItem('seeded_1_5') !== 'true') {
     try{
-      localStorage.removeItem('q_piece5'); localStorage.removeItem('piece5'); localStorage.removeItem('qrquest_piece5');
-      localStorage.setItem('q_piece9','true'); localStorage.setItem('piece9','true'); localStorage.setItem('qrquest_piece9','true');
-      localStorage.setItem('seeded_1_9','true');
+      if(localStorage.getItem('q_piece1') !== 'true') localStorage.setItem('q_piece1','true');
+      if(localStorage.getItem('q_piece5') !== 'true') localStorage.setItem('q_piece5','true');
+      localStorage.removeItem('q_piece9');
+      localStorage.setItem('seeded_1_5','true');
     }catch(e){}
   }
     }
