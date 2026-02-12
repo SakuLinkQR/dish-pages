@@ -47,6 +47,8 @@
   localStorage.setItem('reward_claimed','true');
   localStorage.setItem('reward_claimed_at', String(Date.now()));
   msg.textContent = '✅ 参加賞ゲット済みにしました！係員に確認してもらってください。';
+    setTimeout(()=>{ location.replace('reward_ok.html'); }, 250);
+
 })();
 </script>
 </body>
