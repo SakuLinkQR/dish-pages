@@ -11,7 +11,7 @@ const COLORS = [
 const MODE = "honeybee";      // honeybee(3分) / hornet(5分) を後で増やせる
 const MODE_SECONDS = 180;     // 蜜蜂モード 3分
 
-// レベルアップ：30秒ごと（あなたの希望の「2」）
+// レベルアップ：30秒ごと
 const LEVEL_EVERY_SECONDS = 30;
 const FALL_START_MS = 850;
 const FALL_MIN_MS = 130;
@@ -20,7 +20,7 @@ const FALL_MIN_MS = 130;
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-let cell; // 1マスのピクセルサイズ
+let cell;
 
 function resizeCanvas() {
   const w = canvas.width, h = canvas.height;
@@ -49,13 +49,14 @@ let remainSeconds = MODE_SECONDS;
 
 let level = 1;
 let fallIntervalMs = FALL_START_MS;
-let fallAccMs = 0; // 落下タイマー積算
+let fallAccMs = 0;
 
+// ====== グリッド ======
 function newGrid() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(null)); // null or colorIndex
 }
 
-// 2連ピース（blocks[0]を基準、blocks[1]が相対位置）
+// ====== ピース ======
 function spawnPiece() {
   const x = Math.floor(COLS / 2);
   return {
@@ -89,6 +90,7 @@ function collides(p, nx = p.x, ny = p.y) {
   return false;
 }
 
+// ====== 固定＆消去 ======
 function lockPiece() {
   for (const cell of cellsOfPiece(piece)) {
     if (cell.y < 0 || cell.y >= ROWS) continue;
@@ -101,7 +103,6 @@ function lockPiece() {
   }
 }
 
-// 「横一列が全部埋まっていて、かつ全て同色」なら消す
 function clearLinesSameColor() {
   for (let y = ROWS - 1; y >= 0; y--) {
     const row = grid[y];
@@ -111,11 +112,12 @@ function clearLinesSameColor() {
     if (row.every(v => v === first)) {
       grid.splice(y, 1);
       grid.unshift(Array(COLS).fill(null));
-      y++; // 連続消し対応
+      y++;
     }
   }
 }
 
+// ====== 移動 ======
 function move(dx, dy) {
   const nx = piece.x + dx;
   const ny = piece.y + dy;
@@ -135,34 +137,31 @@ function hardDrop() {
   lockPiece();
 }
 
-// 色チェンジ：2個の色を入れ替える（縦横でも同じ挙動）
+// ====== 色チェンジ ======
 function swapColors() {
   const a = piece.blocks[0].c;
   piece.blocks[0].c = piece.blocks[1].c;
   piece.blocks[1].c = a;
 }
 
-// 回転：縦(0,1) ↔ 横(1,0)
+// ====== 回転（縦↔横） ======
 function rotatePiece() {
   const b0 = piece.blocks[0];
   const b1 = piece.blocks[1];
 
-  // b0は基準点
   b0.dx = 0; b0.dy = 0;
 
   const wasVertical = (b1.dx === 0 && b1.dy === 1);
 
-  // まず回してみる（縦<->横）
   if (wasVertical) {
     b1.dx = 1; b1.dy = 0;
   } else {
     b1.dx = 0; b1.dy = 1;
   }
 
-  // ぶつかるなら簡易キック（左右に1マスずらして試す）
+  // ぶつかるなら簡易キック（左右に1マスずらす）
   if (!collides(piece)) return;
 
-  // キック試行：左→右→元に戻す
   piece.x -= 1;
   if (!collides(piece)) return;
 
@@ -216,10 +215,10 @@ function drawBlock(x, y, colorIndex) {
   const { fill, stroke } = COLORS[colorIndex];
   const px = x * cell;
   const py = y * cell;
-  const r = Math.floor(cell * 0.18); // 角丸
+  const r = Math.floor(cell * 0.18);
   roundRect(px + 1, py + 1, cell - 2, cell - 2, r, fill, stroke);
 
-  // 小さいハイライト（グミ感）
+  // ハイライト
   ctx.save();
   ctx.globalAlpha = 0.18;
   ctx.fillStyle = "#ffffff";
@@ -339,8 +338,11 @@ retryBtn.addEventListener("click", () => {
 let last = performance.now();
 
 function loop(now) {
-  const dt = now - last;
+  // dtが極端に大きいと一気に時間が進むので、保険で上限を設ける
+  let dt = now - last;
   last = now;
+
+  if (dt > 100) dt = 100; // タブ復帰などで暴走しないように
 
   if (running) {
     tickTime(dt);
@@ -363,13 +365,18 @@ function start() {
   grid = newGrid();
   piece = spawnPiece();
   running = true;
+
   elapsedMs = 0;
   level = 1;
   fallIntervalMs = FALL_START_MS;
   fallAccMs = 0;
+
   timeLabel.textContent = "03:00";
   levelLabel.textContent = "Lv 1";
   overlay.classList.add("hidden");
+
+  // ★重要：開始直後にdtが巨大にならないよう基準時刻をリセット
+  last = performance.now();
 }
 
 start();
