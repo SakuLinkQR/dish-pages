@@ -32,12 +32,18 @@ body{
 }
 
 #game{
+  /* 横幅はコンテナに合わせる */
   width:100%;
   height:auto;
+
+  /* ★PCで縦がはみ出しにくい上限（ヘッダー＋余白＋ヒント分を引く） */
+  max-height: calc(100vh - 190px);
+
   background:var(--panel);
   border:1px solid rgba(255,255,255,.10);
   border-radius:14px;
   touch-action: manipulation;
+  display:block;
 }
 
 .hint{
