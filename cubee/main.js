@@ -2,7 +2,7 @@
 const COLS = 10;
 const ROWS = 20;
 
-// 2色（あとで増やせる）
+// 2色（後で増やせる）
 const COLORS = [
   { fill: "#f7c948", stroke: "rgba(255,255,255,0.25)" }, // honey
   { fill: "#55a6ff", stroke: "rgba(255,255,255,0.25)" }, // sky
@@ -20,11 +20,9 @@ const FALL_MIN_MS = 130;
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-let cell; // 1マスのピクセルサイズ（canvasサイズに合わせて調整）
+let cell; // 1マスのピクセルサイズ
 
 function resizeCanvas() {
-  // 10x20が気持ちよく見える縦長
-  // canvasの実解像度は固定だが、表示はCSSで100%にしているのでここは内部計算用
   const w = canvas.width, h = canvas.height;
   cell = Math.floor(Math.min(w / COLS, h / ROWS));
 }
@@ -57,14 +55,14 @@ function newGrid() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(null)); // null or colorIndex
 }
 
-// 2連（縦）ピース
+// 2連ピース（blocks[0]を基準、blocks[1]が相対位置）
 function spawnPiece() {
   const x = Math.floor(COLS / 2);
   return {
     x, y: 0,
     blocks: [
       { dx: 0, dy: 0, c: randColor() },
-      { dx: 0, dy: 1, c: randColor() },
+      { dx: 0, dy: 1, c: randColor() }, // 初期は縦
     ]
   };
 }
@@ -98,7 +96,6 @@ function lockPiece() {
   }
   clearLinesSameColor();
   piece = spawnPiece();
-  // 出た瞬間にぶつかるならゲームオーバー（今回は「動作確認」なので停止）
   if (collides(piece)) {
     endGame("GAME OVER", "これ以上置けませんでした");
   }
@@ -108,16 +105,13 @@ function lockPiece() {
 function clearLinesSameColor() {
   for (let y = ROWS - 1; y >= 0; y--) {
     const row = grid[y];
-    // 全部埋まってる？
     if (row.some(v => v === null)) continue;
 
-    // 全部同色？
     const first = row[0];
     if (row.every(v => v === first)) {
-      // 消して上を落とす
       grid.splice(y, 1);
       grid.unshift(Array(COLS).fill(null));
-      y++; // 同じyを再チェック（連続消しに対応）
+      y++; // 連続消し対応
     }
   }
 }
@@ -141,11 +135,44 @@ function hardDrop() {
   lockPiece();
 }
 
-// 色チェンジ：上下入れ替え（2連の基本）
+// 色チェンジ：2個の色を入れ替える（縦横でも同じ挙動）
 function swapColors() {
   const a = piece.blocks[0].c;
   piece.blocks[0].c = piece.blocks[1].c;
   piece.blocks[1].c = a;
+}
+
+// 回転：縦(0,1) ↔ 横(1,0)
+function rotatePiece() {
+  const b0 = piece.blocks[0];
+  const b1 = piece.blocks[1];
+
+  // b0は基準点
+  b0.dx = 0; b0.dy = 0;
+
+  const wasVertical = (b1.dx === 0 && b1.dy === 1);
+
+  // まず回してみる（縦<->横）
+  if (wasVertical) {
+    b1.dx = 1; b1.dy = 0;
+  } else {
+    b1.dx = 0; b1.dy = 1;
+  }
+
+  // ぶつかるなら簡易キック（左右に1マスずらして試す）
+  if (!collides(piece)) return;
+
+  // キック試行：左→右→元に戻す
+  piece.x -= 1;
+  if (!collides(piece)) return;
+
+  piece.x += 2;
+  if (!collides(piece)) return;
+
+  // ダメなら元に戻す
+  piece.x -= 1;
+  if (wasVertical) { b1.dx = 0; b1.dy = 1; }
+  else            { b1.dx = 1; b1.dy = 0; }
 }
 
 // ====== 描画 ======
@@ -190,8 +217,8 @@ function drawBlock(x, y, colorIndex) {
   const px = x * cell;
   const py = y * cell;
   const r = Math.floor(cell * 0.18); // 角丸
-  // 角丸四角
   roundRect(px + 1, py + 1, cell - 2, cell - 2, r, fill, stroke);
+
   // 小さいハイライト（グミ感）
   ctx.save();
   ctx.globalAlpha = 0.18;
@@ -220,12 +247,10 @@ function roundRect(x, y, w, h, r, fill, stroke) {
 function tickTime(dtMs) {
   elapsedMs += dtMs;
 
-  // 残り時間（3分）
   const remain = Math.max(0, MODE_SECONDS - Math.floor(elapsedMs / 1000));
   remainSeconds = remain;
   timeLabel.textContent = formatMMSS(remainSeconds);
 
-  // 30秒ごとレベルアップ
   const newLevel = 1 + Math.floor((MODE_SECONDS - remainSeconds) / LEVEL_EVERY_SECONDS);
   if (newLevel !== level) {
     level = newLevel;
@@ -233,7 +258,6 @@ function tickTime(dtMs) {
     fallIntervalMs = Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS * Math.pow(0.90, level - 1)));
   }
 
-  // クリア判定（時間切れ＝クリア）
   if (remainSeconds <= 0) {
     endGame("CLEAR!", "3分生き残りました");
   }
@@ -252,18 +276,17 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") { e.preventDefault(); move(-1, 0); }
   if (e.key === "ArrowRight"){ e.preventDefault(); move( 1, 0); }
   if (e.key === "ArrowDown") { e.preventDefault(); softDrop(); }
+  if (e.key === "ArrowUp")   { e.preventDefault(); rotatePiece(); }
   if (e.code === "Space")    { e.preventDefault(); hardDrop(); }
   if (e.key === "Enter")     { e.preventDefault(); swapColors(); }
 });
 
 // ====== 入力（スマホ） ======
-// 左1/3タップ＝左、右1/3タップ＝右、中央タップ＝色チェンジ
-// 下スワイプ＝ハードドロップ
 let touchStart = null;
 
 canvas.addEventListener("pointerdown", (e) => {
   if (!running) return;
-  touchStart = { x: e.clientX, y: e.clientY, t: performance.now() };
+  touchStart = { x: e.clientX, y: e.clientY };
 });
 
 canvas.addEventListener("pointerup", (e) => {
@@ -274,14 +297,21 @@ canvas.addEventListener("pointerup", (e) => {
   const dy = e.clientY - touchStart.y;
   const dist = Math.hypot(dx, dy);
 
-  // スワイプ判定
+  // 下スワイプ：ハードドロップ
   if (dist > 40 && dy > 30) {
     hardDrop();
     touchStart = null;
     return;
   }
 
-  // タップ判定
+  // 上スワイプ：回転
+  if (dist > 40 && dy < -30) {
+    rotatePiece();
+    touchStart = null;
+    return;
+  }
+
+  // タップ：左/右/中央
   const rect = canvas.getBoundingClientRect();
   const px = e.clientX - rect.left;
   const w = rect.width;
