@@ -15,7 +15,7 @@ window.QRQUEST_EVENT = {
   prefix: "sun26__",
   name: "砂の祭典 2026",
   // 抽選会応募フォーム（Googleフォーム等）URL：ここを後で差し替え
-  formUrl: "",
+  formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSetPLYoIMFeyzEy3LPUMQesEOYbh8LmkYuuJIbEjer-vyUiaA/viewform?usp=header",
   // 9/9完成後の最終クイズ（後で差し替え可能）
     finalQuiz: {
     question: "最後のクイズじゃ。写真は南さつま市笠沙町の野間池みなと広場にある、南薩地域特産のタカエビのモニュメントじゃ。さて、これをデザインしたのは？\nヒント：最近双子ちゃんを出産しました",
@@ -83,6 +83,7 @@ window.QRQUEST_EVENT = {
     "reward_claimed_at",
     "final_quiz_passed",
     "final_quiz_passed_at",
+    "form_opened","form_opened_at","applied","applied_at",
     "setup_done",
     "visitedIntro_qrquest",
     "test_mode"
