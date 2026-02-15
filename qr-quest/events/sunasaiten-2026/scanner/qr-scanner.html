@@ -18,13 +18,28 @@
   <script src="../event-config.js"></script>
   <script>
     // 読み取り完了後、停止処理が詰まっても遷移できるように安全停止ヘルパーを用意
-    function stopScannerSafely(){
+    function forceStopMediaTracks(){
       try{
-        if (window.__html5QrCodeInstance && window.__html5QrCodeInstance.isScanning) {
-          return window.__html5QrCodeInstance.stop().catch(()=>{});
+        const root = document.getElementById('preview');
+        if(!root) return;
+        const v = root.querySelector('video');
+        const stream = v && v.srcObject;
+        if(stream && stream.getTracks){
+          stream.getTracks().forEach(t=>{ try{ t.stop(); }catch(e){} });
         }
+        if(v){ try{ v.srcObject = null; }catch(e){} }
       }catch(e){}
-      return Promise.resolve();
+    }
+
+    function stopScannerSafely(){
+      // iOS(PWA/Safari) では start() 完了前に離脱すると stop() が呼べず、カメラが残ることがある
+      // → stop() / clear() を試しつつ、最後に MediaStream の track を強制停止する
+      const inst = window.__html5QrCodeInstance;
+      return (async ()=>{
+        try{ if(inst){ await inst.stop(); } }catch(e){}
+        try{ if(inst){ await inst.clear(); } }catch(e){}
+        forceStopMediaTracks();
+      })();
     }
   </script>
 </head>
@@ -89,8 +104,9 @@
   }
 
   async function stopScanner() {
-    try { if (isScanning) { await html5QrCode.stop(); isScanning = false; } } catch(e){}
-    try { await html5QrCode.clear(); } catch(e){}
+    // start() が完了していなくても確実にカメラを止める
+    await Promise.race([stopScannerSafely(), new Promise(r=>setTimeout(r,700))]);
+    isScanning = false;
   }
 
   function onScanFailure(_error) {}
@@ -193,7 +209,7 @@
   async function exitToMenu() {
       statusText.innerText = "メニューへ戻ります…";
       setButtonsEnabled(false);
-      await Promise.race([stopScanner(), new Promise(r=>setTimeout(r,600))]);
+      await Promise.race([stopScannerSafely(), new Promise(r=>setTimeout(r,700))]);
       await new Promise(r=>setTimeout(r,120));
       location.href = backTarget;
     }
