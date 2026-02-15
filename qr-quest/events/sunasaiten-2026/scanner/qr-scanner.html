@@ -157,12 +157,24 @@
     try{
       if(window.QRQUEST_LOG){
         const short = (decodedText || '').toString().slice(0, 120);
+        // 可能なら、エリア名とピース番号も推定してログへ入れる
+        const lower = (decodedText || '').toLowerCase();
+        let areaId = "";
+        if(lower.includes('shiyakusho') || lower.includes('cityhall') || lower.includes('市役所')) areaId = 'shiyakusho';
+        else if(lower.includes('honmachi1') || lower.includes('honmachi-1') || lower.includes('honmachi_1') || lower.includes('本町1')) areaId = 'honmachi1';
+        else if(lower.includes('honmachi2') || lower.includes('honmachi-2') || lower.includes('honmachi_2') || lower.includes('本町2')) areaId = 'honmachi2';
+        else if(lower.includes('fumoto1') || lower.includes('fumoto-1') || lower.includes('fumoto_1') || lower.includes('麓1')) areaId = 'fumoto1';
+        else if(lower.includes('fumoto2') || lower.includes('fumoto-2') || lower.includes('fumoto_2') || lower.includes('麓2')) areaId = 'fumoto2';
+        else if(lower.includes('fumoto3') || lower.includes('fumoto-3') || lower.includes('fumoto_3') || lower.includes('麓3')) areaId = 'fumoto3';
+        else if(lower.includes('fumoto4') || lower.includes('fumoto-4') || lower.includes('fumoto_4') || lower.includes('麓4')) areaId = 'fumoto4';
+        const map = { shiyakusho:2, honmachi1:3, honmachi2:4, fumoto4:5, fumoto1:6, fumoto2:7, fumoto3:8 };
+        const pieceGuess = (areaId && map[areaId]) ? String(map[areaId]) : "";
         window.QRQUEST_LOG.send({
-          page: "qr-scanner",
-          area: "",
+          page: "qr-scanner.html",
+          area: areaId,
           qr_id: short,
           result: (mode === 'reward' ? "scan_reward" : "scan"),
-          piece: "",
+          piece: pieceGuess,
         });
       }
     }catch(e){}
