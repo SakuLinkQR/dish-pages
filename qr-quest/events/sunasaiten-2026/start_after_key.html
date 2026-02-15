@@ -23,6 +23,10 @@
 <script>
 (function(){
   const msg = document.getElementById('msg');
+  // URLパラメータ（start=shiyakusho など）も受け取れるようにする
+  const urlStart = (() => {
+    try{ return (new URL(location.href)).searchParams.get('start') || ''; }catch(e){ return ''; }
+  })();
   const t = (localStorage.getItem('start_scan_text') || '').trim();
   if(!t){
     msg.textContent = 'スタートQRが読み取れていません。もう一度お試しください。';
@@ -39,14 +43,25 @@
   localStorage.setItem('started','true');
   localStorage.setItem('started_at', String(Date.now()));
 
+  // 受付スタート地点を保存（以降のログにも付与される）
+  try{
+    let startArea = '';
+    if(urlStart){
+      startArea = String(urlStart).trim();
+    }else{
+      startArea = (t.includes('shiyakusho')||t.includes('市役所')) ? 'shiyakusho'
+               : (t.includes('honmachi')||t.includes('本町')) ? 'honmachi'
+               : (t.includes('fumoto')||t.includes('麓')) ? 'fumoto'
+               : '';
+    }
+    if(startArea) localStorage.setItem('start_area', startArea);
+  }catch(e){}
+
   // 回遊ログ（スタート確定）
   try{
     if(window.QRQUEST_LOG){
-      const area = (t.includes('shiyakusho')||t.includes('市役所')) ? 'shiyakusho'
-                : (t.includes('honmachi')||t.includes('本町')) ? 'honmachi'
-                : (t.includes('fumoto')||t.includes('麓')) ? 'fumoto'
-                : '';
-      window.QRQUEST_LOG.send({ page:'start_after_key', area: area, qr_id:'start', result:'start_ok', piece:'' });
+      const area = (localStorage.getItem('start_area') || '').trim();
+      window.QRQUEST_LOG.send({ page:'start_after_key.html', area: area, start_area: area, qr_id:'start', result:'start_ok', piece:'' });
     }
   }catch(e){}
 

@@ -173,6 +173,10 @@ window.QRQUEST_EVENT = {
       try{ localStorage.setItem(KEY_Q, JSON.stringify(q.slice(-300))); }catch(e){}
     }
 
+    function getStartArea(){
+      try{ return (localStorage.getItem('start_area') || '').trim(); }catch(e){ return ''; }
+    }
+
     function buildUrl(payload){
       const p = payload || {};
       const qs = new URLSearchParams();
@@ -180,6 +184,8 @@ window.QRQUEST_EVENT = {
       qs.set("token", TOKEN);
       qs.set("event", window.QRQUEST_EVENT.id || "");
       qs.set("area",  p.area  || "");
+      // 受付スタート地点（市役所/本町/麓など）
+      qs.set("start_area", (p.start_area || getStartArea() || ""));
       qs.set("qr_id", p.qr_id || "");
       qs.set("result",p.result|| "");
       qs.set("piece", p.piece || "");
@@ -217,6 +223,8 @@ window.QRQUEST_EVENT = {
         const p = payload || {};
         // 個人情報は入れない（端末識別もしない）
         p.ua = p.ua || (navigator && navigator.userAgent ? navigator.userAgent.slice(0, 160) : "");
+        // 受付スタート地点（以降のログにも付与）
+        p.start_area = p.start_area || getStartArea() || "";
         p._t = nowIso();
         const q = loadQueue();
         q.push(p);
