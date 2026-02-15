@@ -95,21 +95,6 @@
 
   function onScanFailure(_error) {}
 
-  function getQrIdFromText(t){
-    try{
-      const u = new URL(t);
-      // id or code in query first
-      for(const k of ["id","code","qid","qr","q","p","piece"]){
-        const v = u.searchParams.get(k);
-        if(v) return v;
-      }
-      const seg = u.pathname.split("/").filter(Boolean);
-      return seg.length ? seg[seg.length-1] : u.hostname;
-    }catch(e){
-      return (t||"").slice(0,80);
-    }
-  }
-
   async function onScanSuccess(decodedText, _decodedResult) {
         // STARTKEY_ONLY: 受付スタートQRは「文字列を保存 → 受付判定ページへ遷移」だけ行う（ここでは started を立てない）
         if (typeof isStartKeyMode !== 'undefined' && isStartKeyMode) {
@@ -137,7 +122,6 @@
             // 互換が必要なら start_scan_text を参照する
           } catch(e) {}
 
-          try{ if(window.QRQUEST_LOG){ window.QRQUEST_LOG.log({result:"start_scan", mode:"startkey", qr_id:getQrIdFromText(t), area:""}); } }catch(e){}
           Promise.race([stopScannerSafely(), new Promise(r=>setTimeout(r,600))]).finally(() => {
             setTimeout(()=>{ window.location.replace(returnTarget); }, 120);
           });
@@ -151,7 +135,6 @@
     resultContainer.innerText = decodedText;
     if (hasRedirected) return;
     hasRedirected = true;
-    try{ if(window.QRQUEST_LOG){ window.QRQUEST_LOG.log({result:"scan", mode:mode, qr_id:getQrIdFromText(decodedText), area:""}); } }catch(e){}
 
     // rewardモードなら、参加賞用QRだけ通す（'reward'を含む想定）
     if(mode === 'reward'){
@@ -163,13 +146,25 @@
         return;
       }
       try{ localStorage.setItem('reward_scan_text', decodedText); }catch(e){}
-      try{ if(window.QRQUEST_LOG){ window.QRQUEST_LOG.log({result:"reward_scan", mode:"reward", qr_id:getQrIdFromText(decodedText), area:""}); } }catch(e){}
     }
 
     await Promise.race([stopScanner(), new Promise(r=>setTimeout(r,600))]);
     try{
       localStorage.setItem("scan_text", decodedText);
       localStorage.setItem("last_scan_text", decodedText);
+    }catch(e){}
+    // 回遊ログ（スキャンイベント）
+    try{
+      if(window.QRQUEST_LOG){
+        const short = (decodedText || '').toString().slice(0, 120);
+        window.QRQUEST_LOG.send({
+          page: "qr-scanner",
+          area: "",
+          qr_id: short,
+          result: (mode === 'reward' ? "scan_reward" : "scan"),
+          piece: "",
+        });
+      }
     }catch(e){}
     location.href = returnTarget;
   }

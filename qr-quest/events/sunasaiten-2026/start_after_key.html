@@ -38,12 +38,17 @@
 
   localStorage.setItem('started','true');
   localStorage.setItem('started_at', String(Date.now()));
-  try{
-    const tl = t.toLowerCase();
-    const area = tl.includes('honmachi')||t.includes('本町') ? 'honmachi' : (tl.includes('fumoto')||t.includes('麓') ? 'fumoto' : (tl.includes('shiyakusho')||tl.includes('cityhall')||t.includes('市役所') ? 'shiyakusho' : ''));
-    if(window.QRQUEST_LOG){ window.QRQUEST_LOG.log({result:'start_confirmed', area, qr_id: area || 'start'}); }
-  }catch(e){}
 
+  // 回遊ログ（スタート確定）
+  try{
+    if(window.QRQUEST_LOG){
+      const area = (t.includes('shiyakusho')||t.includes('市役所')) ? 'shiyakusho'
+                : (t.includes('honmachi')||t.includes('本町')) ? 'honmachi'
+                : (t.includes('fumoto')||t.includes('麓')) ? 'fumoto'
+                : '';
+      window.QRQUEST_LOG.send({ page:'start_after_key', area: area, qr_id:'start', result:'start_ok', piece:'' });
+    }
+  }catch(e){}
 
   // ✅ 初期ピース（1＆9）
   // 初期ピース：1番と9番

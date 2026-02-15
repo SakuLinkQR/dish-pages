@@ -15,96 +15,18 @@ window.QRQUEST_EVENT = {
   prefix: "sun26t__",
   name: "砂の祭典 2026（TEST)",
   // 抽選会応募フォーム（Googleフォーム等）URL：ここを後で差し替え
-  formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSetPLYoIMFeyzEy3LPUMQesEOYbh8LmkYuuJIbEjer-vyUiaA/viewform",
-    // 回遊ログ（Apps Script WebアプリURL）
-  logUrl: "https://script.google.com/macros/s/AKfycbx_pTaWFfSQWscupiyuAVBn1EpHTV5WSMFQsT08p4hl9DFSFdiqx4a17fDyNemsJFE3/exec",
-  // 回遊ログ用トークン（Apps Scriptと一致させる）
-  logToken: "SUNA2026_LOG_TOKEN",
-// 9/9完成後の最終クイズ（後で差し替え可能）
+  formUrl: "",
+  // 9/9完成後の最終クイズ（後で差し替え可能）
     finalQuiz: {
     question: "最後のクイズじゃ。写真は南さつま市笠沙町の野間池みなと広場にある、南薩地域特産のタカエビのモニュメントじゃ。さて、これをデザインしたのは？\nヒント：最近双子ちゃんを出産しました",
     choices: ["中川翔子さん（タレント：愛称しょこたん）","通りすがりのおじさん","市役所の人"],
     answerIndex: 0
-  }
+  },
+  // 回遊ログ（Googleスプレッドシートへ匿名ログ）
+  logUrl: "https://script.google.com/macros/s/AKfycbx_pTaWFfSQWscupiyuAVBn1EpHTV5WSMFQsT08p4hl9DFSFdiqx4a17fDyNemsJFE3/exec",
+  logToken: "SUNA2026_LOG_TOKEN"
+
   };
-
-
-// ==============================
-// 回遊ログ送信（個人情報なし）
-// - CORSで詰まりにくいように sendBeacon 優先
-// - 失敗時は端末内キューに貯めて、次回まとめて再送
-// ==============================
-(() => {
-  const ev = window.QRQUEST_EVENT || {};
-  const LS_QUEUE = "log_queue_v1";
-
-  function getQueue(){
-    try { return JSON.parse(localStorage.getItem(LS_QUEUE) || "[]"); } catch(e){ return []; }
-  }
-  function setQueue(q){
-    try { localStorage.setItem(LS_QUEUE, JSON.stringify(q.slice(-200))); } catch(e){}
-  }
-
-  function build(payload){
-    const ua = (navigator && navigator.userAgent) ? navigator.userAgent : "";
-    return Object.assign({
-      token: ev.logToken || "",
-      event: ev.id || "",
-      page: location.pathname.split("/").pop() || "",
-      ua
-    }, payload || {});
-  }
-
-  function sendOnce(obj){
-    const url = ev.logUrl;
-    if(!url) return false;
-
-    const body = JSON.stringify(obj);
-
-    // 1) sendBeacon（最優先：iPhoneでも安定）
-    try{
-      if(navigator && typeof navigator.sendBeacon === "function"){
-        const ok = navigator.sendBeacon(url, new Blob([body], {type:"text/plain"}));
-        if(ok) return true;
-      }
-    }catch(e){}
-
-    // 2) fetch no-cors（次善：レスポンスは読めないが送れる）
-    try{
-      fetch(url, {method:"POST", mode:"no-cors", headers:{"Content-Type":"text/plain"}, body});
-      return true;
-    }catch(e){}
-
-    return false;
-  }
-
-  function flush(){
-    const q = getQueue();
-    if(!q.length) return;
-    const remain = [];
-    for(const item of q){
-      const ok = sendOnce(item);
-      if(!ok) remain.push(item);
-    }
-    setQueue(remain);
-  }
-
-  function log(payload){
-    const obj = build(payload);
-    if(!obj.token || !ev.logUrl){
-      return;
-    }
-    // 先に貯めてから送る（落ちても残る）
-    const q = getQueue();
-    q.push(obj);
-    setQueue(q);
-    flush();
-  }
-
-  window.QRQUEST_LOG = { log, flush };
-  // 画面表示のたびに未送信分を再送
-  window.addEventListener("pageshow", flush);
-})();
 
 // localStorageのキーをイベント別に分ける（別イベントと進捗が混ざらないように）
 (() => {
@@ -231,3 +153,79 @@ window.QRQUEST_EVENT = {
     ttlMs: TTL_MS,
   };
 })();
+
+
+// ===== 回遊ログ送信ユーティリティ（iPhoneでも動きやすいGETビーコン方式）=====
+(function(){
+  try{
+    if(!window.QRQUEST_EVENT) return;
+
+    const LOG_URL = window.QRQUEST_EVENT.logUrl || "";
+    const TOKEN   = window.QRQUEST_EVENT.logToken || "";
+    const KEY_Q   = "qrquest_log_queue_v1";
+
+    function nowIso(){ try{ return new Date().toISOString(); }catch(e){ return ""; } }
+
+    function loadQueue(){
+      try{ return JSON.parse(localStorage.getItem(KEY_Q) || "[]") || []; }catch(e){ return []; }
+    }
+    function saveQueue(q){
+      try{ localStorage.setItem(KEY_Q, JSON.stringify(q.slice(-300))); }catch(e){}
+    }
+
+    function buildUrl(payload){
+      const p = payload || {};
+      const qs = new URLSearchParams();
+      qs.set("write","1");
+      qs.set("token", TOKEN);
+      qs.set("event", window.QRQUEST_EVENT.id || "");
+      qs.set("area",  p.area  || "");
+      qs.set("qr_id", p.qr_id || "");
+      qs.set("result",p.result|| "");
+      qs.set("piece", p.piece || "");
+      qs.set("page",  p.page  || "");
+      qs.set("ua",    p.ua    || "");
+      qs.set("ts",    String(Date.now())); // cache-bust
+      return LOG_URL + (LOG_URL.includes("?") ? "&" : "?") + qs.toString();
+    }
+
+    function sendOnce(payload){
+      try{
+        if(!LOG_URL || !TOKEN) return false;
+        const url = buildUrl(payload);
+        // 画像ビーコン（CORS制限を受けにくい）
+        const img = new Image();
+        img.src = url;
+        return true;
+      }catch(e){
+        return false;
+      }
+    }
+
+    function flush(){
+      const q = loadQueue();
+      if(!q.length) return;
+      // まとめて送る（最大50件）
+      const sendList = q.slice(0, 50);
+      sendList.forEach(sendOnce);
+      // 送信したものは消す（ACKが取れないので「送れた前提」）
+      saveQueue(q.slice(sendList.length));
+    }
+
+    function send(payload){
+      try{
+        const p = payload || {};
+        // 個人情報は入れない（端末識別もしない）
+        p.ua = p.ua || (navigator && navigator.userAgent ? navigator.userAgent.slice(0, 160) : "");
+        p._t = nowIso();
+        const q = loadQueue();
+        q.push(p);
+        saveQueue(q);
+        flush();
+      }catch(e){}
+    }
+
+    window.QRQUEST_LOG = { send, flush };
+  }catch(e){}
+})();
+
