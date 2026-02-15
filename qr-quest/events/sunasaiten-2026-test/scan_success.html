@@ -71,6 +71,8 @@
     } else {
       // 反映
       try{ localStorage.setItem('q_piece'+piece,'true'); }catch(e){}
+      try{ if(window.QRQUEST_LOG){ window.QRQUEST_LOG.log({result:'piece_granted', piece:String(piece), area: pid.startsWith('honmachi')?'honmachi':(pid.startsWith('fumoto')?'fumoto':(pid==='shiyakusho'?'shiyakusho':'')), qr_id: pid}); } }catch(e){}
+
       try{
         if(pid==='shiyakusho') localStorage.setItem('area_shiyakusho','true');
         if(pid.startsWith('honmachi')) localStorage.setItem('area_honmachi','true');

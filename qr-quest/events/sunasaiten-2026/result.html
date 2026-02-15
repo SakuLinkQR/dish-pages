@@ -138,16 +138,12 @@
     const type = isCorrect ? 'correct' : 'dummy';
     const page = 'result.html';
 
-    // ✅ 回遊ログ（Apps Script）へ送信
-    try{
-      window.QRQUEST_LOG?.write?.({
-        page,
-        qr_id: code,
-        result: type,
-        piece: isCorrect ? String(pieceNum) : '',
-        extra: 'mode=' + (mode || 'family')
-      });
-    }catch(e){}
+    // ✅ スプレッドシートに記録を送る
+    fetch('https://script.google.com/macros/s/AKfycbyE9PKDtOjTb1pFbnQFIrXLgDQ4s-kqVWFm2r7sJ9CZVbjt7DDfE4IsYCePGZQktfTFYg/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ event, code, type, page })
+    }).catch(() => {});
 
     // ✅ ボタンの戻り先
     const menuHref = isChallenge ? 'start_challenge.html' : 'start.html';

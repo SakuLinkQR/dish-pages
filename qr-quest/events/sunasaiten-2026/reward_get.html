@@ -40,14 +40,14 @@
 
   if(!ok){
     msg.textContent = '参加賞ゲット用QRが読み取れていません。もう一度お試しください。';
-    try{ window.QRQUEST_LOG?.write?.({ page:'reward_get.html', qr_id:'(none)', result:'reward_missing' }); }catch(e){}
     return;
   }
 
   // 確定（二重交付防止）
   localStorage.setItem('reward_claimed','true');
   localStorage.setItem('reward_claimed_at', String(Date.now()));
-  try{ window.QRQUEST_LOG?.write?.({ page:'reward_get.html', qr_id:'reward', result:'reward_claimed' }); }catch(e){}
+  try{ if(window.QRQUEST_LOG){ window.QRQUEST_LOG.log({result:'reward_claimed', area:'', qr_id:'reward', extra:'reward_logged'}); } }catch(e){}
+
   msg.textContent = '✅ 参加賞ゲット済みにしました！係員に確認してもらってください。';
     setTimeout(()=>{ location.replace('reward_ok.html'); }, 250);
 
