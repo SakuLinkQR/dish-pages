@@ -26,6 +26,7 @@
   const t = (localStorage.getItem('start_scan_text') || '').trim();
   if(!t){
     msg.textContent = 'スタートQRが読み取れていません。もう一度お試しください。';
+    try{ window.QRQUEST_LOG?.write?.({ page:'start_after_key.html', qr_id:'(none)', result:'start_missing' }); }catch(e){}
     return;
   }
 
@@ -33,11 +34,23 @@
   const ok = (t.includes('start') || t.includes('START') || t.includes('shiyakusho') || t.includes('honmachi') || t.includes('fumoto'));
   if(!ok){
     msg.textContent = 'スタートQRではない可能性があります。受付で配布されたQRを読み込んでください。';
+    try{ window.QRQUEST_LOG?.write?.({ page:'start_after_key.html', qr_id:'not_startkey', result:'start_reject', extra:'raw='+t.slice(0,140) }); }catch(e){}
     return;
   }
 
+  // エリア判定（できる範囲で）
+  const low = t.toLowerCase();
+  let area = '';
+  if(low.includes('shiyakusho') || low.includes('cityhall') || low.includes('市役所')) area = 'shiyakusho';
+  else if(low.includes('honmachi') || low.includes('本町')) area = 'honmachi';
+  else if(low.includes('fumoto') || low.includes('麓')) area = 'fumoto';
+  try{ localStorage.setItem('start_area', area); }catch(e){}
+
   localStorage.setItem('started','true');
   localStorage.setItem('started_at', String(Date.now()));
+
+  // ログ
+  try{ window.QRQUEST_LOG?.write?.({ page:'start_after_key.html', qr_id:'start', result:'start_ok', area, extra:'raw='+t.slice(0,140) }); }catch(e){}
 
   // ✅ 初期ピース（1＆9）
   // 初期ピース：1番と9番

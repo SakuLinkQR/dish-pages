@@ -59,8 +59,10 @@
   const s = raw.toLowerCase();
   if(!raw){
     msg.textContent = '読み取り結果がありません。もう一度SCANしてください。';
+    try{ window.QRQUEST_LOG?.write?.({ page:'scan_success.html', qr_id:'(none)', result:'scan_missing' }); }catch(e){}
   } else if(s.includes('reward')){
     msg.textContent = 'これは参加賞QRです。参加賞画面から読み取ってください。';
+    try{ window.QRQUEST_LOG?.write?.({ page:'scan_success.html', qr_id:'reward', result:'scan_wrong_mode' }); }catch(e){}
   } else {
     const pid = pickId(s);
     const map = { shiyakusho:2, honmachi1:3, honmachi2:4, fumoto4:5, fumoto1:6, fumoto2:7, fumoto3:8 };
@@ -68,6 +70,7 @@
 
     if(!pid || !piece){
       msg.textContent = 'このQRはポイントQRとして認識できませんでした。';
+      try{ window.QRQUEST_LOG?.write?.({ page:'scan_success.html', qr_id:'unknown', result:'scan_unrecognized', extra:'raw='+raw.slice(0,140) }); }catch(e){}
     } else {
       // 反映
       try{ localStorage.setItem('q_piece'+piece,'true'); }catch(e){}
@@ -79,6 +82,8 @@
 
       msg.textContent = `「${pid}」をゲット！ ピース ${piece}/9 を追加したぞ。`;
       img.src = `images/challenge/piece${piece}.png`;
+      // ログ
+      try{ window.QRQUEST_LOG?.write?.({ page:'scan_success.html', qr_id:pid, result:'point_ok', piece:String(piece) }); }catch(e){}
       // 二重反映防止
       try{ localStorage.removeItem('scan_text'); }catch(e){}
     }

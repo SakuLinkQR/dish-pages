@@ -14,8 +14,13 @@ window.QRQUEST_EVENT = {
   id: "SUNASAITEN_2026",
   prefix: "sun26__",
   name: "砂の祭典 2026",
+  // 回遊ログ（Google Apps Script Webアプリ）
+  // ※あなたのデプロイURL（.../exec）を入れる
+  logUrl: "https://script.google.com/macros/s/AKfycbx_pTaWFfSQWscupiyuAVBn1EpHTV5WSMFQsT08p4hl9DFSFdiqx4a17fDyNemsJFE3/exec",
+  // Apps Script側のTOKENと一致させる
+  logToken: "SUNA2026_LOG_TOKEN",
   // 抽選会応募フォーム（Googleフォーム等）URL：ここを後で差し替え
-  formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSetPLYoIMFeyzEy3LPUMQesEOYbh8LmkYuuJIbEjer-vyUiaA/viewform?usp=header",
+  formUrl: "",
   // 9/9完成後の最終クイズ（後で差し替え可能）
     finalQuiz: {
     question: "最後のクイズじゃ。写真は南さつま市笠沙町の野間池みなと広場にある、南薩地域特産のタカエビのモニュメントじゃ。さて、これをデザインしたのは？\nヒント：最近双子ちゃんを出産しました",
@@ -83,7 +88,6 @@ window.QRQUEST_EVENT = {
     "reward_claimed_at",
     "final_quiz_passed",
     "final_quiz_passed_at",
-    "form_opened","form_opened_at","applied","applied_at",
     "setup_done",
     "visitedIntro_qrquest",
     "test_mode"
@@ -149,4 +153,98 @@ window.QRQUEST_EVENT = {
     checkAndConsume: (st) => check(st, true),
     ttlMs: TTL_MS,
   };
+})();
+
+// ==============================
+// 回遊ログ送信（Apps Script Webアプリ）
+// ==============================
+// 目的：
+// - スキャン履歴（正解/ダミー/スタート/参加賞など）をスプレッドシートへ記録
+// - 失敗した場合は端末内キューに貯めて、オンライン復帰時にまとめて送る
+(() => {
+  const ev = window.QRQUEST_EVENT || {};
+  const url = ev.logUrl || "";
+  const token = ev.logToken || "";
+  const prefix = ev.prefix || "";
+  const QKEY = prefix + "log_queue";
+
+  function loadQueue(){
+    try{ return JSON.parse(localStorage.getItem(QKEY) || "[]") || []; }catch(_){ return []; }
+  }
+  function saveQueue(q){
+    try{ localStorage.setItem(QKEY, JSON.stringify(q.slice(-200))); }catch(_){ }
+  }
+
+  async function post(payload){
+    if(!url) return false;
+    try{
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // iOSでもページ遷移直前に送れる確率が少し上がる
+        keepalive: true,
+        body: JSON.stringify(payload)
+      });
+      const txt = await res.text().catch(()=>"");
+      return (res.ok && String(txt).trim() === "OK");
+    }catch(_){
+      return false;
+    }
+  }
+
+  async function write({
+    page = "",
+    qr_id = "",
+    result = "",
+    piece = "",
+    area = "",
+    extra = ""
+  } = {}){
+    const payload = {
+      token,
+      event: ev.id || "",
+      page,
+      qr_id,
+      result,
+      piece,
+      area,
+      ua: navigator.userAgent || "",
+      extra
+    };
+
+    // オフラインならキューへ
+    if(typeof navigator !== "undefined" && navigator.onLine === false){
+      const q = loadQueue();
+      q.push(payload);
+      saveQueue(q);
+      return false;
+    }
+
+    const ok = await post(payload);
+    if(ok) return true;
+
+    // 失敗したらキューへ
+    const q = loadQueue();
+    q.push(payload);
+    saveQueue(q);
+    return false;
+  }
+
+  async function flush(){
+    if(!url) return;
+    const q = loadQueue();
+    if(!q.length) return;
+    const rest = [];
+    for(const item of q){
+      if(!item.token) item.token = token;
+      const ok = await post(item);
+      if(!ok) rest.push(item);
+    }
+    saveQueue(rest);
+  }
+
+  try{ window.addEventListener("online", () => { flush(); }); }catch(_){ }
+  try{ window.addEventListener("pageshow", () => { flush(); }); }catch(_){ }
+
+  window.QRQUEST_LOG = { write, flush };
 })();

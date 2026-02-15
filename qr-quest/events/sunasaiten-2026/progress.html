@@ -250,12 +250,6 @@ if (quizWrap) {
         <button id="formBtn" style="display:none;margin-top:12px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#38b000;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
           📩 抽選会へ応募（メール登録）
         </button>
-        <div id="applyNote" style="display:none;margin-top:10px;font-size:0.95em;color:#555;line-height:1.6;">
-          フォームの送信が終わったら、この画面に戻って「応募完了」を押してください。
-        </div>
-        <button id="applyDoneBtn" style="display:none;margin-top:10px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#ff4081;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
-          ✅ 応募完了（もう応募しない）
-        </button>
       </div>`;
     const cc = document.getElementById('quizChoices');
     const msg = document.getElementById('quizMsg');
@@ -342,61 +336,12 @@ if (quizWrap) {
     }
     if (formBtn) {
       const url = (ev.formUrl || '').trim();
-      const applyNote = document.getElementById('applyNote');
-      const applyDoneBtn = document.getElementById('applyDoneBtn');
-
-      const APPLIED_KEY = 'applied';
-      const APPLIED_AT_KEY = 'applied_at';
-      const FORM_OPENED_KEY = 'form_opened';
-      const FORM_OPENED_AT_KEY = 'form_opened_at';
-
-      function renderApplyState(){
-        const applied = localStorage.getItem(APPLIED_KEY) === 'true';
-        const opened = localStorage.getItem(FORM_OPENED_KEY) === 'true';
-
-        if (applied) {
-          if (formBtn) formBtn.style.display = 'none';
-          if (applyNote) applyNote.style.display = 'none';
-          if (applyDoneBtn) applyDoneBtn.style.display = 'none';
-          msg.textContent = '✅ 応募は完了しています。ありがとうございました！';
-          msg.style.color = '#0a7a0a';
-          return;
-        }
-        // 応募フォームを一度開いた端末は、フォーム再入場を防ぐ（アプリ内ボタンから）
-        if (opened) {
-          if (formBtn) formBtn.style.display = 'none';
-          if (applyNote) applyNote.style.display = 'block';
-          if (applyDoneBtn) applyDoneBtn.style.display = 'block';
-        } else {
-          if (applyNote) applyNote.style.display = 'none';
-          if (applyDoneBtn) applyDoneBtn.style.display = 'none';
-        }
-      }
-
       formBtn.addEventListener('click', () => {
         if (!url) { alert('応募フォームURLがまだ設定されていません（event-config.js の formUrl）。'); return; }
-        try {
-          localStorage.setItem(FORM_OPENED_KEY, 'true');
-          localStorage.setItem(FORM_OPENED_AT_KEY, String(Date.now()));
-        } catch(_) {}
-        // 既存の挙動（同一タブで開く）
         location.href = url;
       });
-
-      if (applyDoneBtn) {
-        applyDoneBtn.addEventListener('click', () => {
-          try {
-            localStorage.setItem(APPLIED_KEY, 'true');
-            localStorage.setItem(APPLIED_AT_KEY, String(Date.now()));
-          } catch(_) {}
-          alert('応募を完了しました。ありがとうございました！');
-          renderApplyState();
-        });
-      }
-
-      // if already passed, show button immediately（ただし応募済みの場合は非表示）
+      // if already passed, show button immediately
       if (localStorage.getItem('final_quiz_passed') === 'true') formBtn.style.display = 'block';
-      renderApplyState();
     }
   }
 }
