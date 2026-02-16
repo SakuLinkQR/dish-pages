@@ -5,25 +5,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QRクエスト in 砂の祭典2026</title>
-  <script>
-    (function(){
-      function isPWA(){
-        try{
-          return window.matchMedia('(display-mode: standalone)').matches
-            || window.matchMedia('(display-mode: fullscreen)').matches
-            || window.navigator.standalone === true;
-        }catch(e){ return false; }
-      }
-      // ブラウザ直開きは案内ページへ（係員説明を統一するため）
-      if(!isPWA()){
-        location.replace('howto.html?need_install=1');
-      }
-    })();
-  </script>
-
 
   <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon-v2.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 
   <style>
     body {
