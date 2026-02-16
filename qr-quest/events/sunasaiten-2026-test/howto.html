@@ -119,6 +119,10 @@
       margin-top:8px;
     }
   </style>
+
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 
 <body>
@@ -129,31 +133,6 @@
   このページは、QRクエストの遊び方ガイドです。<br>
   ※内容は運用に合わせて今後調整します。
 </p>
-
-<div class="card" id="installCard">
-  <h2>まず最初に：ホーム画面に追加（アイコン設置）</h2>
-  <p>
-    このQRクエストは、<strong>ホーム画面のアイコンから起動</strong>して遊びます。<br>
-    このページを見ながら、ホーム画面に追加してください。
-  </p>
-  <div style="display:flex; gap:12px; align-items:center; margin-top:10px;">
-    <img src="icons/icon-192.png" alt="QRクエストのアイコン" style="width:64px;height:64px;border-radius:16px;border:1px solid #e9e9e9;background:#fff;">
-    <div style="font-size:14px; color:var(--muted);">
-      ホーム画面に追加すると、左のような<strong>アイコン</strong>ができます。<br>
-      追加できたら、いったんブラウザを閉じて<strong>アイコンをタップ</strong>してください。
-    </div>
-  </div>
-  <ul style="margin-top:12px;">
-    <li><strong>iPhone（Safari）</strong>：画面下の共有（🔗）→「ホーム画面に追加」</li>
-    <li><strong>Android（Chrome）</strong>：右上の ⋮ →「ホーム画面に追加」</li>
-  </ul>
-  <div class="note">
-    ✅ 追加ができたら、このページは閉じてOKです。<br>
-    次は<strong>ホーム画面のアイコン</strong>から起動してください。
-  </div>
-</div>
-
-
 
 <div class="card">
   <h2>参加のしかた（有料）</h2>
@@ -197,79 +176,29 @@
     </div>
   </div>
 
-
 <div id="qrquest-start-warning-howto" style="display:none; margin:12px auto; max-width:520px; padding:10px 12px; border:1px solid #f0c36d; background:#fff8e1; border-radius:10px; font-size:0.95rem; line-height:1.5;">
   まだ受付スタートが完了していません。受付でスタートQRを読み込んでからクエストを開始してください。
 </div>
-
 <script>
 (function(){
-  function isPWA(){
-    try{
-      return window.matchMedia('(display-mode: standalone)').matches
-        || window.matchMedia('(display-mode: fullscreen)').matches
-        || window.navigator.standalone === true; // iOS用
-    }catch(e){ return false; }
-  }
-
-  // URLパラメータ（受付スタートQRから渡す）
-  var params = new URLSearchParams(location.search || '');
-  var startArea = params.get('start_area'); // shiyakusho / honmachi / fumoto
-  var init = params.get('init') || '1,9';
-
-  function seedFromParams(){
-    if(!startArea) return;
-
-    try{
-      localStorage.setItem('started','true');
-      localStorage.setItem('start_area', startArea);
-
-      // 初期ピース（例：1,9）
-      var parts = init.split(',').map(function(s){ return (s||'').trim(); }).filter(Boolean);
-      parts.forEach(function(n){
-        localStorage.setItem('q_piece'+n, 'true');
-        // 互換キー
-        localStorage.setItem('piece'+n, 'true');
-        localStorage.setItem('qrquest_piece'+n, 'true');
-      });
-      localStorage.setItem('seeded_'+parts.join('_'), 'true');
-
-      // 旧互換の掃除（1&5が残っていたら消す）
-      try{ localStorage.removeItem('q_piece5'); localStorage.removeItem('piece5'); localStorage.removeItem('qrquest_piece5'); }catch(e){}
-    }catch(e){}
-  }
-
   function getStarted(){
     try{
       return localStorage.getItem('started') === 'true' || localStorage.getItem('qrquest_started') === 'true';
     }catch(e){ return false; }
   }
-
-  // 受付スタートの情報がURLに付いていれば、まず保存（iPhone対策）
-  seedFromParams();
-
-  var pwa = isPWA();
-
-  // ボタンエリア（下固定）を制御
-  var btns = document.querySelector('.btns');
-  if(btns && !pwa){
-    // ブラウザで開いている間は、アイコン追加の案内だけにする（開始ボタンは出さない）
-    btns.style.display = 'none';
-    var warn = document.getElementById('qrquest-start-warning-howto');
-    if(warn && !getStarted()){
-      warn.style.display = 'block';
-    }
-  }
-
-  if(pwa){
-    // アイコン起動（PWA）なら、スタート済みならホームへ。未スタートなら受付案内へ。
-    if(getStarted()){
-      location.replace('./index.html');
-    }else{
-      location.replace('./need_start.html');
-    }
+  var btn = document.getElementById('btnQuestGoHowto');
+  if(btn){
+    btn.addEventListener('click', function(ev){
+      if(!getStarted()){
+        ev.preventDefault();
+        var box = document.getElementById('qrquest-start-warning-howto');
+        if(box){ box.style.display = 'block'; box.scrollIntoView({behavior:'smooth', block:'center'}); }
+        else{ alert('まだ受付スタートが完了していません。受付でスタートQRを読み込んでください。'); }
+      }
+    });
   }
 })();
 </script>
+
 </body>
 </html>
