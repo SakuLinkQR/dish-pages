@@ -102,11 +102,6 @@
       color: #888;
     }
   </style>
-
-  <script>
-    // QRはadd_to_home.htmlを開く仕様のままでも、画面はhowtoに統一する
-    location.replace("./howto.html" + location.search);
-  </script>
 </head>
 
 <body>
@@ -139,12 +134,6 @@
       右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>
     </p>
   </div>
-
-  <!-- 次は splash → language(自動) → ... の流れ -->
-  <button class="next-button" onclick="localStorage.setItem('setup_done', 'true'); location.href='./index.html'">
-    追加後（または追加せず）にホームへ
-  </button>
-
-  <div class="powered">Powered by SakuLink</div>
+<div class="powered">Powered by SakuLink</div>
 </body>
 </html>

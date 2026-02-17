@@ -16,7 +16,8 @@
   </style>
   <script src="./lib/html5-qrcode.min.js"></script>
   <script src="../event-config.js"></script>
-  <script>
+    <script src="../pwa-guard.js"></script>
+<script>
     // 読み取り完了後、停止処理が詰まっても遷移できるように安全停止ヘルパーを用意
     function forceStopMediaTracks(){
       try{

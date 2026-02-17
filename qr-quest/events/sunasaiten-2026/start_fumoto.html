@@ -5,44 +5,97 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>スタート（麓）</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+
   <style>
-    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#fffaf2;margin:0;padding:24px;text-align:center;color:#3b2f1a}
-    .card{max-width:600px;margin:0 auto;background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:18px;box-shadow:0 10px 22px rgba(0,0,0,.08)}
-    h1{margin:0 0 10px;font-size:1.35rem}
-    p{margin:10px 0;line-height:1.7}
-    .btn{display:block;width:100%;max-width:340px;margin:14px auto 0;padding:12px 14px;border:none;border-radius:12px;background:#4fa3ff;color:#fff;font-weight:800;font-size:1rem;cursor:pointer}
+    body{
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+      background:#fff7fa;
+      margin:0;
+      padding:22px 14px;
+      color:#333;
+      text-align:center;
+    }
+    .card{
+      max-width:680px;
+      margin:0 auto;
+      background:#fff;
+      border-radius:16px;
+      padding:18px 16px;
+      box-shadow:0 10px 22px rgba(0,0,0,.08);
+      text-align:left;
+    }
+    h1{margin:0 0 10px;font-size:1.35rem;color:#ff4081;}
+    p{margin:10px 0;line-height:1.75;}
+    .step{background:#fff3f8;border-radius:12px;padding:12px 12px;margin:12px 0;}
+    .badge{display:inline-block;background:#eef6ff;color:#1f4a7a;border-radius:999px;padding:6px 10px;font-size:.92rem;}
+    .small{font-size:.92rem;color:#555;}
+    .warn{font-size:.92rem;color:#6a3a00;background:#fff6e6;border-radius:12px;padding:10px 12px;margin-top:10px;}
+    .center{text-align:center;}
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>スタートしました（麓）</h1>
-    <p>
-      まずは、ホーム画面に追加（アイコン設置）するのがおすすめです。<br>
-      下のボタンを押してください。
-    </p>
-    <button class="btn" onclick="location.href='add_to_home.html'">ホーム画面に追加へ進む</button>
+    <h1>スタート受付（麓）</h1>
+
+    <p>このQRクエストは、<strong>ホーム画面に追加したアイコン</strong>から参加します。</p>
+
+    <div class="step">
+      <p><strong>📱 iPhone（Safari）</strong><br>
+        画面下の <strong>共有ボタン</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
+      </p>
+      <p><strong>📱 Android（Chrome）</strong><br>
+        右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>
+      </p>
+    </div>
+
+    <p class="center"><span class="badge">追加できたら、ホーム画面のアイコンをタップして開始</span></p>
+
+    <div class="warn">
+      <strong>※重要：</strong>このページからはゲームを開始できません。<br>
+      必ず<strong>ホーム画面のアイコン</strong>から起動してください（受付混雑防止のため）。
+    </div>
+
+    <p class="small">スマホ操作が不安な方は、紙のスタンプラリーでも同じ参加賞・抽選に参加できます。</p>
   </div>
 
-<script>
-  // 受付スタート処理：2ピースを自動でオープン
-  localStorage.setItem('started','true');
-  localStorage.setItem('start_area','fumoto');
-  // 初期ピース：1番と9番
-  localStorage.setItem('q_piece1','true');
-  localStorage.setItem('q_piece9','true');
-  localStorage.setItem('seeded_1_9','true');
+  <script>
+    // 「アイコンから起動」されたときだけ開始処理 → ホームへ自動遷移
+    (function(){
+      function isStandalone(){
+        try{
+          return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+        }catch(e){ return false; }
+      }
 
+      if(!isStandalone()) return;
 
-      
-  // 旧互換の掃除（1&5が残っていたら消す）
-  try{ localStorage.removeItem('q_piece5'); localStorage.removeItem('piece5'); localStorage.removeItem('qrquest_piece5'); }catch(e){}
-// 互換キー（万一、別ページが違うキーを見ていても2枚が出るように）
+      // 受付スタート情報
+      localStorage.setItem('setup_done','true');
+      localStorage.setItem('started','true');
+      localStorage.setItem('start_area','fumoto');
+
+      // 初期ピース：1番と9番
+      localStorage.setItem('q_piece1','true');
+      localStorage.setItem('q_piece9','true');
+      localStorage.setItem('seeded_1_9','true');
+
+      // 旧互換の掃除（1&5や古いキーが残っていたら消す）
+      try{ localStorage.removeItem('q_piece5'); localStorage.removeItem('piece5'); localStorage.removeItem('qrquest_piece5'); }catch(e){}
+
+      // 互換キー（万一、別ページが違うキーを見ていても2枚が出るように）
       try {
         localStorage.setItem('piece1','true');
         localStorage.setItem('piece9','true');
         localStorage.setItem('qrquest_piece1','true');
         localStorage.setItem('qrquest_piece9','true');
       } catch(e){}
-</script>
+
+      // スタンドアロン起動なら、そのままホームへ
+      location.replace('./index.html');
+    })();
+  </script>
 </body>
 </html>
