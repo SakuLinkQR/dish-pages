@@ -1,10 +1,11 @@
 {
-  "name": "砂の祭典 QRクエスト 2026",
-  "short_name": "砂祭2026",
-  "start_url": "add_to_home.html",
+  "name": "QRクエスト 砂の祭典2026",
+  "short_name": "QRクエスト",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4fa3ff",
+  "background_color": "#fff7fa",
+  "theme_color": "#ff4081",
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -16,7 +17,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "scope": "./",
-  "id": "/qr-quest/events/sunasaiten-2026/?app=2026"
+  ]
 }
