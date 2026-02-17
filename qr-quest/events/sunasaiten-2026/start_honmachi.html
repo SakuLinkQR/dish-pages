@@ -70,7 +70,7 @@
         }catch(e){ return false; }
       }
 
-      if(!isStandalone()) return;
+      // 受付スタート情報（ブラウザでも保存してOK：アイコン起動時に反映されます）
 
       // 受付スタート情報
       localStorage.setItem('setup_done','true');
@@ -92,9 +92,10 @@
         localStorage.setItem('qrquest_piece1','true');
         localStorage.setItem('qrquest_piece9','true');
       } catch(e){}
-
-      // スタンドアロン起動なら、そのままホームへ
-      location.replace('./index.html');
+      // スタンドアロン起動なら、そのままホームへ（ブラウザ表示では説明だけ出して遷移しない）
+      if(isStandalone()){
+        location.replace('./index.html');
+      }
     })();
   </script>
 </body>
