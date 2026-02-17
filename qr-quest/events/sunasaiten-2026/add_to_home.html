@@ -10,123 +10,123 @@
   <link rel="manifest" href="manifest.json" />
 
   <style>
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
-      background-color: #fff7fa;
-      text-align: center;
-      padding: 40px 20px;
-      max-width: 680px;
-      margin: auto;
-      color: #333;
-    }
-    h1 { font-size: 1.8em; color: #ff4081; margin-bottom: 12px; }
-    p { font-size: 1.05em; margin-bottom: 14px; line-height: 1.6; }
-    .instruction {
-      background-color: #fff3f8;
-      padding: 18px;
-      border-radius: 10px;
-      margin: 16px 0 18px;
-      text-align: left;
-    }
-    .badge{
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:999px;
-      background:#fff3f8;
-      color:#c2185b;
-      font-size:0.95em;
-      margin-bottom:12px;
-    }
-    .powered{
-      margin-top: 26px;
-      font-size: 12px;
-      color: #888;
-    }
-    .small{
-      font-size:0.95em;
-      color:#555;
-    }
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#fff7fa;text-align:center;padding:40px 20px;max-width:680px;margin:auto;color:#333}
+    h1{font-size:1.8em;color:#ff4081;margin-bottom:12px}
+    p{font-size:1.05em;margin-bottom:14px;line-height:1.7}
+    .instruction{background:#fff3f8;padding:18px;border-radius:10px;margin:18px 0;text-align:left}
+    .note{margin:0 0 18px;font-size:.95em;color:#555;line-height:1.6;text-align:left;background:#fff;border:1px solid #ffe0ec;padding:14px;border-radius:10px}
+    .badge{display:inline-block;padding:6px 12px;border-radius:999px;background:#fff3f8;color:#c2185b;font-size:.95em;margin:6px 0 14px}
+    .loading{font-size:1.0em;color:#555;margin:18px 0}
+    .powered{margin-top:26px;font-size:12px;color:#888}
   </style>
 </head>
-
 <body>
   <h1>QRクエスト in 砂の祭典2026</h1>
+
+  <div id="loading" class="loading" style="display:none;">起動中…</div>
   <div id="badge" class="badge" style="display:none;"></div>
 
-  <p id="mainMsg">
-    受付QRを読み取りました。<br>
-    次は <strong>「ホーム画面に追加」</strong> をして、できた <strong>アイコンから開始</strong> してください。
-  </p>
-
-  <div class="instruction" id="howtoBox">
-    <p><strong>📱 iPhone（Safari）</strong><br>
-      画面下の <strong>共有ボタン</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
+  <div id="instructions">
+    <p>
+      受付QRを読み取りました。<br>
+      次は <strong>「ホーム画面に追加」</strong> をして、できた <strong>アイコンから開始</strong> してください。<br>
+      （この画面からゲームは開始できません）
     </p>
 
-    <p><strong>📱 Android（Chrome）</strong><br>
-      右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>
+    <div class="instruction">
+      <p><strong>📱 iPhone（Safari）</strong><br>
+        画面下の <strong>共有ボタン</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
+      </p>
+      <p><strong>📱 Android（Chrome）</strong><br>
+        右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>
+      </p>
+    </div>
+
+    <div class="note">
+      <strong>スマホ操作が難しい方へ：</strong><br>
+      ホーム画面への追加が難しい場合は、紙のスタンプラリーをご利用ください。<br>
+      それでもスマホで参加したい方は、係員が「ホーム画面に追加」をお手伝いします。
+    </div>
+
+    <p style="font-size:0.95em;color:#555;">
+      追加できたら、この画面を閉じて、<br>
+      <strong>ホーム画面にできたアイコン</strong>をタップしてスタートしてください。
     </p>
   </div>
-
-  <p class="small" id="subMsg">
-    追加できたら、この画面はいったん閉じて、<br>
-    ホーム画面にできたアイコンをタップしてスタートしてください。
-  </p>
 
   <div class="powered">Powered by SakuLink</div>
 
 <script>
 (function(){
-  function isStandalone(){
-    // iOS Safari: navigator.standalone
-    // その他: display-mode: standalone
-    return (window.navigator && window.navigator.standalone) ||
-           (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-  }
-
   const params = new URLSearchParams(location.search);
-  const start = (params.get('start') || '').trim();
+  const start = (params.get("start") || "").trim(); // shiyakusho / honmachi / fumoto
 
-  if(start){
-    const badge = document.getElementById('badge');
-    badge.style.display = 'inline-block';
-    badge.textContent = '受付地点： ' + start;
+  // PWA判定（iOS/他）
+  const isStandalone =
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+    (window.navigator && window.navigator.standalone === true);
+
+  function isStarted(){
+    try{ return localStorage.getItem("started") === "true"; }catch(e){ return false; }
   }
 
-  // ここが重要：
-  // iPhoneでは「Safariで読んだlocalStorage」と「ホーム追加アプリのlocalStorage」が別になることがあるため、
-  // アイコン起動（standalone）時に必ずこのページで localStorage をセットしてから index へ送る。
-  if(isStandalone()){
-    try{
-      if(start){
-        localStorage.setItem('start_area', start);
-      }
-      // 受付完了フラグ（既存ロジックに合わせる）
-      localStorage.setItem('started', 'true');
-      localStorage.setItem('qrquest_started', 'true');
+  function setStartFlags(){
+    // 受付完了フラグ（quest_go.html が started を見ています）
+    localStorage.setItem("started","true");
+    localStorage.setItem("qrquest_started","true");
+    localStorage.setItem("setup_done","true");
 
-      // 初期ピース：1番と9番（互換で複数キーを立てる）
-      localStorage.setItem('c_piece1', 'true');
-      localStorage.setItem('c_piece9', 'true');
-      localStorage.setItem('piece_1', 'true');
-      localStorage.setItem('piece_9', 'true');
+    // 開始地点
+    if(start){ localStorage.setItem("start_area", start); }
 
-      // 受付時刻（任意）
-      localStorage.setItem('start_at', new Date().toISOString());
-    }catch(e){}
+    // 初期ピース：1と9（互換多め）
+    localStorage.setItem("piece_1","true");
+    localStorage.setItem("piece_9","true");
+    localStorage.setItem("c_piece1","true");
+    localStorage.setItem("c_piece9","true");
+    localStorage.setItem("q_piece1","true");
+    localStorage.setItem("q_piece9","true");
 
-    // UIを少しだけ変えて「自動で開始します」にする
-    const mainMsg = document.getElementById('mainMsg');
-    const subMsg  = document.getElementById('subMsg');
-    const howto   = document.getElementById('howtoBox');
-    if(howto) howto.style.display = 'none';
-    if(mainMsg) mainMsg.innerHTML = '受付完了！<br><strong>クエストホームへ移動します…</strong>';
-    if(subMsg) subMsg.textContent = '（自動で切り替わらない場合は、いったんアプリを閉じてアイコンをもう一度タップしてください）';
+    if(!localStorage.getItem("start_at")){
+      localStorage.setItem("start_at", new Date().toISOString());
+    }
+  }
 
-    // 少し待ってからホームへ
-    setTimeout(function(){
-      location.replace('./index.html');
-    }, 600);
+  // 表示（受付地点バッジ）
+  if(start){
+    const badge = document.getElementById("badge");
+    badge.style.display="inline-block";
+    badge.textContent="受付地点： " + start;
+  }
+
+  // ★重要：アイコン起動（PWA）では、必ずここを通る（manifest start_url が add_to_home）
+  if(isStandalone){
+    // すでに開始済みなら即ホームへ（無限ループ防止）
+    if(isStarted()){
+      document.getElementById("instructions").style.display="none";
+      document.getElementById("loading").style.display="block";
+      location.replace("./index.html");
+      return;
+    }
+
+    // 初回：start= が付いていれば開始フラグを確定→ホームへ
+    if(start){
+      document.getElementById("instructions").style.display="none";
+      document.getElementById("loading").style.display="block";
+      setStartFlags();
+      location.replace("./index.html");
+      return;
+    }
+
+    // もし start が無い状態でアイコン起動してしまった場合
+    // （誤ったページから追加した等）→ 受付QRを読み直してもらうしかない
+    // この場合は案内を出したままにする
+  }
+
+  // Safari/Chrome（通常ブラウザ）で開いたときは start_area だけ保存（記録用）
+  // ※iOSではPWAと分離する可能性があるので、開始フラグはPWA側で確定させる
+  if(!isStandalone && start){
+    try{ localStorage.setItem("start_area", start); }catch(e){}
   }
 })();
 </script>
