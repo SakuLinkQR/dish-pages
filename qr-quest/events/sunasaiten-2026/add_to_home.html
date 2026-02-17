@@ -6,10 +6,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- このイベントフォルダ内にあるmanifest/iconsを使う -->
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="manifest" href="manifest.json" />
 
-  <style>
+  
+
+<script>
+(function(){
+  // 受付QRのURL例：add_to_home.html?start=shiyakusho
+  const params = new URLSearchParams(location.search);
+  const start = (params.get('start') || '').toLowerCase();
+
+  const allowed = new Set(['shiyakusho','honmachi','fumoto']);
+  if (allowed.has(start)) {
+    localStorage.setItem('start_area', start);
+    localStorage.setItem('setup_done', 'true');
+    localStorage.setItem('started', 'true');
+    localStorage.setItem('qrquest_started', 'true');
+
+    // 初期ピース：1番＆9番
+    if (!localStorage.getItem('c_piece1')) {
+      localStorage.setItem('c_piece1', '1');
+      localStorage.setItem('c_piece1_at', new Date().toISOString());
+    }
+    if (!localStorage.getItem('c_piece9')) {
+      localStorage.setItem('c_piece9', '1');
+      localStorage.setItem('c_piece9_at', new Date().toISOString());
+    }
+  }
+
+  // “ホーム画面アイコン”から起動された場合（PWA/スタンドアロン）
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  // アイコン起動なら、保存済みならそのままホームへ
+  if (isStandalone && localStorage.getItem('setup_done') === 'true' && localStorage.getItem('start_area')) {
+    location.replace('./index.html');
+  }
+})();
+</script>
+
+<style>
     body {
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
       background-color: #fff7fa;

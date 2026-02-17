@@ -1,7 +1,7 @@
 {
   "name": "砂の祭典 QRクエスト 2026",
   "short_name": "砂祭2026",
-  "start_url": "index.html",
+  "start_url": "add_to_home.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4fa3ff",
@@ -16,5 +16,7 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "scope": "./",
+  "id": "/qr-quest/events/sunasaiten-2026/?app=2026"
 }
