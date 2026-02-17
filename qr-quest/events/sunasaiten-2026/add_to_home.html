@@ -4,27 +4,29 @@
   <meta charset="UTF-8" />
   <title>砂の祭典2026 - ホーム画面に追加</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="manifest" href="manifest.json" />
+
   <style>
-    body{
+    body {
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
-      background-color:#fff7fa;
-      text-align:center;
-      padding:40px 20px;
-      max-width:680px;
-      margin:auto;
-      color:#333;
+      background-color: #fff7fa;
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 680px;
+      margin: auto;
+      color: #333;
     }
-    h1{font-size:1.8em;color:#ff4081;margin-bottom:12px;}
-    p{font-size:1.05em;margin-bottom:14px;line-height:1.6;}
-    .instruction{
-      background-color:#fff3f8;
-      padding:18px;
-      border-radius:10px;
-      margin:16px 0 18px;
-      text-align:left;
+    h1 { font-size: 1.8em; color: #ff4081; margin-bottom: 12px; }
+    p { font-size: 1.05em; margin-bottom: 14px; line-height: 1.6; }
+    .instruction {
+      background-color: #fff3f8;
+      padding: 18px;
+      border-radius: 10px;
+      margin: 16px 0 18px;
+      text-align: left;
     }
     .badge{
       display:inline-block;
@@ -33,32 +35,41 @@
       background:#fff3f8;
       color:#c2185b;
       font-size:0.95em;
-      margin-bottom:10px;
+      margin-bottom:12px;
     }
-    .powered{margin-top:26px;font-size:12px;color:#888;}
+    .powered{
+      margin-top: 26px;
+      font-size: 12px;
+      color: #888;
+    }
+    .small{
+      font-size:0.95em;
+      color:#555;
+    }
   </style>
 </head>
+
 <body>
   <h1>QRクエスト in 砂の祭典2026</h1>
   <div id="badge" class="badge" style="display:none;"></div>
 
-  <p>
+  <p id="mainMsg">
     受付QRを読み取りました。<br>
-    次は <strong>「ホーム画面に追加」</strong> をして、できた <strong>アイコンから開始</strong> してください。<br>
-    （この画面からゲームは開始できません）
+    次は <strong>「ホーム画面に追加」</strong> をして、できた <strong>アイコンから開始</strong> してください。
   </p>
 
-  <div class="instruction">
+  <div class="instruction" id="howtoBox">
     <p><strong>📱 iPhone（Safari）</strong><br>
       画面下の <strong>共有ボタン</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
     </p>
+
     <p><strong>📱 Android（Chrome）</strong><br>
       右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>
     </p>
   </div>
 
-  <p style="font-size:0.95em;color:#555;">
-    追加できたら、いったんこの画面を閉じて、<br>
+  <p class="small" id="subMsg">
+    追加できたら、この画面はいったん閉じて、<br>
     ホーム画面にできたアイコンをタップしてスタートしてください。
   </p>
 
@@ -66,44 +77,57 @@
 
 <script>
 (function(){
+  function isStandalone(){
+    // iOS Safari: navigator.standalone
+    // その他: display-mode: standalone
+    return (window.navigator && window.navigator.standalone) ||
+           (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  }
+
   const params = new URLSearchParams(location.search);
-  const start = (params.get("start") || "").trim(); // shiyakusho / honmachi / fumoto
+  const start = (params.get('start') || '').trim();
 
-  if(!start){ return; }
+  if(start){
+    const badge = document.getElementById('badge');
+    badge.style.display = 'inline-block';
+    badge.textContent = '受付地点： ' + start;
+  }
 
-  const nowIso = new Date().toISOString();
+  // ここが重要：
+  // iPhoneでは「Safariで読んだlocalStorage」と「ホーム追加アプリのlocalStorage」が別になることがあるため、
+  // アイコン起動（standalone）時に必ずこのページで localStorage をセットしてから index へ送る。
+  if(isStandalone()){
+    try{
+      if(start){
+        localStorage.setItem('start_area', start);
+      }
+      // 受付完了フラグ（既存ロジックに合わせる）
+      localStorage.setItem('started', 'true');
+      localStorage.setItem('qrquest_started', 'true');
 
-  // ✅ 受付スタート完了フラグ（index.html が見るキー）
-  localStorage.setItem("started", "true");
-  localStorage.setItem("qrquest_started", "true"); // 念のため
+      // 初期ピース：1番と9番（互換で複数キーを立てる）
+      localStorage.setItem('c_piece1', 'true');
+      localStorage.setItem('c_piece9', 'true');
+      localStorage.setItem('piece_1', 'true');
+      localStorage.setItem('piece_9', 'true');
 
-  // ✅ 受付地点
-  localStorage.setItem("start_area", start);
+      // 受付時刻（任意）
+      localStorage.setItem('start_at', new Date().toISOString());
+    }catch(e){}
 
-  // ✅ 初期ピースは「1番 & 9番」
-  // 既存コード側で参照される可能性があるキーを“全部”立てる（ホーム画面以降は触らないため）
-  localStorage.setItem("seeded_1_9", "true");
+    // UIを少しだけ変えて「自動で開始します」にする
+    const mainMsg = document.getElementById('mainMsg');
+    const subMsg  = document.getElementById('subMsg');
+    const howto   = document.getElementById('howtoBox');
+    if(howto) howto.style.display = 'none';
+    if(mainMsg) mainMsg.innerHTML = '受付完了！<br><strong>クエストホームへ移動します…</strong>';
+    if(subMsg) subMsg.textContent = '（自動で切り替わらない場合は、いったんアプリを閉じてアイコンをもう一度タップしてください）';
 
-  // QRクエスト用
-  localStorage.setItem("q_piece1", "true");
-  localStorage.setItem("q_piece9", "true");
-  localStorage.setItem("q_piece1_at", nowIso);
-  localStorage.setItem("q_piece9_at", nowIso);
-
-  // チャレンジ（9ピース）側の互換
-  localStorage.setItem("c_piece1", "true");
-  localStorage.setItem("c_piece9", "true");
-  localStorage.setItem("c_piece1_at", nowIso);
-  localStorage.setItem("c_piece9_at", nowIso);
-
-  // 旧互換（もし参照が残っていても大丈夫なように）
-  localStorage.setItem("piece1", "true");
-  localStorage.setItem("piece9", "true");
-
-  // 表示
-  const badge = document.getElementById("badge");
-  badge.style.display = "inline-block";
-  badge.textContent = "受付地点： " + start;
+    // 少し待ってからホームへ
+    setTimeout(function(){
+      location.replace('./index.html');
+    }, 600);
+  }
 })();
 </script>
 </body>
