@@ -5,8 +5,9 @@
   <title>砂の祭典2026 - ホーム画面に追加</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- このイベントフォルダ内にあるmanifest/iconsを使う -->
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <!-- アイコン/manifest（ここは既存と同じでOK） -->
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon-192.png" />
   <link rel="manifest" href="manifest.json" />
 
   <style>
@@ -15,124 +16,66 @@
       background-color: #fff7fa;
       text-align: center;
       padding: 40px 20px;
-      max-width: 600px;
+      max-width: 640px;
       margin: auto;
       color: #333;
     }
 
     h1 { font-size: 1.8em; color: #ff4081; margin-bottom: 12px; }
-    p { font-size: 1.05em; margin-bottom: 18px; }
+    p  { font-size: 1.05em; margin-bottom: 14px; line-height: 1.7; }
 
     .instruction {
       background-color: #fff3f8;
       padding: 18px;
       border-radius: 10px;
-      margin-bottom: 18px;
+      margin: 18px 0;
       text-align: left;
     }
 
-    /* B案の補足文 */
     .note{
       margin: 0 0 18px;
       font-size: 0.95em;
       color: #555;
       line-height: 1.6;
-    }
-
-    /* 追加：アイコン見本ブロック */
-    .icon-hint{
-      margin: 14px 0 10px;
-      font-size: 1.02em;
-      line-height: 1.5;
-      color: #333;
-    }
-
-    .icon-preview{
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
-      background: #ffffff;
-      border: 1px solid rgba(0,0,0,0.10);
-      border-radius: 14px;
-      padding: 12px 16px;
-      margin: 6px 0 18px;
-      box-shadow: 2px 4px 10px rgba(0,0,0,0.05);
-    }
-
-    .icon-preview img{
-      width: 62px;
-      height: 62px;
-      border-radius: 16px; /* iOSっぽい角丸 */
-      display: block;
-      background: #fff;
-    }
-
-    .icon-preview .icon-text{
       text-align: left;
-      line-height: 1.4;
+      background: #ffffff;
+      border: 1px solid #ffe0ec;
+      padding: 14px 14px;
+      border-radius: 10px;
     }
 
-    .icon-preview .icon-text .title{
-      font-weight: 700;
-      color: #ff4081;
-      margin-bottom: 2px;
+    .badge{
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:999px;
+      background:#fff3f8;
+      color:#c2185b;
+      font-size:0.95em;
+      margin: 6px 0 14px;
     }
 
-    .icon-preview .icon-text .sub{
-      font-size: 0.92em;
-      color: #666;
-    }
-
-    .next-button {
-      padding: 12px 24px;
-      font-size: 1.1em;
-      background-color: #ff4081;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .next-button:hover { background-color: #e03570; }
-
-    /* 下部の控えめ表記 */
     .powered{
       margin-top: 26px;
       font-size: 12px;
       color: #888;
     }
   </style>
-
-  <script>
-    // QRはadd_to_home.htmlを開く仕様のままでも、画面はhowtoに統一する
-    location.replace("./howto.html" + location.search);
-  </script>
 </head>
 
 <body>
   <h1>QRクエスト in 砂の祭典2026</h1>
-  <p>使いやすくするため、ホーム画面に追加するのがおすすめです。</p>
 
-  <!-- 追加：アイコンの見本 -->
-  <p class="icon-hint"><strong>ホーム画面に追加すると、このアイコンができます。</strong></p>
+  <div id="badge" class="badge" style="display:none;"></div>
 
-  <div class="icon-preview" aria-label="ホーム画面アイコン見本">
-    <img src="icons/icon-192.png" alt="QRクエストのアイコン見本">
-    <div class="icon-text">
-      <div class="title">QRクエスト</div>
-      <div class="sub">in 砂の祭典2026</div>
-    </div>
-  </div>
-
-  <!-- B案：追加した人も、しない人も、このボタンで進める -->
-  <p class="note">
-    追加できた方は、追加後にこの画面へ戻って、下のボタンを押してください。<br>
-    追加しない方も、そのまま押してOKです。
+  <p>
+    受付QRを読み取りました。<br>
+    次は <strong>「ホーム画面に追加」</strong> をして、できた <strong>アイコンから開始</strong> してください。<br>
+    （この画面からゲームは開始できません）
   </p>
 
   <div class="instruction">
     <p><strong>📱 iPhone（Safari）</strong><br>
-      画面下の <strong>共有ボタン</strong>（🔗）→ <strong>「ホーム画面に追加」</strong>
+      画面下の <strong>共有ボタン</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
     </p>
 
     <p><strong>📱 Android（Chrome）</strong><br>
@@ -140,11 +83,64 @@
     </p>
   </div>
 
-  <!-- 次は splash → language(自動) → ... の流れ -->
-  <button class="next-button" onclick="localStorage.setItem('setup_done', 'true'); location.href='./index.html'">
-    追加後（または追加せず）にホームへ
-  </button>
+  <div class="note">
+    <strong>スマホ操作が難しい方へ：</strong><br>
+    ホーム画面への追加が難しい場合は、紙のスタンプラリーをご利用ください。<br>
+    それでもスマホで参加したい方は、係員が「ホーム画面に追加」をお手伝いします。
+  </div>
+
+  <p style="font-size:0.95em;color:#555;">
+    追加できたら、この画面を閉じて、<br>
+    <strong>ホーム画面にできたアイコン</strong>をタップしてスタートしてください。
+  </p>
 
   <div class="powered">Powered by SakuLink</div>
+
+  <script>
+  (function () {
+    // 1) 受付QRの start= を読む（例：?start=shiyakusho）
+    const params = new URLSearchParams(location.search);
+    const start = (params.get("start") || "").trim();
+
+    // 2) 「アイコン起動（PWA）」判定
+    //    iOS: navigator.standalone / それ以外: display-mode: standalone
+    const isStandalone =
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+      (window.navigator && window.navigator.standalone === true);
+
+    // 3) Safari/Chromeで受付QRを読んだ時点でも start_area は保存（情報の種）
+    if (start) {
+      localStorage.setItem("start_area", start);
+      const badge = document.getElementById("badge");
+      badge.style.display = "inline-block";
+      badge.textContent = "受付地点： " + start;
+    }
+
+    // 4) 重要：アイコン起動（PWA）で開かれた場合は、
+    //    PWA側のlocalStorageに「受付済みフラグ」を確定してから index へ進める
+    if (isStandalone) {
+      // need_start.html が見ていそうなキーを「互換多め」で立てます
+      localStorage.setItem("started", "true");
+      localStorage.setItem("qrquest_started", "true");
+      localStorage.setItem("setup_done", "true");
+
+      // 初期ピース：1番＆9番（互換多め）
+      localStorage.setItem("piece_1", "true");
+      localStorage.setItem("piece_9", "true");
+      localStorage.setItem("c_piece1", "true");
+      localStorage.setItem("c_piece9", "true");
+      localStorage.setItem("q_piece1", "true");
+      localStorage.setItem("q_piece9", "true");
+
+      // 受付時刻（あっても害なし）
+      if (!localStorage.getItem("start_at")) {
+        localStorage.setItem("start_at", new Date().toISOString());
+      }
+
+      // PWAはここから自動でホームへ
+      location.replace("./index.html");
+    }
+  })();
+  </script>
 </body>
 </html>
