@@ -66,24 +66,44 @@
 
 <script>
 (function(){
-  // startパラメータ（shiyakusho/honmachi/fumoto）を保存
   const params = new URLSearchParams(location.search);
-  const start = (params.get("start") || "").trim();
+  const start = (params.get("start") || "").trim(); // shiyakusho / honmachi / fumoto
 
-  // 受付QRを読んだ証拠として保存（アイコン起動=index.htmlでこれを見る）
-  if(start){
-    localStorage.setItem("start_area", start);
-    localStorage.setItem("setup_done", "true");
-    // 初期ピース：1と9（仕様確定）
-    localStorage.setItem("piece_1", "true");
-    localStorage.setItem("piece_9", "true");
-    // 参考：ログ用に開始時刻
-    localStorage.setItem("start_at", new Date().toISOString());
+  if(!start){ return; }
 
-    const badge = document.getElementById("badge");
-    badge.style.display = "inline-block";
-    badge.textContent = "受付地点： " + start;
-  }
+  const nowIso = new Date().toISOString();
+
+  // ✅ 受付スタート完了フラグ（index.html が見るキー）
+  localStorage.setItem("started", "true");
+  localStorage.setItem("qrquest_started", "true"); // 念のため
+
+  // ✅ 受付地点
+  localStorage.setItem("start_area", start);
+
+  // ✅ 初期ピースは「1番 & 9番」
+  // 既存コード側で参照される可能性があるキーを“全部”立てる（ホーム画面以降は触らないため）
+  localStorage.setItem("seeded_1_9", "true");
+
+  // QRクエスト用
+  localStorage.setItem("q_piece1", "true");
+  localStorage.setItem("q_piece9", "true");
+  localStorage.setItem("q_piece1_at", nowIso);
+  localStorage.setItem("q_piece9_at", nowIso);
+
+  // チャレンジ（9ピース）側の互換
+  localStorage.setItem("c_piece1", "true");
+  localStorage.setItem("c_piece9", "true");
+  localStorage.setItem("c_piece1_at", nowIso);
+  localStorage.setItem("c_piece9_at", nowIso);
+
+  // 旧互換（もし参照が残っていても大丈夫なように）
+  localStorage.setItem("piece1", "true");
+  localStorage.setItem("piece9", "true");
+
+  // 表示
+  const badge = document.getElementById("badge");
+  badge.style.display = "inline-block";
+  badge.textContent = "受付地点： " + start;
 })();
 </script>
 </body>
