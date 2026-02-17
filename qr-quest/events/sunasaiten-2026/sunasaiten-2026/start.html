@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRクエスト（ホーム）</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'DotGothic16', sans-serif;
+      background-image: url('images/background_grandcanyon.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #f9f2dc;
+      text-align: center;
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-top: 30px;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+      letter-spacing: 2px;
+      white-space: nowrap;
+    }
+    .sub {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      opacity: 0.95;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+      max-width: 720px;
+      line-height: 1.6;
+    }
+    .button-group {
+      margin-top: 70px;
+      width: 100%;
+    }
+    button {
+      display: block;
+      width: 80vw;
+      max-width: 360px;
+      margin: 14px auto;
+      padding: 20px 0;
+      font-size: 1.25rem;
+      height: 70px;
+      border-radius: 12px;
+      border: none;
+      background-color: #ffd54f;
+      color: #4e342e;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    button:hover {
+      background-color: #ffb300;
+      transform: scale(1.05);
+    }
+    .rewardLine{
+      margin-top: 18px;
+      font-size: 0.95rem;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>QRクエスト</h1>
+  <div class="sub">（写真 9分割）</div>
+
+  <div class="button-group" id="btnGroup">
+    <button onclick="location.href='scanner/qr-scanner.html?return=../scan_success.html'">SCAN</button>
+    <button onclick="location.href='progress.html'">写真確認</button>
+    <button onclick="location.href='index.html'">ホーム画面に戻る</button>
+  </div>
+
+
+  <script>
+    // 受付スタート必須
+    if (localStorage.getItem('started') !== 'true') {
+      location.replace('need_start.html');
+    }
+
+    // --- SCAN結果の反映（保険：scan_success.htmlで反映済みでもOK） ---
+    (function(){
+      const raw = (localStorage.getItem('scan_text') || '').trim();
+      if(!raw) return;
+      const s = raw.toLowerCase();
+      if(s.includes('reward')) return;
+      function pick(){
+        if(s.includes('shiyakusho') || s.includes('cityhall') || s.includes('市役所')) return 'shiyakusho';
+        if(s.includes('honmachi1') || s.includes('honmachi-1') || s.includes('honmachi_1') || s.includes('本町1')) return 'honmachi1';
+        if(s.includes('honmachi2') || s.includes('honmachi-2') || s.includes('honmachi_2') || s.includes('本町2')) return 'honmachi2';
+        if(s.includes('fumoto1') || s.includes('fumoto-1') || s.includes('fumoto_1') || s.includes('麓1')) return 'fumoto1';
+        if(s.includes('fumoto2') || s.includes('fumoto-2') || s.includes('fumoto_2') || s.includes('麓2')) return 'fumoto2';
+        if(s.includes('fumoto3') || s.includes('fumoto-3') || s.includes('fumoto_3') || s.includes('麓3')) return 'fumoto3';
+        if(s.includes('fumoto4') || s.includes('fumoto-4') || s.includes('fumoto_4') || s.includes('麓4')) return 'fumoto4';
+        return '';
+      }
+      const pid = pick();
+      const map = { shiyakusho:2, honmachi1:3, honmachi2:4, fumoto4:5, fumoto1:6, fumoto2:7, fumoto3:8 };
+      const piece = map[pid];
+      if(pid && piece){
+        try{ localStorage.setItem('q_piece'+piece,'true'); }catch(e){}
+        try{
+          if(pid==='shiyakusho') localStorage.setItem('area_shiyakusho','true');
+          if(pid.startsWith('honmachi')) localStorage.setItem('area_honmachi','true');
+          if(pid.startsWith('fumoto')) localStorage.setItem('area_fumoto','true');
+        }catch(e){}
+      }
+      try{ localStorage.removeItem('scan_text'); }catch(e){}
+    })();
+
+    const btnGroup = document.getElementById('btnGroup');
+
+    const eligible =
+      localStorage.getItem('area_shiyakusho') === 'true' &&
+      localStorage.getItem('area_honmachi') === 'true' &&
+      localStorage.getItem('area_fumoto') === 'true';
+
+
+    if (claimed) {
+    } else if (eligible) {
+      const btn = document.createElement('button');
+      btn.onclick = () => location.href = 'reward_intro.html';
+      btnGroup.appendChild(btn);
+    } else {
+
+  // --- seed migration: 旧版(1&5) -> 正式版(1&9) ---
+  if (localStorage.getItem('seeded_1_5') === 'true' && localStorage.getItem('seeded_1_9') !== 'true') {
+    try{
+      if(localStorage.getItem('q_piece1') !== 'true') localStorage.setItem('q_piece1','true');
+      if(localStorage.getItem('q_piece9') !== 'true') localStorage.setItem('q_piece9','true');
+      localStorage.removeItem('q_piece5');
+      localStorage.setItem('seeded_1_9','true');
+    }catch(e){}
+  }
+    }
+  </script>
+
+</body>
+</html>

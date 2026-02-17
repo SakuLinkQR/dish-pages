@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>参加賞の受け取り</title>
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#fffaf2;margin:0;padding:24px;text-align:center;color:#3b2f1a}
+    .card{max-width:600px;margin:0 auto;background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:18px;box-shadow:0 10px 22px rgba(0,0,0,.08)}
+    h1{margin:0 0 10px;font-size:1.35rem}
+    p{margin:10px 0;line-height:1.7}
+    .btn{display:block;width:100%;max-width:320px;margin:12px auto 0;padding:12px 14px;border:none;border-radius:12px;background:#4fa3ff;color:#fff;font-weight:800;font-size:1rem;cursor:pointer}
+    .btn.secondary{background:#fff;color:#1f2937;border:1px solid #e5e7eb}
+    .warn{font-size:.9rem;color:#7a5a2a;margin-top:10px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎁 参加賞の受け取り</h1>
+    <p>
+      この画面を<strong>係員</strong>に見せてください。<br>
+      係員の確認後、受付にある<strong>参加賞ゲット用QR</strong>を読み込みます。
+    </p>
+    <div class="warn">※この画面を開いただけでは「ゲット済み」にはなりません。</div>
+
+    <button class="btn" onclick="location.href='scanner/qr-scanner.html?mode=reward&return=../reward_get.html&back=../reward_intro.html'">📷 参加賞ゲットスキャン</button>
+    <button class="btn secondary" onclick="location.href='start.html'">↩ クエストに戻る</button>
+  </div>
+
+<script>
+  // 受付スタート必須
+  const started = (localStorage.getItem('started') === 'true');
+  if (!started) { location.replace('need_start.html'); }
+
+  // 交付済みなら戻す（再表示不可）
+  const claimed = (localStorage.getItem('reward_claimed') === 'true');
+  if (claimed) {
+    location.replace('start.html');
+  }
+
+  // 条件未達なら戻す
+  const eligible =
+    localStorage.getItem('area_shiyakusho') === 'true' &&
+    localStorage.getItem('area_honmachi') === 'true' &&
+    localStorage.getItem('area_fumoto') === 'true';
+
+  if (!eligible) {
+    location.replace('start.html');
+  }
+</script>
+</body>
+</html>

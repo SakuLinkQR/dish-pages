@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="event-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRクエストへGO</title>
+</head>
+<body>
+<script>
+  // 受付スタート必須
+  if (localStorage.getItem("started") !== "true") {
+    location.replace("need_start.html");
+  } else {
+    // 初回だけオープニングへ
+    if (localStorage.getItem("visitedIntro_qrquest") !== "true") {
+      location.replace("intro.html");
+    } else {
+      location.replace("start.html");
+    }
+  }
+</script>
+</body>
+</html>

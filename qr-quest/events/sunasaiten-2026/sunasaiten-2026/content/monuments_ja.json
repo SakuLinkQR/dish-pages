@@ -1,0 +1,28 @@
+{
+  "s01": {
+    "monumentNo": "1",
+    "monumentTitle": "城を守る鷹（サンプル）",
+    "monumentSub": "本町エリア／写真スポット（サンプル）",
+    "monumentPhoto": "./images/placeholder.png",
+    "area": "本町エリア",
+    "questEligible": true,
+    "is_pr": false,
+    "challenge_piece": "",
+    "family_piece": "",
+    "artist": {
+      "name": "茶圓勝彦",
+      "country": "日本",
+      "bio": "砂像制作に長年携わる彫刻家。細部の造形と迫力ある表現が持ち味。（サンプル）",
+      "photo": "./images/placeholder.png",
+      "public_profile_ok": true
+    },
+    "concept": {
+      "text": "鋭い眼差しで城下町を見守る鷹をモチーフに、来場者の安全と祭りの成功を願って制作。（サンプル）",
+      "modelName": "（サンプル）○○城",
+      "modelDesc": "モデルとなった城の歴史や特徴を短く紹介。（サンプル）",
+      "modelPhoto": "./images/placeholder.png",
+      "makingDesc": "輪郭→細部→仕上げの順で造形し、光と影が映えるように調整。（サンプル）",
+      "makingPhoto": "./images/placeholder.png"
+    }
+  }
+}
