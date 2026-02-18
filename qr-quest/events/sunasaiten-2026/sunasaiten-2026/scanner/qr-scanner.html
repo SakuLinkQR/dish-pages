@@ -185,13 +185,15 @@
         else if(lower.includes('fumoto4') || lower.includes('fumoto-4') || lower.includes('fumoto_4') || lower.includes('麓4')) areaId = 'fumoto4';
         const map = { shiyakusho:2, honmachi1:3, honmachi2:4, fumoto4:5, fumoto1:6, fumoto2:7, fumoto3:8 };
         const pieceGuess = (areaId && map[areaId]) ? String(map[areaId]) : "";
+        if (mode === 'reward') {
         window.QRQUEST_LOG.send({
           page: "qr-scanner.html",
           area: areaId,
           qr_id: short,
-          result: (mode === 'reward' ? "scan_reward" : "scan"),
+          result: "scan_reward",
           piece: pieceGuess,
         });
+      }
       }
     }catch(e){}
     location.href = returnTarget;
