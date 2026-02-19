@@ -21,14 +21,16 @@ body{
   background:rgba(15,18,32,.9);
   backdrop-filter: blur(8px);
   border-bottom:1px solid rgba(255,255,255,.08);
+  z-index:10;
 }
 .brand{ font-weight:700; letter-spacing:.5px; }
-.meta{ display:flex; gap:10px; color:var(--muted); font-size:14px; }
+.meta{ display:flex; gap:10px; color:var(--muted); font-size:14px; flex-wrap:wrap; }
 
 .wrap{
   max-width:520px;
   margin:0 auto;
   padding:12px;
+  position:relative;
 }
 
 #game{
@@ -63,6 +65,7 @@ body{
   position:fixed; inset:0;
   display:flex; align-items:center; justify-content:center;
   background:rgba(0,0,0,.55);
+  z-index:30;
 }
 .overlay.hidden{ display:none; }
 
@@ -86,4 +89,29 @@ body{
   color:white;
   font-weight:700;
   font-size:16px;
+}
+
+/* ===== CLEAR演出：蜂が横切る ===== */
+.bee-fly{
+  position:fixed;
+  left:-60px;
+  top: 22vh;
+  font-size:44px;
+  z-index:25; /* overlayより下、ゲームより上 */
+  pointer-events:none;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+  transform: translateX(0) rotate(-8deg);
+}
+.bee-fly.hidden{ display:none; }
+
+@keyframes beeFlyAcross {
+  0%   { transform: translateX(-80px) translateY(0) rotate(-8deg); opacity:0; }
+  10%  { opacity:1; }
+  50%  { transform: translateX(55vw) translateY(-10px) rotate(6deg); }
+  100% { transform: translateX(calc(100vw + 80px)) translateY(0) rotate(-2deg); opacity:0; }
+}
+
+.bee-fly.play{
+  display:block;
+  animation: beeFlyAcross 0.6s ease-out 1;
 }

@@ -11,6 +11,7 @@
     <div class="brand">CuBee</div>
     <div class="meta">
       <span id="modeLabel">蜜蜂モード</span>
+      <span id="goalLabel">DONE 0 / GOAL 3</span>
       <span id="timeLabel">03:00</span>
       <span id="levelLabel">Lv 1</span>
     </div>
@@ -19,10 +20,13 @@
   <main class="wrap">
     <canvas id="game" width="320" height="640" aria-label="CuBee game canvas"></canvas>
 
+    <!-- ★CLEAR演出：蜂が横切る（0.6秒） -->
+    <div id="beeFly" class="bee-fly hidden" aria-hidden="true">🐝</div>
+
     <div id="overlay" class="overlay hidden">
       <div class="card">
         <div class="title" id="overlayTitle">CLEAR!</div>
-        <div class="sub" id="overlaySub">3分生き残りました</div>
+        <div class="sub" id="overlaySub">目標達成！</div>
         <button id="retryBtn" class="btn">RETRY</button>
       </div>
     </div>
