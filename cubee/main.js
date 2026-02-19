@@ -1,24 +1,38 @@
+// CuBee v1.2
 // ====== 基本設定 ======
 const COLS = 10;
 const ROWS = 20;
 
+// 基本は2色。虹キューブ用に「特別な3色目」も用意（通常は出ません）
 const COLORS = [
   { fill: "#f7c948", stroke: "rgba(255,255,255,0.25)" }, // honey
   { fill: "#55a6ff", stroke: "rgba(255,255,255,0.25)" }, // sky
+  { fill: "#ff6bd6", stroke: "rgba(255,255,255,0.25)" }, // rose (虹用)
 ];
 
 const MODE = "honeybee";
 const MODE_SECONDS = 180;
 
-// ★目標：列消しを何回できたらクリア？
-const GOAL_LINES = 3;
+// ★クリア条件：連続で3段（COMBO 3）列消しできたらクリア
+const GOAL_COMBO = 3;
 
-// CLEAR時の蜂演出時間（ms）
+// CLEAR演出時間（ms）
 const CLEAR_ANIM_MS = 650;
+
+// 進捗トースト
+const TOAST_MS = 560;
 
 const LEVEL_EVERY_SECONDS = 30;
 const FALL_START_MS = 850;
 const FALL_MIN_MS = 130;
+
+// ====== 虹3連（裏仕様） ======
+// ・1ゲーム（1画面）に最大1回
+// ・盤面が高く積まれた時だけ出現候補（初心者向けに低い段では出ない）
+// ・出る直前に「⚠️ BUZZ…」で予告（次の次のピースで出す）
+const RAINBOW_MAX_ONCE = true;
+const RAINBOW_TRIGGER_MIN_TOP_Y = 7;   // 0=最上段。最上段から7段目より上に到達したら候補（＝かなり高い）
+const RAINBOW_CHANCE_PER_SPAWN = 0.22; // 条件を満たすスポーンのうち何割で予告が立つか
 
 // ====== Canvas準備 ======
 const canvas = document.getElementById("game");
@@ -31,21 +45,22 @@ function resizeCanvas() {
 }
 resizeCanvas();
 
-// ★iPhone Safari対策：スワイプでページが動かないようにする
-canvas.addEventListener("touchmove", (e) => {
-  e.preventDefault();
-}, { passive: false });
+// iPhone Safari対策：スワイプでページが動かないようにする
+canvas.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
 
 // ====== UI ======
 const timeLabel = document.getElementById("timeLabel");
 const levelLabel = document.getElementById("levelLabel");
 const modeLabel  = document.getElementById("modeLabel");
-const goalLabel  = document.getElementById("goalLabel");
+const comboLabel = document.getElementById("comboLabel");
+
 const overlay = document.getElementById("overlay");
 const retryBtn = document.getElementById("retryBtn");
 const overlayTitle = document.getElementById("overlayTitle");
 const overlaySub = document.getElementById("overlaySub");
+
 const beeFly = document.getElementById("beeFly");
+const toast = document.getElementById("toast");
 
 modeLabel.textContent = (MODE === "honeybee") ? "蜜蜂モード" : "スズメバチモード";
 
@@ -61,25 +76,43 @@ let level = 1;
 let fallIntervalMs = FALL_START_MS;
 let fallAccMs = 0;
 
-let linesCleared = 0;
+// 連続カウント（列消しが途切れたら0へ）
+let combo = 0;
 
-// CLEAR/END制御
+// 終了制御
 let ending = false;
 let endTimerId = null;
+let toastTimerId = null;
 
-function updateGoalUI() {
-  goalLabel.textContent = `DONE ${linesCleared} / GOAL ${GOAL_LINES}`;
+// 虹イベント
+let rainbowUsed = false;
+let rainbowPending = false; // 次の次に出すための「予告」フラグ
+
+function updateComboUI() {
+  comboLabel.textContent = `COMBO ${combo} / ${GOAL_COMBO}`;
+}
+
+function showToast(text) {
+  if (!toast) return;
+  toast.textContent = text;
+  toast.classList.remove("hidden");
+  toast.classList.remove("play");
+  void toast.offsetWidth;
+  toast.classList.add("play");
+  if (toastTimerId) clearTimeout(toastTimerId);
+  toastTimerId = setTimeout(() => {
+    toast.classList.remove("play");
+    toast.classList.add("hidden");
+  }, TOAST_MS);
 }
 
 // ====== CLEAR演出 ======
 function playClearBee() {
   if (!beeFly) return;
   beeFly.classList.remove("hidden");
-  beeFly.classList.remove("play"); // 連続再生対策
-  // reflow
+  beeFly.classList.remove("play");
   void beeFly.offsetWidth;
   beeFly.classList.add("play");
-  // 終了後に隠す（念のため）
   setTimeout(() => {
     beeFly.classList.remove("play");
     beeFly.classList.add("hidden");
@@ -91,20 +124,64 @@ function newGrid() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
 }
 
+function randBasicColor() {
+  // 通常ピースは「2色だけ」
+  return Math.floor(Math.random() * 2);
+}
+
+// 盤面の一番上にあるブロックのY（なければROWS）
+function topMostFilledY() {
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (grid[y][x] !== null) return y;
+    }
+  }
+  return ROWS;
+}
+
+function canTriggerRainbow() {
+  if (RAINBOW_MAX_ONCE && rainbowUsed) return false;
+  // 高く積まれていないと出ない（初心者向け）
+  const topY = topMostFilledY();
+  if (topY > RAINBOW_TRIGGER_MIN_TOP_Y) return false;
+  return true;
+}
+
 // ====== ピース ======
 function spawnPiece() {
   const x = Math.floor(COLS / 2);
+
+  // 予告が立っていたら、次のスポーンで虹3連
+  if (rainbowPending) {
+    rainbowPending = false;
+    rainbowUsed = true;
+    showToast("⚠️ RAINBOW!");
+    return {
+      x, y: 0,
+      kind: "rainbow3",
+      blocks: [
+        { dx: 0, dy: 0, c: 0 },
+        { dx: 0, dy: 1, c: 1 },
+        { dx: 0, dy: 2, c: 2 },
+      ]
+    };
+  }
+
+  // 虹の条件を満たしたら、一定確率で「次の次」に虹が来る（予告）
+  if (canTriggerRainbow() && Math.random() < RAINBOW_CHANCE_PER_SPAWN) {
+    rainbowPending = true;
+    showToast("⚠️ BUZZ…");
+  }
+
+  // 通常の2連
   return {
     x, y: 0,
+    kind: "pair2",
     blocks: [
-      { dx: 0, dy: 0, c: randColor() },
-      { dx: 0, dy: 1, c: randColor() },
+      { dx: 0, dy: 0, c: randBasicColor() },
+      { dx: 0, dy: 1, c: randBasicColor() },
     ]
   };
-}
-
-function randColor() {
-  return Math.floor(Math.random() * COLORS.length);
 }
 
 function cellsOfPiece(p) {
@@ -129,15 +206,35 @@ function lockPiece() {
     if (cell.y < 0 || cell.y >= ROWS) continue;
     grid[cell.y][cell.x] = cell.c;
   }
-  clearLinesSameColor();
-  if (ending) return;
+
+  const cleared = clearLinesSameColor(); // 0..n
+
+  // COMBOルール：消せなかったらリセット
+  if (cleared === 0) {
+    if (combo !== 0) showToast("COMBO RESET");
+    combo = 0;
+    updateComboUI();
+  } else {
+    combo += cleared; // 2段同時消しなら +2（気持ちよさ優先）
+    updateComboUI();
+
+    if (cleared >= 2) showToast(`NICE! +${cleared}`);
+    else showToast("🐝 +1");
+
+    if (combo === GOAL_COMBO - 1) showToast("あと1！🔥");
+
+    if (combo >= GOAL_COMBO) {
+      endGame("CLEAR!", `COMBO ${combo}/${GOAL_COMBO} 達成！`, true);
+      return;
+    }
+  }
 
   piece = spawnPiece();
   if (collides(piece)) endGame("DOWN…", "置けなくなりました");
 }
 
 function clearLinesSameColor() {
-  let clearedThisLock = 0;
+  let clearedCount = 0;
 
   for (let y = ROWS - 1; y >= 0; y--) {
     const row = grid[y];
@@ -148,18 +245,10 @@ function clearLinesSameColor() {
       grid.splice(y, 1);
       grid.unshift(Array(COLS).fill(null));
       y++;
-      clearedThisLock++;
+      clearedCount++;
     }
   }
-
-  if (clearedThisLock > 0) {
-    linesCleared += clearedThisLock;
-    updateGoalUI();
-
-    if (linesCleared >= GOAL_LINES) {
-      endGame("CLEAR!", `目標 ${GOAL_LINES} 段達成！`, true);
-    }
-  }
+  return clearedCount;
 }
 
 // ====== 移動 ======
@@ -180,6 +269,9 @@ function hardDrop() { while (move(0, 1)) {} lockPiece(); }
 // ====== 色チェンジ ======
 function swapColors() {
   if (ending) return;
+  // 虹3連は色チェンジ不可（混乱防止・イベント感）
+  if (piece.kind === "rainbow3") return;
+
   const a = piece.blocks[0].c;
   piece.blocks[0].c = piece.blocks[1].c;
   piece.blocks[1].c = a;
@@ -189,32 +281,73 @@ function swapColors() {
 function rotatePiece() {
   if (ending) return;
 
-  const b0 = piece.blocks[0];
-  const b1 = piece.blocks[1];
+  // 2連：縦↔横
+  if (piece.kind === "pair2") {
+    const b0 = piece.blocks[0];
+    const b1 = piece.blocks[1];
+    b0.dx = 0; b0.dy = 0;
 
-  b0.dx = 0; b0.dy = 0;
+    const wasVertical = (b1.dx === 0 && b1.dy === 1);
+    if (wasVertical) { b1.dx = 1; b1.dy = 0; }
+    else { b1.dx = 0; b1.dy = 1; }
 
-  const wasVertical = (b1.dx === 0 && b1.dy === 1);
-  if (wasVertical) { b1.dx = 1; b1.dy = 0; }
-  else { b1.dx = 0; b1.dy = 1; }
+    if (!collides(piece)) return;
 
-  if (!collides(piece)) return;
+    piece.x -= 1;
+    if (!collides(piece)) return;
 
-  piece.x -= 1;
-  if (!collides(piece)) return;
+    piece.x += 2;
+    if (!collides(piece)) return;
 
-  piece.x += 2;
-  if (!collides(piece)) return;
+    piece.x -= 1;
+    if (wasVertical) { b1.dx = 0; b1.dy = 1; }
+    else { b1.dx = 1; b1.dy = 0; }
+    return;
+  }
 
-  piece.x -= 1;
-  if (wasVertical) { b1.dx = 0; b1.dy = 1; }
-  else { b1.dx = 1; b1.dy = 0; }
+  // 虹3連：縦↔横（3マス棒）
+  if (piece.kind === "rainbow3") {
+    // 現在縦なら横へ、横なら縦へ
+    const isVertical = piece.blocks.every((b,i)=> b.dx===0 && b.dy===i);
+    if (isVertical) {
+      // 横 (0,0)(1,0)(2,0)
+      piece.blocks[0].dx=0; piece.blocks[0].dy=0;
+      piece.blocks[1].dx=1; piece.blocks[1].dy=0;
+      piece.blocks[2].dx=2; piece.blocks[2].dy=0;
+    } else {
+      piece.blocks[0].dx=0; piece.blocks[0].dy=0;
+      piece.blocks[1].dx=0; piece.blocks[1].dy=1;
+      piece.blocks[2].dx=0; piece.blocks[2].dy=2;
+    }
+
+    if (!collides(piece)) return;
+
+    // 壁蹴り（左→右）
+    piece.x -= 1;
+    if (!collides(piece)) return;
+
+    piece.x += 2;
+    if (!collides(piece)) return;
+
+    piece.x -= 1;
+    // 失敗したら戻す
+    if (isVertical) {
+      piece.blocks[0].dx=0; piece.blocks[0].dy=0;
+      piece.blocks[1].dx=0; piece.blocks[1].dy=1;
+      piece.blocks[2].dx=0; piece.blocks[2].dy=2;
+    } else {
+      piece.blocks[0].dx=0; piece.blocks[0].dy=0;
+      piece.blocks[1].dx=1; piece.blocks[1].dy=0;
+      piece.blocks[2].dx=2; piece.blocks[2].dy=0;
+    }
+  }
 }
 
 // ====== 描画 ======
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // 背景グリッド
   ctx.save();
   ctx.globalAlpha = 0.12;
   ctx.strokeStyle = "#ffffff";
@@ -232,6 +365,7 @@ function draw() {
   }
   ctx.restore();
 
+  // 盤面
   for (let y = 0; y < ROWS; y++) {
     for (let x = 0; x < COLS; x++) {
       const c = grid[y][x];
@@ -239,7 +373,7 @@ function draw() {
     }
   }
 
-  // ending中はピースを描かない（演出をキレイに）
+  // 落下中
   if (!ending) {
     for (const c of cellsOfPiece(piece)) {
       if (c.y >= 0) drawBlock(c.x, c.y, c.c);
@@ -295,11 +429,7 @@ function tickTime(dtMs) {
   }
 
   if (remainSeconds <= 0) {
-    if (linesCleared >= GOAL_LINES) {
-      endGame("CLEAR!", `目標 ${GOAL_LINES} 段達成！`, true);
-    } else {
-      endGame("DOWN…", `時間切れ（${linesCleared}/${GOAL_LINES}）`);
-    }
+    endGame("DOWN…", `時間切れ（COMBO ${combo}/${GOAL_COMBO}）`);
   }
 }
 
@@ -385,8 +515,6 @@ let last = performance.now();
 function loop(now) {
   let dt = now - last;
   last = now;
-
-  // タブ復帰などで暴走しない保険
   if (dt > 100) dt = 100;
 
   if (running && !ending) {
@@ -410,16 +538,28 @@ function loop(now) {
 // ====== 開始 ======
 function start() {
   overlay.classList.add("hidden");
+
   if (beeFly) {
     beeFly.classList.remove("play");
     beeFly.classList.add("hidden");
+  }
+  if (toast) {
+    toast.classList.remove("play");
+    toast.classList.add("hidden");
   }
   if (endTimerId) {
     clearTimeout(endTimerId);
     endTimerId = null;
   }
+  if (toastTimerId) {
+    clearTimeout(toastTimerId);
+    toastTimerId = null;
+  }
 
   grid = newGrid();
+  rainbowUsed = false;
+  rainbowPending = false;
+
   piece = spawnPiece();
 
   running = true;
@@ -430,8 +570,8 @@ function start() {
   fallIntervalMs = FALL_START_MS;
   fallAccMs = 0;
 
-  linesCleared = 0;
-  updateGoalUI();
+  combo = 0;
+  updateComboUI();
 
   timeLabel.textContent = "03:00";
   levelLabel.textContent = "Lv 1";

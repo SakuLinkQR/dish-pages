@@ -23,8 +23,19 @@ body{
   border-bottom:1px solid rgba(255,255,255,.08);
   z-index:10;
 }
-.brand{ font-weight:700; letter-spacing:.5px; }
-.meta{ display:flex; gap:10px; color:var(--muted); font-size:14px; flex-wrap:wrap; }
+.brand{ font-weight:900; letter-spacing:.5px; display:flex; gap:8px; align-items:baseline; }
+.brand-ver{ font-size:12px; color:var(--muted); font-weight:800; }
+.meta{ display:flex; gap:10px; color:var(--muted); font-size:14px; flex-wrap:wrap; align-items:center; }
+
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(34,38,74,.9);
+  border:1px solid rgba(255,255,255,.10);
+  color:#fff;
+  font-weight:900;
+  letter-spacing:.3px;
+}
 
 .wrap{
   max-width:520px;
@@ -36,13 +47,12 @@ body{
 #game{
   width:100%;
   height:auto;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 250px);
 
   background:var(--panel);
   border:1px solid rgba(255,255,255,.10);
   border-radius:14px;
 
-  /* ★iPhone Safari対策：フリックをスクロールに奪われない */
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
@@ -61,6 +71,31 @@ body{
   opacity:.9;
 }
 
+/* ===== MENU ===== */
+.menu-wrap{
+  max-width:520px;
+  margin:0 auto;
+  padding:18px 12px;
+}
+.hero{
+  background:rgba(23,26,44,.65);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  padding:18px;
+  box-shadow: 0 18px 40px rgba(0,0,0,.25);
+}
+.logo{ text-align:center; padding:14px 0 6px; }
+.logo-cube{ font-size:46px; transform: translateY(2px); opacity:.95; }
+.logo-text{ font-size:38px; font-weight:1000; letter-spacing:.8px; }
+.logo-sub{ color:var(--muted); font-weight:700; margin-top:4px; font-size:13px; }
+
+.menu-buttons{ display:flex; gap:10px; margin-top:16px; }
+.menu-buttons .btn{ flex:1; text-decoration:none; display:inline-flex; justify-content:center; align-items:center; }
+
+.menu-foot{ margin-top:16px; display:flex; justify-content:space-between; gap:10px; color:var(--muted); }
+.small{ font-size:12px; }
+
+/* ===== Overlay ===== */
 .overlay{
   position:fixed; inset:0;
   display:flex; align-items:center; justify-content:center;
@@ -70,15 +105,19 @@ body{
 .overlay.hidden{ display:none; }
 
 .card{
-  width:min(360px, 90vw);
+  width:min(380px, 92vw);
   background:rgba(23,26,44,.96);
   border:1px solid rgba(255,255,255,.12);
   border-radius:14px;
   padding:18px;
   text-align:center;
 }
-.title{ font-size:28px; font-weight:800; margin-bottom:6px; }
+.card.left{ text-align:left; }
+.title{ font-size:28px; font-weight:900; margin-bottom:6px; }
 .sub{ color:var(--muted); margin-bottom:14px; }
+
+.row{ display:flex; gap:10px; }
+.row .btn{ flex:1; text-decoration:none; display:inline-flex; justify-content:center; align-items:center; }
 
 .btn{
   width:100%;
@@ -87,8 +126,49 @@ body{
   border-radius:12px;
   background:var(--btn);
   color:white;
-  font-weight:700;
+  font-weight:900;
   font-size:16px;
+  cursor:pointer;
+}
+.btn.ghost{
+  background:transparent;
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+}
+
+.howto{ margin:10px 0 12px; padding-left:18px; color:#fff; }
+.howto li{ margin:8px 0; line-height:1.35; }
+.tip{ color:var(--muted); font-size:12px; margin-bottom:12px; }
+
+/* ===== トースト（没入感） ===== */
+.toast{
+  position:fixed;
+  left:50%;
+  top: 18vh;
+  transform: translateX(-50%);
+  padding:10px 14px;
+  border-radius:14px;
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  font-weight:900;
+  letter-spacing:.3px;
+  z-index:26;
+  pointer-events:none;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+.toast.hidden{ display:none; }
+
+@keyframes popFade {
+  0%   { transform: translateX(-50%) translateY(6px) scale(.98); opacity:0; }
+  15%  { opacity:1; }
+  60%  { opacity:1; }
+  100% { transform: translateX(-50%) translateY(-8px) scale(1.02); opacity:0; }
+}
+.toast.play{
+  display:block;
+  animation: popFade 0.55s ease-out 1;
 }
 
 /* ===== CLEAR演出：蜂が横切る ===== */
@@ -97,7 +177,7 @@ body{
   left:-60px;
   top: 22vh;
   font-size:44px;
-  z-index:25; /* overlayより下、ゲームより上 */
+  z-index:25;
   pointer-events:none;
   filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
   transform: translateX(0) rotate(-8deg);
