@@ -2,16 +2,14 @@
 const COLS = 10;
 const ROWS = 20;
 
-// 2色（後で増やせる）
 const COLORS = [
   { fill: "#f7c948", stroke: "rgba(255,255,255,0.25)" }, // honey
   { fill: "#55a6ff", stroke: "rgba(255,255,255,0.25)" }, // sky
 ];
 
-const MODE = "honeybee";      // honeybee(3分) / hornet(5分) を後で増やせる
-const MODE_SECONDS = 180;     // 蜜蜂モード 3分
+const MODE = "honeybee";
+const MODE_SECONDS = 180;
 
-// レベルアップ：30秒ごと
 const LEVEL_EVERY_SECONDS = 30;
 const FALL_START_MS = 850;
 const FALL_MIN_MS = 130;
@@ -21,12 +19,16 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 let cell;
-
 function resizeCanvas() {
   const w = canvas.width, h = canvas.height;
   cell = Math.floor(Math.min(w / COLS, h / ROWS));
 }
 resizeCanvas();
+
+// ★iPhone Safari対策：スワイプでページが動かないようにする（重要）
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+}, { passive: false });
 
 // ====== UI ======
 const timeLabel = document.getElementById("timeLabel");
@@ -53,7 +55,7 @@ let fallAccMs = 0;
 
 // ====== グリッド ======
 function newGrid() {
-  return Array.from({ length: ROWS }, () => Array(COLS).fill(null)); // null or colorIndex
+  return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
 }
 
 // ====== ピース ======
@@ -63,7 +65,7 @@ function spawnPiece() {
     x, y: 0,
     blocks: [
       { dx: 0, dy: 0, c: randColor() },
-      { dx: 0, dy: 1, c: randColor() }, // 初期は縦
+      { dx: 0, dy: 1, c: randColor() },
     ]
   };
 }
@@ -73,11 +75,7 @@ function randColor() {
 }
 
 function cellsOfPiece(p) {
-  return p.blocks.map(b => ({
-    x: p.x + b.dx,
-    y: p.y + b.dy,
-    c: b.c
-  }));
+  return p.blocks.map(b => ({ x: p.x + b.dx, y: p.y + b.dy, c: b.c }));
 }
 
 function collides(p, nx = p.x, ny = p.y) {
@@ -98,16 +96,13 @@ function lockPiece() {
   }
   clearLinesSameColor();
   piece = spawnPiece();
-  if (collides(piece)) {
-    endGame("GAME OVER", "これ以上置けませんでした");
-  }
+  if (collides(piece)) endGame("GAME OVER", "これ以上置けませんでした");
 }
 
 function clearLinesSameColor() {
   for (let y = ROWS - 1; y >= 0; y--) {
     const row = grid[y];
     if (row.some(v => v === null)) continue;
-
     const first = row[0];
     if (row.every(v => v === first)) {
       grid.splice(y, 1);
@@ -128,14 +123,8 @@ function move(dx, dy) {
   return false;
 }
 
-function softDrop() {
-  if (!move(0, 1)) lockPiece();
-}
-
-function hardDrop() {
-  while (move(0, 1)) {}
-  lockPiece();
-}
+function softDrop() { if (!move(0, 1)) lockPiece(); }
+function hardDrop() { while (move(0, 1)) {} lockPiece(); }
 
 // ====== 色チェンジ ======
 function swapColors() {
@@ -152,26 +141,22 @@ function rotatePiece() {
   b0.dx = 0; b0.dy = 0;
 
   const wasVertical = (b1.dx === 0 && b1.dy === 1);
+  if (wasVertical) { b1.dx = 1; b1.dy = 0; }
+  else { b1.dx = 0; b1.dy = 1; }
 
-  if (wasVertical) {
-    b1.dx = 1; b1.dy = 0;
-  } else {
-    b1.dx = 0; b1.dy = 1;
-  }
-
-  // ぶつかるなら簡易キック（左右に1マスずらす）
   if (!collides(piece)) return;
 
+  // 簡易キック
   piece.x -= 1;
   if (!collides(piece)) return;
 
   piece.x += 2;
   if (!collides(piece)) return;
 
-  // ダメなら元に戻す
+  // 元に戻す
   piece.x -= 1;
   if (wasVertical) { b1.dx = 0; b1.dy = 1; }
-  else            { b1.dx = 1; b1.dy = 0; }
+  else { b1.dx = 1; b1.dy = 0; }
 }
 
 // ====== 描画 ======
@@ -200,12 +185,11 @@ function draw() {
   for (let y = 0; y < ROWS; y++) {
     for (let x = 0; x < COLS; x++) {
       const c = grid[y][x];
-      if (c === null) continue;
-      drawBlock(x, y, c);
+      if (c !== null) drawBlock(x, y, c);
     }
   }
 
-  // 落下中ピース
+  // 落下中
   for (const c of cellsOfPiece(piece)) {
     if (c.y >= 0) drawBlock(c.x, c.y, c.c);
   }
@@ -218,7 +202,6 @@ function drawBlock(x, y, colorIndex) {
   const r = Math.floor(cell * 0.18);
   roundRect(px + 1, py + 1, cell - 2, cell - 2, r, fill, stroke);
 
-  // ハイライト
   ctx.save();
   ctx.globalAlpha = 0.18;
   ctx.fillStyle = "#ffffff";
@@ -257,9 +240,7 @@ function tickTime(dtMs) {
     fallIntervalMs = Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS * Math.pow(0.90, level - 1)));
   }
 
-  if (remainSeconds <= 0) {
-    endGame("CLEAR!", "3分生き残りました");
-  }
+  if (remainSeconds <= 0) endGame("CLEAR!", "3分生き残りました");
 }
 
 function formatMMSS(sec) {
@@ -272,15 +253,15 @@ function formatMMSS(sec) {
 window.addEventListener("keydown", (e) => {
   if (!running) return;
 
-  if (e.key === "ArrowLeft") { e.preventDefault(); move(-1, 0); }
-  if (e.key === "ArrowRight"){ e.preventDefault(); move( 1, 0); }
-  if (e.key === "ArrowDown") { e.preventDefault(); softDrop(); }
-  if (e.key === "ArrowUp")   { e.preventDefault(); rotatePiece(); }
-  if (e.code === "Space")    { e.preventDefault(); hardDrop(); }
-  if (e.key === "Enter")     { e.preventDefault(); swapColors(); }
+  if (e.key === "ArrowLeft")  { e.preventDefault(); move(-1, 0); }
+  if (e.key === "ArrowRight") { e.preventDefault(); move( 1, 0); }
+  if (e.key === "ArrowDown")  { e.preventDefault(); softDrop(); }
+  if (e.key === "ArrowUp")    { e.preventDefault(); rotatePiece(); }
+  if (e.code === "Space")     { e.preventDefault(); hardDrop(); }
+  if (e.key === "Enter")      { e.preventDefault(); swapColors(); }
 });
 
-// ====== 入力（スマホ） ======
+// ====== 入力（iPhone/スマホ） ======
 let touchStart = null;
 
 canvas.addEventListener("pointerdown", (e) => {
@@ -296,14 +277,14 @@ canvas.addEventListener("pointerup", (e) => {
   const dy = e.clientY - touchStart.y;
   const dist = Math.hypot(dx, dy);
 
-  // 下スワイプ：ハードドロップ
+  // 下フリック：ハードドロップ
   if (dist > 40 && dy > 30) {
     hardDrop();
     touchStart = null;
     return;
   }
 
-  // 上スワイプ：回転
+  // 上フリック：回転
   if (dist > 40 && dy < -30) {
     rotatePiece();
     touchStart = null;
@@ -330,19 +311,17 @@ function endGame(title, sub) {
   overlay.classList.remove("hidden");
 }
 
-retryBtn.addEventListener("click", () => {
-  start();
-});
+retryBtn.addEventListener("click", () => start());
 
 // ====== ループ ======
 let last = performance.now();
 
 function loop(now) {
-  // dtが極端に大きいと一気に時間が進むので、保険で上限を設ける
   let dt = now - last;
   last = now;
 
-  if (dt > 100) dt = 100; // タブ復帰などで暴走しないように
+  // タブ復帰などで暴走しない保険
+  if (dt > 100) dt = 100;
 
   if (running) {
     tickTime(dt);
@@ -375,7 +354,7 @@ function start() {
   levelLabel.textContent = "Lv 1";
   overlay.classList.add("hidden");
 
-  // ★重要：開始直後にdtが巨大にならないよう基準時刻をリセット
+  // 開始直後にdtが巨大にならない対策
   last = performance.now();
 }
 

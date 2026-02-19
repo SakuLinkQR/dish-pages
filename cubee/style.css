@@ -32,17 +32,19 @@ body{
 }
 
 #game{
-  /* 横幅はコンテナに合わせる */
   width:100%;
   height:auto;
-
-  /* ★PCで縦がはみ出しにくい上限（ヘッダー＋余白＋ヒント分を引く） */
-  max-height: calc(100vh - 190px);
+  max-height: calc(100vh - 200px);
 
   background:var(--panel);
   border:1px solid rgba(255,255,255,.10);
   border-radius:14px;
-  touch-action: manipulation;
+
+  /* ★iPhone Safari対策：フリックをスクロールに奪われない */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+
   display:block;
 }
 
@@ -51,6 +53,10 @@ body{
   font-size:12px;
   color:var(--muted);
   line-height:1.4;
+}
+.hint .note{
+  margin-top:6px;
+  opacity:.9;
 }
 
 .overlay{
