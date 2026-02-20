@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>CuBee v1.2</title>
+  <title>CuBee v1.2.1</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand">CuBee</div>
     <div class="meta">
-      <span class="badge">v1.2</span>
+      <span class="badge">v1.2.1</span>
     </div>
   </header>
 
@@ -27,7 +27,7 @@
       </div>
       <div class="menu-foot">
         <div class="small">© CuBee Prototype</div>
-        <div class="small">Version 1.2</div>
+        <div class="small">Version 1.2.1</div>
       </div>
     </section>
 
@@ -38,12 +38,12 @@
 
         <ul class="howto">
           <li><b>同じ色で1列そろえる</b>と、その列が消えます。</li>
-          <li><b>クリア条件：</b>列消しを途切れずに <b>COMBO 3</b> でクリア。</li>
+          <li><b>クリア条件：</b>列消しで進捗が増え、<b>合計3</b>でクリア。</li>
           <li><b>iPhone操作：</b>左タップ=左 / 右タップ=右 / 中央タップ=色チェンジ</li>
           <li><b>フリック：</b>上=回転 / 下=一気に落とす</li>
         </ul>
 
-        <div class="tip">TIP：COMBOが切れると0に戻ります。まずは落ち着いて“1列”から。</div>
+        <div class="tip">TIP：消せない手があっても進捗は減りません。まずは1列消しを狙うと安定します。</div>
 
         <button class="btn" id="closeHowto" type="button">OK</button>
       </div>
@@ -52,9 +52,9 @@
 
   <script>
     const m = document.getElementById('howtoModal');
-    document.getElementById('howtoBtn').addEventListener('click', ()=> m.classList.remove('hidden'));
-    document.getElementById('closeHowto').addEventListener('click', ()=> m.classList.add('hidden'));
-    m.addEventListener('click', (e)=>{ if(e.target === m) m.classList.add('hidden'); });
+    document.getElementById('howtoBtn').addEventListener('click', () => m.classList.remove('hidden'));
+    document.getElementById('closeHowto').addEventListener('click', () => m.classList.add('hidden'));
+    m.addEventListener('click', (e) => { if (e.target === m) m.classList.add('hidden'); });
   </script>
 </body>
 </html>

@@ -1,197 +1,43 @@
-:root{
-  --bg:#0f1220;
-  --panel:#171a2c;
-  --text:#e9ecff;
-  --muted:#aab0d6;
-  --btn:#3b84ff;
-}
-
+:root{--bg:#0f1220;--panel:#171a2c;--text:#e9ecff;--muted:#aab0d6;--btn:#3b84ff}
 *{box-sizing:border-box}
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-}
-
-.topbar{
-  position:sticky; top:0;
-  display:flex; justify-content:space-between; align-items:center;
-  padding:12px 14px;
-  background:rgba(15,18,32,.9);
-  backdrop-filter: blur(8px);
-  border-bottom:1px solid rgba(255,255,255,.08);
-  z-index:10;
-}
-.brand{ font-weight:900; letter-spacing:.5px; display:flex; gap:8px; align-items:baseline; }
-.brand-ver{ font-size:12px; color:var(--muted); font-weight:800; }
-.meta{ display:flex; gap:10px; color:var(--muted); font-size:14px; flex-wrap:wrap; align-items:center; }
-
-.badge{
-  padding:6px 10px;
-  border-radius:999px;
-  background:rgba(34,38,74,.9);
-  border:1px solid rgba(255,255,255,.10);
-  color:#fff;
-  font-weight:900;
-  letter-spacing:.3px;
-}
-
-.wrap{
-  max-width:520px;
-  margin:0 auto;
-  padding:12px;
-  position:relative;
-}
-
-#game{
-  width:100%;
-  height:auto;
-  max-height: calc(100vh - 250px);
-
-  background:var(--panel);
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:14px;
-
-  touch-action: none;
-  -webkit-user-select: none;
-  user-select: none;
-
-  display:block;
-}
-
-.hint{
-  margin-top:10px;
-  font-size:12px;
-  color:var(--muted);
-  line-height:1.4;
-}
-.hint .note{
-  margin-top:6px;
-  opacity:.9;
-}
-
-/* ===== MENU ===== */
-.menu-wrap{
-  max-width:520px;
-  margin:0 auto;
-  padding:18px 12px;
-}
-.hero{
-  background:rgba(23,26,44,.65);
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;
-  padding:18px;
-  box-shadow: 0 18px 40px rgba(0,0,0,.25);
-}
-.logo{ text-align:center; padding:14px 0 6px; }
-.logo-cube{ font-size:46px; transform: translateY(2px); opacity:.95; }
-.logo-text{ font-size:38px; font-weight:1000; letter-spacing:.8px; }
-.logo-sub{ color:var(--muted); font-weight:700; margin-top:4px; font-size:13px; }
-
-.menu-buttons{ display:flex; gap:10px; margin-top:16px; }
-.menu-buttons .btn{ flex:1; text-decoration:none; display:inline-flex; justify-content:center; align-items:center; }
-
-.menu-foot{ margin-top:16px; display:flex; justify-content:space-between; gap:10px; color:var(--muted); }
-.small{ font-size:12px; }
-
-/* ===== Overlay ===== */
-.overlay{
-  position:fixed; inset:0;
-  display:flex; align-items:center; justify-content:center;
-  background:rgba(0,0,0,.55);
-  z-index:30;
-}
-.overlay.hidden{ display:none; }
-
-.card{
-  width:min(380px, 92vw);
-  background:rgba(23,26,44,.96);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:14px;
-  padding:18px;
-  text-align:center;
-}
-.card.left{ text-align:left; }
-.title{ font-size:28px; font-weight:900; margin-bottom:6px; }
-.sub{ color:var(--muted); margin-bottom:14px; }
-
-.row{ display:flex; gap:10px; }
-.row .btn{ flex:1; text-decoration:none; display:inline-flex; justify-content:center; align-items:center; }
-
-.btn{
-  width:100%;
-  padding:12px 14px;
-  border:none;
-  border-radius:12px;
-  background:var(--btn);
-  color:white;
-  font-weight:900;
-  font-size:16px;
-  cursor:pointer;
-}
-.btn.ghost{
-  background:transparent;
-  border:1px solid rgba(255,255,255,.18);
-  color:#fff;
-}
-
-.howto{ margin:10px 0 12px; padding-left:18px; color:#fff; }
-.howto li{ margin:8px 0; line-height:1.35; }
-.tip{ color:var(--muted); font-size:12px; margin-bottom:12px; }
-
-/* ===== トースト（没入感） ===== */
-.toast{
-  position:fixed;
-  left:50%;
-  top: 18vh;
-  transform: translateX(-50%);
-  padding:10px 14px;
-  border-radius:14px;
-  background:rgba(0,0,0,.45);
-  border:1px solid rgba(255,255,255,.18);
-  color:#fff;
-  font-weight:900;
-  letter-spacing:.3px;
-  z-index:26;
-  pointer-events:none;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
-}
-.toast.hidden{ display:none; }
-
-@keyframes popFade {
-  0%   { transform: translateX(-50%) translateY(6px) scale(.98); opacity:0; }
-  15%  { opacity:1; }
-  60%  { opacity:1; }
-  100% { transform: translateX(-50%) translateY(-8px) scale(1.02); opacity:0; }
-}
-.toast.play{
-  display:block;
-  animation: popFade 0.55s ease-out 1;
-}
-
-/* ===== CLEAR演出：蜂が横切る ===== */
-.bee-fly{
-  position:fixed;
-  left:-60px;
-  top: 22vh;
-  font-size:44px;
-  z-index:25;
-  pointer-events:none;
-  filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
-  transform: translateX(0) rotate(-8deg);
-}
-.bee-fly.hidden{ display:none; }
-
-@keyframes beeFlyAcross {
-  0%   { transform: translateX(-80px) translateY(0) rotate(-8deg); opacity:0; }
-  10%  { opacity:1; }
-  50%  { transform: translateX(55vw) translateY(-10px) rotate(6deg); }
-  100% { transform: translateX(calc(100vw + 80px)) translateY(0) rotate(-2deg); opacity:0; }
-}
-
-.bee-fly.play{
-  display:block;
-  animation: beeFlyAcross 0.6s ease-out 1;
-}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif}
+.topbar{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(15,18,32,.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08);z-index:10}
+.brand{font-weight:900;letter-spacing:.5px;display:flex;gap:8px;align-items:baseline}
+.brand-ver{font-size:12px;color:var(--muted);font-weight:800}
+.meta{display:flex;gap:10px;color:var(--muted);font-size:14px;flex-wrap:wrap;align-items:center}
+.badge{padding:6px 10px;border-radius:999px;background:rgba(34,38,74,.9);border:1px solid rgba(255,255,255,.10);color:#fff;font-weight:900;letter-spacing:.3px}
+.wrap{max-width:520px;margin:0 auto;padding:12px;position:relative}
+#game{width:100%;height:auto;max-height:calc(100vh - 250px);background:var(--panel);border:1px solid rgba(255,255,255,.10);border-radius:14px;touch-action:none;-webkit-user-select:none;user-select:none;display:block}
+.hint{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.4}
+.hint .note{margin-top:6px;opacity:.9}
+.menu-wrap{max-width:520px;margin:0 auto;padding:18px 12px}
+.hero{background:rgba(23,26,44,.65);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:18px;box-shadow:0 18px 40px rgba(0,0,0,.25)}
+.logo{text-align:center;padding:14px 0 6px}
+.logo-cube{font-size:46px;transform:translateY(2px);opacity:.95}
+.logo-text{font-size:38px;font-weight:1000;letter-spacing:.8px}
+.logo-sub{color:var(--muted);font-weight:700;margin-top:4px;font-size:13px}
+.menu-buttons{display:flex;gap:10px;margin-top:16px}
+.menu-buttons .btn{flex:1;text-decoration:none;display:inline-flex;justify-content:center;align-items:center}
+.menu-foot{margin-top:16px;display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
+.small{font-size:12px}
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:30}
+.overlay.hidden{display:none}
+.card{width:min(380px,92vw);background:rgba(23,26,44,.96);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:18px;text-align:center}
+.card.left{text-align:left}
+.title{font-size:28px;font-weight:900;margin-bottom:6px}
+.sub{color:var(--muted);margin-bottom:14px}
+.row{display:flex;gap:10px}
+.row .btn{flex:1;text-decoration:none;display:inline-flex;justify-content:center;align-items:center}
+.btn{width:100%;padding:12px 14px;border:none;border-radius:12px;background:var(--btn);color:white;font-weight:900;font-size:16px;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.18);color:#fff}
+.howto{margin:10px 0 12px;padding-left:18px;color:#fff}
+.howto li{margin:8px 0;line-height:1.35}
+.tip{color:var(--muted);font-size:12px;margin-bottom:12px}
+.toast{position:fixed;left:50%;top:18vh;transform:translateX(-50%);padding:10px 14px;border-radius:14px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff;font-weight:900;letter-spacing:.3px;z-index:26;pointer-events:none;backdrop-filter:blur(6px);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.toast.hidden{display:none}
+@keyframes popFade{0%{transform:translateX(-50%) translateY(6px) scale(.98);opacity:0}15%{opacity:1}60%{opacity:1}100%{transform:translateX(-50%) translateY(-8px) scale(1.02);opacity:0}}
+.toast.play{display:block;animation:popFade .55s ease-out 1}
+.bee-fly{position:fixed;left:-60px;top:22vh;font-size:44px;z-index:25;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));transform:translateX(0) rotate(-8deg)}
+.bee-fly.hidden{display:none}
+@keyframes beeFlyAcross{0%{transform:translateX(-80px) translateY(0) rotate(-8deg);opacity:0}10%{opacity:1}50%{transform:translateX(55vw) translateY(-10px) rotate(6deg)}100%{transform:translateX(calc(100vw + 80px)) translateY(0) rotate(-2deg);opacity:0}}
+.bee-fly.play{display:block;animation:beeFlyAcross .6s ease-out 1}
