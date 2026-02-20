@@ -1,3 +1,10 @@
+let beeMark = null; // {x,y,until}
+
+let beeHelpedThisTurn = false;
+
+let clearingRows = null; // array of y
+let clearingUntil = 0;
+
 // ====== Bee Assist (v1.4.4) ======
 // When there is a row with exactly 1 hole (and all other cells are same color),
 // the worker bee may fill it and clear the row.
@@ -62,7 +69,7 @@ function maybeBeeAssist(){
   return 0;
 }
 
-// CuBee v1.5.1
+// CuBee v1.5.2
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -233,83 +240,71 @@ function endGame(title,sub,withBee=false){
   } else show();
 }
 
-function lockPiece(){
-  if(ending) return;
+function lockPiece() {
+  if (ending) return;
 
-  // write piece into grid
-  for(const c of cellsOfPiece(piece)){
-    if(c.y>=0 && c.y<ROWS) grid[c.y][c.x]=c.c;
+  // ピースを盤面に固定
+  for (const c of cellsOfPiece(piece)) {
+    if (c.y >= 0 && c.y < ROWS) grid[c.y][c.x] = c.c;
   }
 
-  // 1) normal clear check
-  const rows=getClearableRows();
-  const cleared = rows.length;
+  // 1. 通常の消去判定
+  let rows = getClearableRows();
+  let cleared = rows.length;
 
-  if(cleared>0){
+  // 2. 消去がなかった場合、蜂の加勢をチェック
+  if (cleared === 0) {
+    beeHelpedThisTurn = false;
+    if (typeof maybeBeeAssist === 'function') {
+      maybeBeeAssist(); // ここで穴が埋まれば beeHelpedThisTurn が true になる
+    }
+    // 加勢後の再判定
+    rows = getClearableRows();
+    cleared = rows.length;
+  }
+
+  // 3. 消去演出と処理
+  if (cleared > 0) {
     clearingRows = rows.slice();
     clearingUntil = Date.now() + 240;
-    if(debugClear) debugClear.textContent = `+${cleared}`;
-    running=false;
+    if (debugClear) debugClear.textContent = `+${cleared}`;
+    running = false;
 
-    setTimeout(()=>{
+    setTimeout(() => {
       const actually = applyClearRows(rows);
       progress += actually;
       updateUI();
 
-      if(progress>=GOAL_CLEAR){
+      if (progress >= GOAL_CLEAR) {
         showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-        endGame("CLEAR!",`Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
+        endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
         return;
-      } else if(progress===GOAL_CLEAR-1){
-        showToast(`+${actually}（あと1！🔥）`);
       } else {
-        showToast(actually>=2 ? `+${actually} NICE!` : `+${actually}`);
+        const honeyPrefix = beeHelpedThisTurn ? "🐝 " : "";
+        if (progress === GOAL_CLEAR - 1) {
+          showToast(`${honeyPrefix}+${actually}（あと1！🔥）`);
+        } else {
+          showToast(actually >= 2 ? `${honeyPrefix}+${actually} NICE!` : `${honeyPrefix}+1`);
+        }
       }
 
-      piece=spawnPiece();
-      running=true;
-      requestAnimationFrame(loop);
-    }, 240);
-    return;
-  }
-
-  // 2) if no clear, maybe bee fills a hole (bee doesn't clear directly)
-  beeHelpedThisTurn = false;
-  if(typeof maybeBeeAssist === "function"){ maybeBeeAssist(); }
-
-  const rows2 = getClearableRows();
-  const beeCleared = rows2.length;
-
-  if(beeHelpedThisTurn && beeCleared>0){
-    clearingRows = rows2.slice();
-    clearingUntil = Date.now() + 240;
-    if(debugClear) debugClear.textContent = `+${beeCleared}`;
-    running=false;
-
-    setTimeout(()=>{
-      const actually = applyClearRows(rows2);
-      progress += actually;
-      updateUI();
-
-      if(progress>=GOAL_CLEAR){
-        showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-        endGame("CLEAR!",`Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
+      piece = spawnPiece();
+      if (collides(piece)) {
+        endGame("DOWN…", "置けなくなりました");
         return;
-      } else if(progress===GOAL_CLEAR-1){
-        showToast(`🐝 +${actually}（あと1！🔥）`);
-      } else {
-        showToast(actually>=2 ? `🐝 +${actually} NICE!` : "🐝 +1");
       }
-
-      piece=spawnPiece();
-      running=true;
+      running = true;
       requestAnimationFrame(loop);
     }, 240);
-    return;
+  } else {
+    // 消去がなかった場合：次のピースへ
+    piece = spawnPiece();
+    if (collides(piece)) {
+      endGame("DOWN…", "置けなくなりました");
+      return;
+    }
+    updateUI();
   }
-
-  // 3) just continue
-  piece = spawnPiece();
 } else {
 // v1.5.0：消せない手でも進捗は戻らない。あと1マスなら蜂が「穴埋め」することがある（消去は厳密判定＋ハイライト後）。
 beeHelpedThisTurn = false;
