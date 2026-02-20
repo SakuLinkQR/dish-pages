@@ -1,4 +1,4 @@
-// CuBee v1.4.2
+// CuBee v1.4.3
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -55,6 +55,20 @@ const overlayTitle=document.getElementById("overlayTitle");
 const overlaySub=document.getElementById("overlaySub");
 const beeFly=document.getElementById("beeFly");
 const toast=document.getElementById("toast");
+
+const debugHud = document.getElementById("debugHud");
+let debugLastReport = 0;
+function debugShow(msg){
+  if(!debugHud) return;
+  debugHud.classList.add("show");
+  debugHud.textContent = msg;
+}
+window.addEventListener("error",(e)=>{
+  debugShow("JS ERROR:\n" + (e.message||"") + "\n" + (e.filename||"") + ":" + (e.lineno||""));
+});
+window.addEventListener("unhandledrejection",(e)=>{
+  debugShow("PROMISE ERROR:\n" + (e.reason && (e.reason.message||String(e.reason)) || "unknown"));
+});
 
 let grid, piece, running=true, ending=false;
 let elapsedMs=0, level=1, fallIntervalMs=FALL_START_MS, fallAccMs=0;
@@ -350,6 +364,7 @@ nextBtn.addEventListener("click",()=>{
 
 let last=performance.now();
 function loop(now){
+  try{
   let dt=now-last; last=now; if(dt>100) dt=100;
   if(running && !ending){
     tickTime(dt);
@@ -357,8 +372,22 @@ function loop(now){
     while(fallAccMs>=fallIntervalMs){ fallAccMs-=fallIntervalMs; softDrop(); if(!running) break; }
   }
   draw();
+  // debug report
+  if(debugHud){
+    debugLastReport += dt;
+    if(debugLastReport>=500){
+      debugLastReport=0;
+      const py = piece ? piece.y : -1;
+      debugHud.classList.add('show');
+      debugHud.textContent = `v1.4.3\nstage=${stage} goal=${GOAL_CLEAR}\nrunning=${running} ending=${ending}\nlevel=${level} fallInt=${fallIntervalMs}\npieceY=${py} fallAcc=${Math.floor(fallAccMs)}`;
+    }
+  }
   requestAnimationFrame(loop);
+  }catch(err){
+    debugShow('RUNTIME ERROR:\n'+(err&&err.message?err.message:String(err)));
+  }
 }
+
 
 function start(){
   readStageFromURL();
