@@ -37,16 +37,29 @@ function maybeBeeAssist(){
   const p = Math.min(0.40, ASSIST_BASE_CHANCE + (stage-1)*ASSIST_STAGE_BONUS);
   if(Math.random() > p) return 0;
 
+  // Fill the hole (and show a visible marker long enough to notice)
   grid[cand.y][cand.xHole] = cand.color;
+  beeMark = {x:cand.xHole, y:cand.y, until: Date.now() + 700};
   assistUsed++;
 
-  showToast("🐝 BEE HELP!");
-  playClearBee();
+  // Safety check: row must be FULL and same color after fill
+  for(let x=0;x<COLS;x++){
+    const v = grid[cand.y][x];
+    if(v===null || v==="rainbow" || v!==cand.color){
+      // rollback (shouldn't happen, but prevents "揃ってないのに消える")
+      grid[cand.y][cand.xHole] = null;
+      assistUsed--;
+      beeMark = null;
+      return 0;
+    }
+  }
 
+  showToast("🐝 BEE HELP!");
+  // don't use the big clear animation here; it's too fast/confusing on assist
   return clearLinesSameColor();
 }
 
-// CuBee v1.4.7
+// CuBee v1.4.9
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -165,15 +178,22 @@ function collides(p,nx=p.x,ny=p.y){
 
 function clearLinesSameColor(){
   let cleared=0;
-  for(let y=ROWS-1;y>=0;y--){
-    const row=grid[y];
-    if(row.some(v=>v===null)) continue;
-    const first=row[0];
-    if(row.every(v=>v===first)){
+  for(let y=0;y<ROWS;y++){
+    let c=null;
+    let ok=true;
+    for(let x=0;x<COLS;x++){
+      const v=grid[y][x];
+      if(v===null){ ok=false; break; }
+      if(v==="rainbow"){ ok=false; break; }
+      if(c===null) c=v;
+      else if(v!==c){ ok=false; break; }
+    }
+    if(ok){
+      // remove this row and add an empty row at top
       grid.splice(y,1);
       grid.unshift(Array(COLS).fill(null));
-      y++;
       cleared++;
+      y--; // re-check the same index after shifting
     }
   }
   return cleared;
@@ -429,6 +449,7 @@ function start(){
   elapsedMs=0; level=1; fallIntervalMs=FALL_START_MS; fallAccMs=0;
   progress=0; updateUI();
   if(debugClear) debugClear.textContent = "+0";
+  beeMark = null;
   timeLabel.textContent="03:00"; levelLabel.textContent="Lv 1";
   last=performance.now();
 }
