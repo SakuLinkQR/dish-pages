@@ -41,3 +41,8 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .bee-fly.hidden{display:none}
 @keyframes beeFlyAcross{0%{transform:translateX(-80px) translateY(0) rotate(-8deg);opacity:0}10%{opacity:1}50%{transform:translateX(55vw) translateY(-10px) rotate(6deg)}100%{transform:translateX(calc(100vw + 80px)) translateY(0) rotate(-2deg);opacity:0}}
 .bee-fly.play{display:block;animation:beeFlyAcross .6s ease-out 1}
+
+
+.bee-idle{font-size:18px;display:inline-block;transform-origin:50% 60%;opacity:.95}
+@keyframes beeIdle{0%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-2px) rotate(6deg)}100%{transform:translateY(0) rotate(-6deg)}}
+.bee-idle{animation:beeIdle 1.4s ease-in-out infinite}

@@ -1,4 +1,4 @@
-// CuBee v1.2.1
+// CuBee v1.3.1
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -8,7 +8,29 @@ const COLORS=[
 ];
 
 const MODE_SECONDS=180;
-const GOAL_CLEAR=3;
+let GOAL_CLEAR = 3; // stage-dependent
+
+// ====== Stage System (v1.3) ======
+// Stage 1: CLEAR 3, Stage 2: CLEAR 4
+const STAGE_GOALS = [3, 4, 5, 6, 7]; // Stage1..5 // extend later: [3,4,5,6,...]
+let stage = 1;
+
+function readStageFromURL(){
+  try{
+    const sp = new URLSearchParams(location.search);
+    const s = parseInt(sp.get("stage") || "1", 10);
+    stage = (Number.isFinite(s) && s >= 1) ? s : 1;
+  }catch(e){
+    stage = 1;
+  }
+  const idx = Math.min(stage, STAGE_GOALS.length) - 1;
+  GOAL_CLEAR = STAGE_GOALS[idx];
+}
+
+function hasNextStage(){
+  return stage < STAGE_GOALS.length;
+}
+
 
 const CLEAR_ANIM_MS=650, TOAST_MS=560;
 const LEVEL_EVERY_SECONDS=30, FALL_START_MS=850, FALL_MIN_MS=130;
@@ -28,6 +50,7 @@ const levelLabel=document.getElementById("levelLabel");
 const comboLabel=document.getElementById("comboLabel");
 const overlay=document.getElementById("overlay");
 const retryBtn=document.getElementById("retryBtn");
+const nextBtn=document.getElementById("nextBtn");
 const overlayTitle=document.getElementById("overlayTitle");
 const overlaySub=document.getElementById("overlaySub");
 const beeFly=document.getElementById("beeFly");
@@ -40,7 +63,7 @@ let endTimerId=null, toastTimerId=null;
 let rainbowUsed=false, rainbowPending=false;
 
 function updateUI(){
-  comboLabel.textContent=`CLEAR ${progress} / ${GOAL_CLEAR}`;
+  comboLabel.textContent=`STAGE ${stage}  CLEAR ${progress} / ${GOAL_CLEAR}`;
 }
 function showToast(t){
   toast.textContent=t;
@@ -110,9 +133,29 @@ function clearLinesSameColor(){
 function endGame(title,sub,withBee=false){
   if(ending) return;
   ending=true; running=false;
-  const show=()=>{ overlayTitle.textContent=title; overlaySub.textContent=sub; overlay.classList.remove("hidden"); };
-  if(withBee){ playClearBee(); endTimerId=setTimeout(show,CLEAR_ANIM_MS); }
-  else show();
+
+  // Stage clearの場合：NEXTの出し分け
+  if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
+    if (hasNextStage()) {
+      nextBtn.style.display = "";
+      nextBtn.textContent = "NEXT";
+    } else {
+      nextBtn.style.display = "";
+      nextBtn.textContent = "MENU";
+    }
+  } else {
+    nextBtn.style.display = "none";
+  }
+
+  const show=()=>{
+    overlayTitle.textContent=title;
+    overlaySub.textContent=sub;
+    overlay.classList.remove("hidden");
+  };
+  if(withBee){
+    playClearBee();
+    endTimerId=setTimeout(show,CLEAR_ANIM_MS);
+  } else show();
 }
 
 function lockPiece(){
@@ -128,17 +171,30 @@ function lockPiece(){
     // トーストはチカチカ防止で優先順位を整理
     if(progress>=GOAL_CLEAR){
       showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-      endGame("CLEAR!",`CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
+      endGame("CLEAR!",`Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
       return;
     } else if(progress===GOAL_CLEAR-1){
       showToast("あと1！🔥");
+    }
+} else {
+  // v1.3.1：消せない手でも進捗は戻らない。さらに“あと1マス”なら蜂が助けることがある。
+  const beeCleared = maybeBeeAssist();
+  if (beeCleared > 0) {
+    progress += beeCleared;
+    updateUI();
+    if (progress >= GOAL_CLEAR) {
+      showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
+      endGame("CLEAR!",`Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
+      return;
+    } else if (progress === GOAL_CLEAR-1) {
+      showToast("あと1！🔥");
     } else {
-      showToast(cleared>=2 ? `NICE! +${cleared}` : "🐝 +1");
+      showToast(beeCleared >= 2 ? `NICE! +${beeCleared}` : "🐝 +1");
     }
   } else {
-    // v1.2.1：消せない手があっても0に戻さない
     showToast("…");
     updateUI();
+  }
   }
 
   piece=spawnPiece();
@@ -250,7 +306,7 @@ function tickTime(dt){
     levelLabel.textContent=`Lv ${level}`;
     fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS*Math.pow(0.90,level-1)));
   }
-  if(remain<=0) endGame("DOWN…",`時間切れ（CLEAR ${progress}/${GOAL_CLEAR}）`);
+  if(remain<=0) endGame("DOWN…",`時間切れ（Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR}）`);
 }
 
 // Keyboard
@@ -283,6 +339,15 @@ canvas.addEventListener("pointerup",(e)=>{
 
 retryBtn.addEventListener("click",()=>start());
 
+nextBtn.addEventListener("click",()=>{
+  if (hasNextStage()) {
+    const next = stage + 1;
+    location.href = `./game.html?stage=${next}`;
+  } else {
+    location.href = `./index.html`;
+  }
+});
+
 let last=performance.now();
 function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
@@ -296,12 +361,15 @@ function loop(now){
 }
 
 function start(){
+  readStageFromURL();
   overlay.classList.add("hidden");
+  if (nextBtn) nextBtn.style.display = "none";
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }
   if(toastTimerId){ clearTimeout(toastTimerId); toastTimerId=null; }
   toast.classList.add("hidden"); beeFly.classList.add("hidden");
   grid=newGrid();
   rainbowUsed=false; rainbowPending=false;
+  assistUsed = 0;
   piece=spawnPiece();
   running=true; ending=false;
   elapsedMs=0; level=1; fallIntervalMs=FALL_START_MS; fallAccMs=0;
