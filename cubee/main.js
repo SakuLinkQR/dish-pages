@@ -60,8 +60,7 @@ function maybeBeeAssist(){
   clearingRows = null;
   clearingUntil = 0;
   beeHelpedThisTurn = false;
-      beeHelpedThisTurn = false;
-      return 0;
+return 0;
     }
   }
 
@@ -69,7 +68,7 @@ function maybeBeeAssist(){
   return 0;
 }
 
-// CuBee v1.5.2
+// CuBee v1.5.3
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -253,10 +252,10 @@ function lockPiece() {
   let cleared = rows.length;
 
   // 2. 消去がなかった場合、蜂の加勢をチェック
+  beeHelpedThisTurn = false;
   if (cleared === 0) {
-    beeHelpedThisTurn = false;
     if (typeof maybeBeeAssist === 'function') {
-      maybeBeeAssist(); // ここで穴が埋まれば beeHelpedThisTurn が true になる
+      maybeBeeAssist();
     }
     // 加勢後の再判定
     rows = getClearableRows();
@@ -297,7 +296,7 @@ function lockPiece() {
       requestAnimationFrame(loop);
     }, 240);
   } else {
-    // 消去がなかった場合：次のピースへ
+    // 消去が全くなかった場合：次のピースへ
     piece = spawnPiece();
     if (collides(piece)) {
       endGame("DOWN…", "置けなくなりました");
