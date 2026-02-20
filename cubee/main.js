@@ -46,7 +46,7 @@ function maybeBeeAssist(){
   return clearLinesSameColor();
 }
 
-// CuBee v1.4.6
+// CuBee v1.4.7
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -95,6 +95,7 @@ canvas.addEventListener("touchmove",(e)=>e.preventDefault(),{passive:false});
 
 const timeLabel=document.getElementById("timeLabel");
 const levelLabel=document.getElementById("levelLabel");
+const debugClear=document.getElementById("debugClear");
 const comboLabel=document.getElementById("comboLabel");
 const overlay=document.getElementById("overlay");
 const retryBtn=document.getElementById("retryBtn");
@@ -217,17 +218,22 @@ function lockPiece(){
     updateUI();
 
     // トーストはチカチカ防止で優先順位を整理
+    if(debugClear) debugClear.textContent = `+${cleared}`;
+
     if(progress>=GOAL_CLEAR){
       showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
       endGame("CLEAR!",`Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
       return;
     } else if(progress===GOAL_CLEAR-1){
-      showToast("あと1！🔥");
+      showToast(`+${cleared}（あと1！🔥）`);
+    } else {
+      showToast(cleared>=2 ? `+${cleared} NICE!` : `+${cleared}`);
     }
 } else {
   // v1.3.1：消せない手でも進捗は戻らない。さらに“あと1マス”なら蜂が助けることがある。
   const beeCleared = (typeof maybeBeeAssist === 'function') ? maybeBeeAssist() : 0;
   if (beeCleared > 0) {
+    if(debugClear) debugClear.textContent = `+${beeCleared}`;
     progress += beeCleared;
     updateUI();
     if (progress >= GOAL_CLEAR) {
@@ -237,7 +243,7 @@ function lockPiece(){
     } else if (progress === GOAL_CLEAR-1) {
       showToast("あと1！🔥");
     } else {
-      showToast(beeCleared >= 2 ? `NICE! +${beeCleared}` : "🐝 +1");
+      showToast(beeCleared >= 2 ? `🐝 +${beeCleared} NICE!` : "🐝 +1");
     }
   } else {
     showToast("…");
@@ -422,6 +428,7 @@ function start(){
   running=true; ending=false;
   elapsedMs=0; level=1; fallIntervalMs=FALL_START_MS; fallAccMs=0;
   progress=0; updateUI();
+  if(debugClear) debugClear.textContent = "+0";
   timeLabel.textContent="03:00"; levelLabel.textContent="Lv 1";
   last=performance.now();
 }
