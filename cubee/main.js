@@ -30,6 +30,7 @@ function findOneHoleRow(){
 }
 
 function maybeBeeAssist(){
+  // v1.5.0: Bee fills a hole, but the actual clear is handled by lockPiece with strict validation + highlight.
   if(assistUsed >= ASSIST_MAX_PER_GAME) return 0;
   const cand = findOneHoleRow();
   if(!cand) return 0;
@@ -37,29 +38,31 @@ function maybeBeeAssist(){
   const p = Math.min(0.40, ASSIST_BASE_CHANCE + (stage-1)*ASSIST_STAGE_BONUS);
   if(Math.random() > p) return 0;
 
-  // Fill the hole (and show a visible marker long enough to notice)
   grid[cand.y][cand.xHole] = cand.color;
-  beeMark = {x:cand.xHole, y:cand.y, until: Date.now() + 700};
+  beeMark = {x:cand.xHole, y:cand.y, until: Date.now() + 900}; // slower/visible
   assistUsed++;
+  beeHelpedThisTurn = true;
 
-  // Safety check: row must be FULL and same color after fill
+  // Safety check
   for(let x=0;x<COLS;x++){
     const v = grid[cand.y][x];
     if(v===null || v==="rainbow" || v!==cand.color){
-      // rollback (shouldn't happen, but prevents "揃ってないのに消える")
       grid[cand.y][cand.xHole] = null;
       assistUsed--;
       beeMark = null;
+  clearingRows = null;
+  clearingUntil = 0;
+  beeHelpedThisTurn = false;
+      beeHelpedThisTurn = false;
       return 0;
     }
   }
 
   showToast("🐝 BEE HELP!");
-  // don't use the big clear animation here; it's too fast/confusing on assist
-  return clearLinesSameColor();
+  return 0;
 }
 
-// CuBee v1.4.9
+// CuBee v1.5.0
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -176,8 +179,8 @@ function collides(p,nx=p.x,ny=p.y){
   return false;
 }
 
-function clearLinesSameColor(){
-  let cleared=0;
+function getClearableRows(){
+  const rows=[];
   for(let y=0;y<ROWS;y++){
     let c=null;
     let ok=true;
@@ -188,15 +191,18 @@ function clearLinesSameColor(){
       if(c===null) c=v;
       else if(v!==c){ ok=false; break; }
     }
-    if(ok){
-      // remove this row and add an empty row at top
-      grid.splice(y,1);
-      grid.unshift(Array(COLS).fill(null));
-      cleared++;
-      y--; // re-check the same index after shifting
-    }
+    if(ok) rows.push(y);
   }
-  return cleared;
+  return rows;
+}
+
+function applyClearRows(rows){
+  rows.sort((a,b)=>b-a);
+  for(const y of rows){
+    grid.splice(y,1);
+    grid.unshift(Array(COLS).fill(null));
+  }
+  return rows.length;
 }
 
 function endGame(title,sub,withBee=false){
@@ -231,47 +237,75 @@ function lockPiece(){
   if(ending) return;
   for(const c of cellsOfPiece(piece)) if(c.y>=0&&c.y<ROWS) grid[c.y][c.x]=c.c;
 
-  const cleared=clearLinesSameColor();
+  const rows=getClearableRows();
+  const cleared = rows.length;
 
   if(cleared>0){
-    progress+=cleared;
-    updateUI();
-
-    // トーストはチカチカ防止で優先順位を整理
+    clearingRows = rows.slice();
+    clearingUntil = Date.now() + 240;
     if(debugClear) debugClear.textContent = `+${cleared}`;
+    running=false;
 
-    if(progress>=GOAL_CLEAR){
-      showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-      endGame("CLEAR!",`Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
-      return;
-    } else if(progress===GOAL_CLEAR-1){
-      showToast(`+${cleared}（あと1！🔥）`);
-    } else {
+    setTimeout(()=>{
+      const actually = applyClearRows(rows);
+      progress += actually;
+      updateUI();
+
+      if(progress>=GOAL_CLEAR){
+        showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
+        endGame("CLEAR!",`Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
+        return;
+      } else if(progress===GOAL_CLEAR-1){
+        showToast(`+${actually}（あと1！🔥）`);
+      } else {
+        showToast(actually>=2 ? `+${actually} NICE!` : `+${actually}`);
+      }
+
+      piece=spawnPiece();
+      running=true;
+      requestAnimationFrame(loop);
+    }, 240);
+    return;
+  } else {
+
       showToast(cleared>=2 ? `+${cleared} NICE!` : `+${cleared}`);
     }
 } else {
-  // v1.3.1：消せない手でも進捗は戻らない。さらに“あと1マス”なら蜂が助けることがある。
-  const beeCleared = (typeof maybeBeeAssist === 'function') ? maybeBeeAssist() : 0;
-  if (beeCleared > 0) {
-    if(debugClear) debugClear.textContent = `+${beeCleared}`;
-    progress += beeCleared;
+// v1.5.0：消せない手でも進捗は戻らない。あと1マスなら蜂が「穴埋め」することがある（消去は厳密判定＋ハイライト後）。
+beeHelpedThisTurn = false;
+if (typeof maybeBeeAssist === 'function') { maybeBeeAssist(); }
+
+const rows2 = getClearableRows();
+const beeCleared = rows2.length;
+
+if (beeHelpedThisTurn && beeCleared > 0) {
+  clearingRows = rows2.slice();
+  clearingUntil = Date.now() + 240;
+  if(debugClear) debugClear.textContent = `+${beeCleared}`;
+  running=false;
+
+  setTimeout(()=>{
+    const actually = applyClearRows(rows2);
+    progress += actually;
     updateUI();
+
     if (progress >= GOAL_CLEAR) {
       showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
       endGame("CLEAR!",`Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
       return;
     } else if (progress === GOAL_CLEAR-1) {
-      showToast("あと1！🔥");
+      showToast(`🐝 +${actually}（あと1！🔥）`);
     } else {
-      showToast(beeCleared >= 2 ? `🐝 +${beeCleared} NICE!` : "🐝 +1");
+      showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
     }
-  } else {
-    showToast("…");
-    updateUI();
-  }
-  }
 
-  piece=spawnPiece();
+    piece=spawnPiece();
+    running=true;
+    requestAnimationFrame(loop);
+  }, 240);
+  return;
+}
+piece=spawnPiece();
   if(collides(piece)) endGame("DOWN…","置けなくなりました");
 }
 
@@ -450,6 +484,9 @@ function start(){
   progress=0; updateUI();
   if(debugClear) debugClear.textContent = "+0";
   beeMark = null;
+  clearingRows = null;
+  clearingUntil = 0;
+  beeHelpedThisTurn = false;
   timeLabel.textContent="03:00"; levelLabel.textContent="Lv 1";
   last=performance.now();
 }
