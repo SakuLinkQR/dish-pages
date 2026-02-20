@@ -1,4 +1,4 @@
-// CuBee v1.4.1
+// CuBee v1.4.2
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -281,7 +281,7 @@ function drawBlock(x,y,ci){
 }
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.save(); ctx.globalAlpha=0.12; ctx.strokeStyle="#fff";
+  ctx.save(); ctx.globalAlpha=1.0; ctx.strokeStyle="rgba(27,34,58,0.10)";
   for(let x=0;x<=COLS;x++){ ctx.beginPath(); ctx.moveTo(x*cell+0.5,0); ctx.lineTo(x*cell+0.5,ROWS*cell); ctx.stroke(); }
   for(let y=0;y<=ROWS;y++){ ctx.beginPath(); ctx.moveTo(0,y*cell+0.5); ctx.lineTo(COLS*cell,y*cell+0.5); ctx.stroke(); }
   ctx.restore();
