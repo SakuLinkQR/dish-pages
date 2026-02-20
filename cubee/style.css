@@ -7,7 +7,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .meta{display:flex;gap:10px;color:var(--muted);font-size:14px;flex-wrap:wrap;align-items:center}
 .badge{padding:6px 10px;border-radius:999px;background:rgba(27,34,58,.08);border:1px solid rgba(27,34,58,.12);color:#1b223a;font-weight:900;letter-spacing:.3px}
 .wrap{max-width:520px;margin:0 auto;padding:12px;position:relative}
-#game{width:100%;height:auto;max-height:calc(100vh - 250px);background:var(--panel);border:1px solid rgba(27,34,58,.12);border-radius:14px;touch-action:none;-webkit-user-select:none;user-select:none;display:block;box-shadow:0 16px 36px rgba(0,0,0,.08)}
+#game{width:min(100%, calc((100vh - 250px) * 0.5));height:auto;max-height:calc(100vh - 250px);aspect-ratio:8 / 16;background:var(--panel);border:1px solid rgba(27,34,58,.12);border-radius:14px;touch-action:none;}
 .hint{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.4}
 .hint .note{margin-top:6px;opacity:.9}
 .menu-wrap{max-width:520px;margin:0 auto;padding:18px 12px}
