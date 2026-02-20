@@ -62,7 +62,7 @@ function maybeBeeAssist(){
   return 0;
 }
 
-// CuBee v1.5.0
+// CuBee v1.5.1
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -235,8 +235,13 @@ function endGame(title,sub,withBee=false){
 
 function lockPiece(){
   if(ending) return;
-  for(const c of cellsOfPiece(piece)) if(c.y>=0&&c.y<ROWS) grid[c.y][c.x]=c.c;
 
+  // write piece into grid
+  for(const c of cellsOfPiece(piece)){
+    if(c.y>=0 && c.y<ROWS) grid[c.y][c.x]=c.c;
+  }
+
+  // 1) normal clear check
   const rows=getClearableRows();
   const cleared = rows.length;
 
@@ -266,10 +271,45 @@ function lockPiece(){
       requestAnimationFrame(loop);
     }, 240);
     return;
-  } else {
+  }
 
-      showToast(cleared>=2 ? `+${cleared} NICE!` : `+${cleared}`);
-    }
+  // 2) if no clear, maybe bee fills a hole (bee doesn't clear directly)
+  beeHelpedThisTurn = false;
+  if(typeof maybeBeeAssist === "function"){ maybeBeeAssist(); }
+
+  const rows2 = getClearableRows();
+  const beeCleared = rows2.length;
+
+  if(beeHelpedThisTurn && beeCleared>0){
+    clearingRows = rows2.slice();
+    clearingUntil = Date.now() + 240;
+    if(debugClear) debugClear.textContent = `+${beeCleared}`;
+    running=false;
+
+    setTimeout(()=>{
+      const actually = applyClearRows(rows2);
+      progress += actually;
+      updateUI();
+
+      if(progress>=GOAL_CLEAR){
+        showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
+        endGame("CLEAR!",`Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`,true);
+        return;
+      } else if(progress===GOAL_CLEAR-1){
+        showToast(`🐝 +${actually}（あと1！🔥）`);
+      } else {
+        showToast(actually>=2 ? `🐝 +${actually} NICE!` : "🐝 +1");
+      }
+
+      piece=spawnPiece();
+      running=true;
+      requestAnimationFrame(loop);
+    }, 240);
+    return;
+  }
+
+  // 3) just continue
+  piece = spawnPiece();
 } else {
 // v1.5.0：消せない手でも進捗は戻らない。あと1マスなら蜂が「穴埋め」することがある（消去は厳密判定＋ハイライト後）。
 beeHelpedThisTurn = false;
