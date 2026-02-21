@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.26
+// CuBee v1.6.24
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -507,33 +507,6 @@ function showCombo(n, progress, goal){
   comboBanner.style.display = 'block';
   if(comboTimerId) clearTimeout(comboTimerId);
   comboTimerId = setTimeout(()=>{ comboBanner.style.display='none'; }, 900);
-}
-
-function runAutoTest(nRows){
-  // Build a board where exactly nRows full rows exist and the row above is NOT full.
-  grid = newGrid();
-  progress = 0;
-  lastMoveClears = 0;
-  updateUI();
-
-  const y0 = ROWS-1;
-  const y1 = ROWS-2;
-  const y2 = ROWS-3;
-
-  for(let x=0;x<COLS;x++){
-    grid[y0][x] = 0;
-    if(nRows>=2) grid[y1][x] = 0;
-    // y2 is filled only when nRows>=3; otherwise make it mixed so it cannot clear
-    if(nRows>=3) grid[y2][x] = 0;
-    else grid[y2][x] = (x%2===0)?0:1;
-  }
-
-  const actually = clearCascade ? clearCascade() : (getClearableRows().length ? applyClearRows(getClearableRows()) : 0);
-  lastMoveClears = actually;
-  progress += actually;
-  updateUI();
-
-  showToast(`AUTO TEST ${nRows}: +${actually} (${progress}/${GOAL_CLEAR})`);
 }
 
 // Keyboard
