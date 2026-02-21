@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.9
+// CuBee v1.6.10
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 
@@ -272,17 +272,46 @@ function lockPiece() {
 
   // 2. 消去がなかった場合、蜂の加勢をチェック
   beeHelpedThisTurn = false;
-  if (cleared === 0) {
-    if (typeof maybeBeeAssist === 'function') {
-      maybeBeeAssist();
-    // v1.6.9: clear immediately if bee completed a row
-    const beeCleared = clearLinesSameColor();
-    if(beeCleared>0){ progress += beeCleared; updateUI(); }
+if (cleared === 0) {
+  if (typeof maybeBeeAssist === 'function') {
+    const helped = maybeBeeAssist();
+    if (helped) {
+      // v1.6.10: Bee helped -> clear immediately and safely, then continue with next piece.
+      const rowsBee = getClearableRows();
+      const beeCleared = rowsBee.length;
+      if (beeCleared > 0) {
+        const actually = applyClearRows(rowsBee);
+        progress += actually;
+        updateUI();
+
+        if (progress >= GOAL_CLEAR) {
+          showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
+          endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
+          return;
+        } else if (progress === GOAL_CLEAR - 1) {
+          showToast(`🐝 +${actually}（あと1！🔥）`);
+        } else {
+          showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
+        }
+      } else {
+        showToast("🐝 …");
+      }
+
+      // Next piece
+      piece = spawnPiece();
+      if (collides(piece)) {
+        endGame("DOWN…", "置けなくなりました");
+        return;
+      }
+      running = true;
+      requestAnimationFrame(loop);
+      return;
     }
-    // 加勢後の再判定
-    rows = getClearableRows();
-    cleared = rows.length;
   }
+  // 加勢後の再判定（蜂が発動しなかった場合）
+  rows = getClearableRows();
+  cleared = rows.length;
+}
 
   // 3. 消去演出と処理
   if (cleared > 0) {
