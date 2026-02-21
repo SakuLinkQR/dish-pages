@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.28
+// CuBee v1.6.30
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -90,15 +90,14 @@ function maybeBeeAssist(){
   return true;
 }
 const COLORS = [
-  { name:"Red",   fill:"#ff5a52", stroke:"#c51f18" },  // brighter glossy red
-  { name:"Blue",  fill:"#3aa3ff", stroke:"#0a5fa8" },  // brighter glossy blue
-  { name:"Green", fill:"#4eea7e", stroke:"#1f8a3f" },  // brighter glossy green
+  { name:"Red",   fill:"#ff5a52", stroke:"#c51f18" },
+  { name:"Blue",  fill:"#3aa3ff", stroke:"#0a5fa8" },
+  { name:"Green", fill:"#4eea7e", stroke:"#1f8a3f" },
   { name:"Amber", fill:"#ffd60a", stroke:"#b58e00" },
 ];
 
 const MODE_SECONDS=180;
 let GOAL_CLEAR = 3; // stage-dependent
-let lastMoveClears = 0; // v1.6.24: debug/UX
 
 // ====== Stage System (v1.3) ======
 // Stage 1: CLEAR 3, Stage 2: CLEAR 4
@@ -123,7 +122,7 @@ function hasNextStage(){
 }
 
 
-const CLEAR_ANIM_MS=650, TOAST_MS=950;
+const CLEAR_ANIM_MS=650, TOAST_MS=560;
 const LEVEL_EVERY_SECONDS=30, FALL_START_MS=850, FALL_MIN_MS=130;
 
 // Rainbow（1ゲーム1回まで）
@@ -132,9 +131,9 @@ const RAINBOW_TRIGGER_MIN_TOP_Y=7;
 const RAINBOW_CHANCE_PER_SPAWN=0.22;
 
 const canvas=document.getElementById("game");
-// v1.6.19: prevent iOS text selection / scrolling on edge touches
-canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); }, {passive:false});
-canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); }, {passive:false});
+// v1.6.29: prevent iOS selection/scroll on canvas
+canvas.addEventListener('touchstart',(e)=>e.preventDefault(),{passive:false});
+canvas.addEventListener('touchmove',(e)=>e.preventDefault(),{passive:false});
 
 const ctx=canvas.getContext("2d");
 const cell=Math.floor(Math.min(canvas.width/COLS, canvas.height/ROWS));
@@ -142,9 +141,6 @@ canvas.addEventListener("touchmove",(e)=>e.preventDefault(),{passive:false});
 
 const timeLabel=document.getElementById("timeLabel");
 const levelLabel=document.getElementById("levelLabel");
-const dbgFixed=document.getElementById("dbgFixed");
-const comboBanner=document.getElementById("comboBanner");
-let comboTimerId=null;
 const debugClear=document.getElementById("debugClear");
 const comboLabel=document.getElementById("comboLabel");
 const overlay=document.getElementById("overlay");
@@ -301,39 +297,14 @@ if (cleared === 0) {
       const beeCleared = rowsBee.length;
       if (beeCleared > 0) {
         const actually = clearCascade();
-        lastMoveClears = actually;
-      progress += actually;
+        progress += actually;
         updateUI();
 
         if (progress >= GOAL_CLEAR) {
           showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-          showToast(`CLEAR! +${lastMoveClears} (${progress}/${GOAL_CLEAR})`);
-        setTimeout(()=>{ endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR}（この手:+${lastMoveClears}）`, true); }, 550);
+          endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
           return;
-        } else if (progress === GOAL_CLEAR - 1) {
-          showToast(`🐝 +${actually}（${progress}/${GOAL_CLEAR}）`);
-        } else {
-          showToast(actually >= 2 ? `🐝 +${actually} NICE! (${progress}/${GOAL_CLEAR})` : `🐝 +${actually} (${progress}/${GOAL_CLEAR})`);
-        }
-      } else {
-        showToast("🐝 …");
-      }
-
-      // Next piece
-      piece = spawnPiece();
-      if (collides(piece)) {
-        endGame("DOWN…", "置けなくなりました");
-        return;
-      }
-      running = true;
-      requestAnimationFrame(loop);
-      return;
-    }
-  }
-  // 加勢後の再判定（蜂が発動しなかった場合）
-  rows = getClearableRows();
-  cleared = rows.length;
-}
+        } }
 
   // 3. 消去演出と処理
   if (cleared > 0) {
@@ -344,22 +315,19 @@ if (cleared === 0) {
 
     setTimeout(() => {
       const actually = clearCascade();
-      lastMoveClears = actually;
       progress += actually;
       updateUI();
-      if(actually>=3){ showCombo(actually, progress, GOAL_CLEAR); }
 
       if (progress >= GOAL_CLEAR) {
         showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-        showToast(`CLEAR! +${lastMoveClears} (${progress}/${GOAL_CLEAR})`);
-        setTimeout(()=>{ endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR}（この手:+${lastMoveClears}）`, true); }, 550);
+        endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
         return;
       } else {
         const honeyPrefix = beeHelpedThisTurn ? "🐝 " : "";
         if (progress === GOAL_CLEAR - 1) {
-          showToast(`${honeyPrefix}+${actually}（${progress}/${GOAL_CLEAR}）`);
+          showToast(`${honeyPrefix}+${actually}（あと1！🔥）`);
         } else {
-          showToast(actually >= 2 ? `${honeyPrefix}+${actually} NICE! (${progress}/${GOAL_CLEAR})` : `${honeyPrefix}+${actually} (${progress}/${GOAL_CLEAR})`);
+          showToast(actually >= 2 ? `${honeyPrefix}+${actually} NICE!` : `${honeyPrefix}+1`);
         }
       }
 
@@ -463,7 +431,7 @@ function drawBlock(x,y,ci){
   g.addColorStop(0.38, "rgba(255,255,255,0.18)");
   g.addColorStop(1, "rgba(255,255,255,0.00)");
   ctx.fillStyle = g;
-  roundRect(x+cell*0.06, y+cell*0.06, cell*0.88, cell*0.42, Math.floor(cell*0.18), g, "rgba(0,0,0,0)");
+  roundRect(x+cell*0.06, y+cell*0.06, cell*0.88, cell*0.42, Math.floor(cell*0.22), g, "rgba(0,0,0,0)");
   ctx.restore();
 
   ctx.save();
@@ -501,42 +469,6 @@ function tickTime(dt){
   }
   if(remain<=0) endGame("DOWN…",`時間切れ（Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR}）`);
 }
-
-function showCombo(n, progress, goal){
-  if(!comboBanner) return;
-  comboBanner.textContent = `COMBO +${n}! (${progress}/${goal})`;
-  comboBanner.style.display = 'block';
-  if(comboTimerId) clearTimeout(comboTimerId);
-  comboTimerId = setTimeout(()=>{ comboBanner.style.display='none'; }, 900);
-}
-
-window.addEventListener('error', (e)=>{ try{ if(dbgFixed) dbgFixed.textContent = 'DBGERR: ' + (e.message||'?').slice(0,60); }catch(_){ } });
-
-    function runAutoTest(nRows){
-      try{
-        if(dbgFixed) dbgFixed.textContent = `AUTO TEST start ${nRows}`;
-        grid = newGrid();
-        progress = 0;
-        lastMoveClears = 0;
-        updateUI();
-
-        const y0 = ROWS-1, y1 = ROWS-2, y2 = ROWS-3;
-        for(let x=0;x<COLS;x++){
-          grid[y0][x] = 0;
-          if(nRows>=2) grid[y1][x] = 0;
-          grid[y2][x] = (nRows>=3) ? 0 : ((x%2===0)?0:1);
-        }
-        const actually = (typeof clearCascade === 'function') ? clearCascade() : 0;
-        lastMoveClears = actually;
-        progress += actually;
-        updateUI();
-        const msg = `AUTO TEST ${nRows}: +${actually} (${progress}/${GOAL_CLEAR})`;
-        if(typeof showToast==='function') showToast(msg);
-        if(dbgFixed) dbgFixed.textContent = msg;
-      }catch(e){
-        if(dbgFixed) dbgFixed.textContent = 'AUTO TEST ERR: ' + (e.message||'?').slice(0,80);
-      }
-    }
 
 // Keyboard
 window.addEventListener("keydown",(e)=>{
@@ -577,8 +509,7 @@ nextBtn.addEventListener("click",()=>{
   }
 });
 
-let showToast(`GOAL: ${GOAL_CLEAR}`);
-  last=performance.now();
+let last=performance.now();
 function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
   if(running && !ending){
@@ -592,12 +523,6 @@ function loop(now){
 
 function start(){
   readStageFromURL();
-  // v1.6.21: enforce goal/progress reset
-  GOAL_CLEAR = STAGE_GOALS[Math.min(stage, STAGE_GOALS.length)-1];
-  progress = 0;
-  lastMoveClears = 0;
-  beeHelpedThisTurn = false;
-
   overlay.classList.add("hidden");
   if (nextBtn) nextBtn.style.display = "none";
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }
@@ -617,34 +542,7 @@ function start(){
   beeHelpedThisTurn = false;
   timeLabel.textContent="03:00"; levelLabel.textContent="Lv 1";
   last=performance.now();
-  requestAnimationFrame(loop);
-  const dbg = new URLSearchParams(location.search).get('debug');
-  if(dbg==='2') runAutoTest(2);
-  if(dbg==='3') runAutoTest(3);
-
 }
 
 start();
 requestAnimationFrame(loop);
-
-
-// AUTO TEST autorun (v1.6.28)
-document.addEventListener('DOMContentLoaded', ()=>{
-  try{
-    const dbg = new URLSearchParams(location.search).get('debug');
-    if(dbgFixed) dbgFixed.textContent = `DBG qs debug=${dbg||'none'}`;
-    if(dbg==='2' || dbg==='3'){
-      const n = dbg==='2' ? 2 : 3;
-      // If the game hasn't started yet, start it first, then run the test.
-      if(typeof start === 'function'){
-        start();
-        setTimeout(()=>runAutoTest(n), 60);
-      } else {
-        setTimeout(()=>runAutoTest(n), 60);
-      }
-    }
-  }catch(e){
-    if(dbgFixed) dbgFixed.textContent = 'DBG autorun ERR: ' + (e.message||'?').slice(0,80);
-  }
-});
-
