@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.11
+// CuBee v1.6.12
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 
@@ -89,10 +89,11 @@ function maybeBeeAssist(){
   playClearBee();
   return true;
 }
-const COLORS=[
-  {fill:"#f7c948",stroke:"rgba(255,255,255,0.25)"},
-  {fill:"#55a6ff",stroke:"rgba(255,255,255,0.25)"},
-  {fill:"#ff6bd6",stroke:"rgba(255,255,255,0.25)"},
+const COLORS = [
+  { name:"Red",   fill:"#ff3b30", stroke:"#b4231b" },
+  { name:"Blue",  fill:"#0a84ff", stroke:"#0659ad" },
+  { name:"Green", fill:"#34c759", stroke:"#1e7f37" },
+  { name:"Amber", fill:"#ffcc00", stroke:"#b58e00" },
 ];
 
 const MODE_SECONDS=180;
@@ -429,8 +430,18 @@ function roundRect(x,y,w,h,r,fill,stroke){
 function drawBlock(x,y,ci){
   const {fill,stroke}=COLORS[ci];
   const px=x*cell, py=y*cell;
-  const r=Math.floor(cell*0.18);
+  const r=Math.floor(cell*0.22);
   roundRect(px+1,py+1,cell-2,cell-2,r,fill,stroke);
+  // gloss highlight (v1.6.12)
+  ctx.save();
+  const g = ctx.createLinearGradient(x, y, x, y + cell);
+  g.addColorStop(0, "rgba(255,255,255,0.55)");
+  g.addColorStop(0.35, "rgba(255,255,255,0.10)");
+  g.addColorStop(1, "rgba(255,255,255,0.00)");
+  ctx.fillStyle = g;
+  roundRect(x+cell*0.06, y+cell*0.06, cell*0.88, cell*0.42, Math.floor(cell*0.18), g, "rgba(0,0,0,0)");
+  ctx.restore();
+
   ctx.save();
   ctx.globalAlpha=0.18; ctx.fillStyle="#fff";
   ctx.beginPath();
