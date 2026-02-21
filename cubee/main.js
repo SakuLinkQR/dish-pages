@@ -36,39 +36,10 @@ function findOneHoleRow(){
   return null;
 }
 
-function maybeBeeAssist(){
-  // v1.5.0: Bee fills a hole, but the actual clear is handled by lockPiece with strict validation + highlight.
-  if(assistUsed >= ASSIST_MAX_PER_GAME) return 0;
-  const cand = findOneHoleRow();
-  if(!cand) return 0;
+// (removed duplicate maybeBeeAssist)
 
-  const p = Math.min(0.40, ASSIST_BASE_CHANCE + (stage-1)*ASSIST_STAGE_BONUS);
-  if(Math.random() > p) return 0;
 
-  grid[cand.y][cand.xHole] = cand.color;
-  beeMark = {x:cand.xHole, y:cand.y, until: Date.now() + 900}; // slower/visible
-  assistUsed++;
-  beeHelpedThisTurn = true;
-
-  // Safety check
-  for(let x=0;x<COLS;x++){
-    const v = grid[cand.y][x];
-    if(v===null || v==="rainbow" || v!==cand.color){
-      grid[cand.y][cand.xHole] = null;
-      assistUsed--;
-      beeMark = null;
-  clearingRows = null;
-  clearingUntil = 0;
-  beeHelpedThisTurn = false;
-return 0;
-    }
-  }
-
-  showToast("🐝 BEE HELP!");
-  return 0;
-}
-
-// CuBee v1.6.7
+// CuBee v1.6.8
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 
@@ -101,7 +72,7 @@ function stbFindOneHoleRow(){
   return null;
 }
 
-function stbMaybeBeeAssist(){
+function maybeBeeAssist(){
   if(!STB_ENABLE_BEE_ASSIST) return false;
   if(stbAssistUsed >= STB_ASSIST_MAX_PER_GAME) return false;
 
@@ -129,7 +100,8 @@ let GOAL_CLEAR = 3; // stage-dependent
 
 // ====== Stage System (v1.3) ======
 // Stage 1: CLEAR 3, Stage 2: CLEAR 4
-const STAGE_GOALS = [3, 4, 5, 6, 7]; // Stage1..5 // extend later: [3,4,5,6,...]
+const STAGE_MAX = 30;
+  const STAGE_GOALS = Array.from({length: STAGE_MAX}, (_, i) => 3 + i); // Stage1..30 // Stage1..5 // extend later: [3,4,5,6,...]
 let stage = 1;
 
 function readStageFromURL(){
