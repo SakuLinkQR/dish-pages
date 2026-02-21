@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.24
+// CuBee v1.6.27
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -142,6 +142,7 @@ canvas.addEventListener("touchmove",(e)=>e.preventDefault(),{passive:false});
 
 const timeLabel=document.getElementById("timeLabel");
 const levelLabel=document.getElementById("levelLabel");
+const dbgFixed=document.getElementById("dbgFixed");
 const comboBanner=document.getElementById("comboBanner");
 let comboTimerId=null;
 const debugClear=document.getElementById("debugClear");
@@ -509,6 +510,34 @@ function showCombo(n, progress, goal){
   comboTimerId = setTimeout(()=>{ comboBanner.style.display='none'; }, 900);
 }
 
+window.addEventListener('error', (e)=>{ try{ if(dbgFixed) dbgFixed.textContent = 'DBGERR: ' + (e.message||'?').slice(0,60); }catch(_){ } });
+
+    function runAutoTest(nRows){
+      try{
+        if(dbgFixed) dbgFixed.textContent = `AUTO TEST start ${nRows}`;
+        grid = newGrid();
+        progress = 0;
+        lastMoveClears = 0;
+        updateUI();
+
+        const y0 = ROWS-1, y1 = ROWS-2, y2 = ROWS-3;
+        for(let x=0;x<COLS;x++){
+          grid[y0][x] = 0;
+          if(nRows>=2) grid[y1][x] = 0;
+          grid[y2][x] = (nRows>=3) ? 0 : ((x%2===0)?0:1);
+        }
+        const actually = (typeof clearCascade === 'function') ? clearCascade() : 0;
+        lastMoveClears = actually;
+        progress += actually;
+        updateUI();
+        const msg = `AUTO TEST ${nRows}: +${actually} (${progress}/${GOAL_CLEAR})`;
+        if(typeof showToast==='function') showToast(msg);
+        if(dbgFixed) dbgFixed.textContent = msg;
+      }catch(e){
+        if(dbgFixed) dbgFixed.textContent = 'AUTO TEST ERR: ' + (e.message||'?').slice(0,80);
+      }
+    }
+
 // Keyboard
 window.addEventListener("keydown",(e)=>{
   if(!running||ending) return;
@@ -589,6 +618,10 @@ function start(){
   timeLabel.textContent="03:00"; levelLabel.textContent="Lv 1";
   last=performance.now();
   requestAnimationFrame(loop);
+  const dbg = new URLSearchParams(location.search).get('debug');
+  if(dbg==='2') runAutoTest(2);
+  if(dbg==='3') runAutoTest(3);
+
 }
 
 start();
