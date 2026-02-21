@@ -105,7 +105,7 @@ function maybeBeeAssist(){
   return true;
 }
 
-// CuBee v1.6.0
+// CuBee v1.6.1
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -515,7 +515,24 @@ nextBtn.addEventListener("click",()=>{
 });
 
 let last=performance.now();
+function beeWatchdog(now){
+  // Safety: never allow permanent freeze
+  if(beePause && !beeCarryAnim){
+    // recover
+    beePause = false;
+    if(!ending){
+      piece = spawnPiece();
+      if(collides(piece)){
+        endGame("DOWN…", "置けなくなりました");
+        return;
+      }
+      running = true;
+    }
+  }
+}
+
 function updateBeeAnim(now){
+  try{
   if(!beeCarryAnim) return;
 
   const t = (now - beeCarryAnim.t0) / beeCarryAnim.dur;
@@ -567,6 +584,7 @@ function updateBeeAnim(now){
 function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
   updateBeeAnim(now);
+  beeWatchdog(now);
   if(running && !ending && !beePause){
     tickTime(dt);
     fallAccMs+=dt;
@@ -600,4 +618,11 @@ function start(){
 }
 
 start();
-requestAnimationFrame(loop);
+requestAnimationFrame(loop);  } catch(e){
+    // If something goes wrong, recover and continue
+    beeCarryAnim = null;
+    beePause = false;
+    running = true;
+    if (typeof showToast === 'function') showToast("⚠️ Bee error");
+  }
+}
