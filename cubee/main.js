@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.15
+// CuBee v1.6.16
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -90,10 +90,10 @@ function maybeBeeAssist(){
   return true;
 }
 const COLORS = [
-  { name:"Red",   fill:"#ff3b30", stroke:"#b4231b" },
-  { name:"Blue",  fill:"#0a84ff", stroke:"#0659ad" },
-  { name:"Green", fill:"#34c759", stroke:"#1e7f37" },
-  { name:"Amber", fill:"#ffcc00", stroke:"#b58e00" },
+  { name:"Red",   fill:"#ff5a52", stroke:"#c51f18" },  // brighter glossy red
+  { name:"Blue",  fill:"#3aa3ff", stroke:"#0a5fa8" },  // brighter glossy blue
+  { name:"Green", fill:"#4eea7e", stroke:"#1f8a3f" },  // brighter glossy green
+  { name:"Amber", fill:"#ffd60a", stroke:"#b58e00" },
 ];
 
 const MODE_SECONDS=180;
@@ -435,8 +435,8 @@ function drawBlock(x,y,ci){
   // gloss highlight (v1.6.12)
   ctx.save();
   const g = ctx.createLinearGradient(x, y, x, y + cell);
-  g.addColorStop(0, "rgba(255,255,255,0.55)");
-  g.addColorStop(0.35, "rgba(255,255,255,0.10)");
+  g.addColorStop(0, "rgba(255,255,255,0.70)");
+  g.addColorStop(0.38, "rgba(255,255,255,0.18)");
   g.addColorStop(1, "rgba(255,255,255,0.00)");
   ctx.fillStyle = g;
   roundRect(x+cell*0.06, y+cell*0.06, cell*0.88, cell*0.42, Math.floor(cell*0.18), g, "rgba(0,0,0,0)");
