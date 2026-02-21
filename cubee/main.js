@@ -1,6 +1,8 @@
 let beeMark = null;
   beeCarryAnim = null;
-  beePause = false; // {x,y,until}
+  beePause = false;
+  pendingPiece = null;
+  fallAccMs = 0; // {x,y,until}
 let beeCarryAnim = null; // {t0,dur,pts,color,tx,ty}
 let beePause = false; // freeze falling/time while bee is carrying
 
@@ -95,7 +97,7 @@ function maybeBeeAssist(){
   return true;
 }
 
-// CuBee v1.6.3
+// CuBee v1.6.4
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -154,7 +156,7 @@ const overlaySub=document.getElementById("overlaySub");
 const beeFly=document.getElementById("beeFly");
 const toast=document.getElementById("toast");
 
-let grid, piece, running=true, ending=false;
+let grid, piece, pendingPiece=null, running=true, ending=false;
 let elapsedMs=0, level=1, fallIntervalMs=FALL_START_MS, fallAccMs=0;
 let progress=0;
 let endTimerId=null, toastTimerId=null;
@@ -314,8 +316,8 @@ function lockPiece() {
         }
       }
 
-      piece = spawnPiece();
-      if (collides(piece)) {
+      pendingPiece = spawnPiece();
+      if (collides(pendingPiece)) {
         endGame("DOWN…", "置けなくなりました");
         return;
       }
@@ -505,23 +507,37 @@ nextBtn.addEventListener("click",()=>{
 
 let last=performance.now();
 function resolveAfterBeePlacement(){
+  // v1.6.4: Always resume falling correctly after bee placement.
   const rows = getClearableRows();
-  const cleared = rows.length;
-  if(cleared > 0){
-    const actually = applyClearRows(rows);
-    progress += actually;
-    updateUI();
-    if(debugClear) debugClear.textContent = `+${actually}`;
 
-    if(progress >= GOAL_CLEAR){
-      showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-      endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
-      return;
-    } else if(progress === GOAL_CLEAR - 1){
-      showToast(`🐝 +${actually}（あと1！🔥）`);
-    } else {
-      showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
-    }
+  if(rows.length > 0){
+    clearingRows = rows.slice();
+    clearingUntil = Date.now() + 240;
+    running = false;
+
+    setTimeout(() => {
+      const actually = applyClearRows(rows);
+      progress += actually;
+      updateUI();
+
+      if(progress >= GOAL_CLEAR){
+        showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
+        endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
+        return;
+      }
+
+      // Resume
+      beePause = false;
+      running = true;
+      fallAccMs = 0;
+      requestAnimationFrame(loop);
+    }, 240);
+  } else {
+    // No clear: resume immediately, and "kick" one step so it doesn't look stuck.
+    beePause = false;
+    running = true;
+    fallAccMs = 0;
+    softDrop();
   }
 }
 
