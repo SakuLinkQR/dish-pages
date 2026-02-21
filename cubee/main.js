@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.16
+// CuBee v1.6.17
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -230,6 +230,17 @@ function applyClearRows(rows){
   }
   return rows.length;
 }
+// v1.6.17: clear repeatedly until no more full same-color rows appear (after rows drop).
+function clearCascade(){
+  let total = 0;
+  // Safety limit to avoid infinite loops
+  for(let k=0;k<10;k++){
+    const rows = getClearableRows();
+    if(!rows || rows.length===0) break;
+    total += applyClearRows(rows);
+  }
+  return total;
+}
 
 function endGame(title,sub,withBee=false){
   if(ending) return;
@@ -281,7 +292,7 @@ if (cleared === 0) {
       const rowsBee = getClearableRows();
       const beeCleared = rowsBee.length;
       if (beeCleared > 0) {
-        const actually = applyClearRows(rowsBee);
+        const actually = clearCascade();
         progress += actually;
         updateUI();
 
@@ -322,7 +333,7 @@ if (cleared === 0) {
     running = false;
 
     setTimeout(() => {
-      const actually = applyClearRows(rows);
+      const actually = clearCascade();
       progress += actually;
       updateUI();
 
