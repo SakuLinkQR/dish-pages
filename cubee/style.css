@@ -72,3 +72,45 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
   }
   .wrap { padding-bottom: 12px; }
 }
+
+
+/* v1.5.8: stabilize viewport sizing (prevent iOS address-bar resize jump) */
+html, body {
+  height: 100%;
+}
+body {
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden; /* no page scroll while playing */
+}
+.topbar {
+  padding-top: env(safe-area-inset-top);
+}
+/* Keep main area fixed */
+.wrap, .menu-wrap {
+  min-height: 0;
+}
+/* Game page: make the whole layout fit inside 100svh */
+.game-wrap {
+  height: calc(100svh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+/* Ensure score/header never goes outside */
+.hud {
+  flex: 0 0 auto;
+}
+/* Canvas sizes from remaining space; keep aspect ratio stable */
+.game-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#game {
+  max-height: calc(100svh - 210px);
+  width: min(100%, calc((100svh - 210px) * 0.5));
+  height: auto;
+}
