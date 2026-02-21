@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.30
+// CuBee v1.6.31
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -304,7 +304,27 @@ if (cleared === 0) {
           showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
           endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
           return;
-        } }
+        } else if (progress === GOAL_CLEAR - 1) {
+          showToast(`🐝 +${actually}（あと1！🔥）`);
+        } else {
+          showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
+        }
+      } else {
+        showToast("🐝 …");
+      }
+
+      // Next piece
+      piece = spawnPiece();
+      if (collides(piece)) {
+        endGame("DOWN…", "置けなくなりました");
+        return;
+      }
+      running = true;
+      requestAnimationFrame(loop);
+      return;
+    }
+  }
+}
 
   // 3. 消去演出と処理
   if (cleared > 0) {
