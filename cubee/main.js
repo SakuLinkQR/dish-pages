@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.34
+// CuBee v1.6.35
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -106,15 +106,15 @@ const STAGE_MAX = 30;
 let stage = 1;
 
 function readStageFromURL(){
-  try{
-    const sp = new URLSearchParams(location.search);
-    const s = parseInt(sp.get("stage") || "1", 10);
-    stage = (Number.isFinite(s) && s >= 1) ? s : 1;
-  }catch(e){
-    stage = 1;
+  const sp = new URLSearchParams(location.search);
+  const n = Number(sp.get("stage") || "1");
+  stage = (Number.isFinite(n) && n>=1) ? Math.floor(n) : 1;
+  if (typeof level !== "undefined") level = stage;
+  if (typeof STAGE_GOALS !== "undefined") {
+    GOAL_CLEAR = STAGE_GOALS[Math.min(stage, STAGE_GOALS.length)-1];
+  } else {
+    GOAL_CLEAR = 3;
   }
-  const idx = Math.min(stage, STAGE_GOALS.length) - 1;
-  GOAL_CLEAR = STAGE_GOALS[idx];
 }
 
 function hasNextStage(){
@@ -566,7 +566,7 @@ function start(){
   clearingRows = null;
   clearingUntil = 0;
   beeHelpedThisTurn = false;
-  timeLabel.textContent="03:00"; levelLabel.textContent="Lv 1";
+  timeLabel.textContent="03:00"; levelLabel.textContent = `Lv ${stage}`;
   last=performance.now();
 }
 
