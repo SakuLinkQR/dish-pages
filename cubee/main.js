@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.18
+// CuBee v1.6.19
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -131,6 +131,10 @@ const RAINBOW_TRIGGER_MIN_TOP_Y=7;
 const RAINBOW_CHANCE_PER_SPAWN=0.22;
 
 const canvas=document.getElementById("game");
+// v1.6.19: prevent iOS text selection / scrolling on edge touches
+canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); }, {passive:false});
+canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); }, {passive:false});
+
 const ctx=canvas.getContext("2d");
 const cell=Math.floor(Math.min(canvas.width/COLS, canvas.height/ROWS));
 canvas.addEventListener("touchmove",(e)=>e.preventDefault(),{passive:false});

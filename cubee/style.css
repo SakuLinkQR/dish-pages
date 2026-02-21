@@ -133,3 +133,24 @@ body {
 #game {
   margin: 0 auto;
 }
+
+
+/* v1.6.19: Disable iOS text selection / callout while playing */
+html, body {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+a, button {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+#game {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
