@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.19
+// CuBee v1.6.25
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -98,6 +98,7 @@ const COLORS = [
 
 const MODE_SECONDS=180;
 let GOAL_CLEAR = 3; // stage-dependent
+let lastMoveClears = 0; // v1.6.24: debug/UX
 
 // ====== Stage System (v1.3) ======
 // Stage 1: CLEAR 3, Stage 2: CLEAR 4
@@ -122,7 +123,7 @@ function hasNextStage(){
 }
 
 
-const CLEAR_ANIM_MS=650, TOAST_MS=560;
+const CLEAR_ANIM_MS=650, TOAST_MS=950;
 const LEVEL_EVERY_SECONDS=30, FALL_START_MS=850, FALL_MIN_MS=130;
 
 // Rainbow（1ゲーム1回まで）
@@ -141,6 +142,14 @@ canvas.addEventListener("touchmove",(e)=>e.preventDefault(),{passive:false});
 
 const timeLabel=document.getElementById("timeLabel");
 const levelLabel=document.getElementById("levelLabel");
+const comboBanner=document.getElementById("comboBanner");
+const debugTools=document.getElementById("debugTools");
+const test2Btn=document.getElementById("test2");
+const test3Btn=document.getElementById("test3");
+const isDebug = new URLSearchParams(location.search).get("debug") === "1";
+if(isDebug && debugTools){ debugTools.style.display="flex"; }
+
+let comboTimerId=null;
 const debugClear=document.getElementById("debugClear");
 const comboLabel=document.getElementById("comboLabel");
 const overlay=document.getElementById("overlay");
@@ -297,17 +306,19 @@ if (cleared === 0) {
       const beeCleared = rowsBee.length;
       if (beeCleared > 0) {
         const actually = clearCascade();
-        progress += actually;
+        lastMoveClears = actually;
+      progress += actually;
         updateUI();
 
         if (progress >= GOAL_CLEAR) {
           showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-          endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
+          showToast(`CLEAR! +${lastMoveClears} (${progress}/${GOAL_CLEAR})`);
+        setTimeout(()=>{ endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR}（この手:+${lastMoveClears}）`, true); }, 550);
           return;
         } else if (progress === GOAL_CLEAR - 1) {
-          showToast(`🐝 +${actually}（あと1！🔥）`);
+          showToast(`🐝 +${actually}（${progress}/${GOAL_CLEAR}）`);
         } else {
-          showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
+          showToast(actually >= 2 ? `🐝 +${actually} NICE! (${progress}/${GOAL_CLEAR})` : `🐝 +${actually} (${progress}/${GOAL_CLEAR})`);
         }
       } else {
         showToast("🐝 …");
@@ -338,19 +349,22 @@ if (cleared === 0) {
 
     setTimeout(() => {
       const actually = clearCascade();
+      lastMoveClears = actually;
       progress += actually;
       updateUI();
+      if(actually>=3){ showCombo(actually, progress, GOAL_CLEAR); }
 
       if (progress >= GOAL_CLEAR) {
         showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-        endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
+        showToast(`CLEAR! +${lastMoveClears} (${progress}/${GOAL_CLEAR})`);
+        setTimeout(()=>{ endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR}（この手:+${lastMoveClears}）`, true); }, 550);
         return;
       } else {
         const honeyPrefix = beeHelpedThisTurn ? "🐝 " : "";
         if (progress === GOAL_CLEAR - 1) {
-          showToast(`${honeyPrefix}+${actually}（あと1！🔥）`);
+          showToast(`${honeyPrefix}+${actually}（${progress}/${GOAL_CLEAR}）`);
         } else {
-          showToast(actually >= 2 ? `${honeyPrefix}+${actually} NICE!` : `${honeyPrefix}+1`);
+          showToast(actually >= 2 ? `${honeyPrefix}+${actually} NICE! (${progress}/${GOAL_CLEAR})` : `${honeyPrefix}+${actually} (${progress}/${GOAL_CLEAR})`);
         }
       }
 
@@ -493,6 +507,54 @@ function tickTime(dt){
   if(remain<=0) endGame("DOWN…",`時間切れ（Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR}）`);
 }
 
+function showCombo(n, progress, goal){
+  if(!comboBanner) return;
+  comboBanner.textContent = `COMBO +${n}! (${progress}/${goal})`;
+  comboBanner.style.display = 'block';
+  if(comboTimerId) clearTimeout(comboTimerId);
+  comboTimerId = setTimeout(()=>{ comboBanner.style.display='none'; }, 900);
+}
+
+
+function runTestBoard(rowsToClear){
+  // Create an artificial board where exactly rowsToClear rows should clear.
+  // This helps reproduce/confirm the "2 rows clears but CLEAR triggers" issue.
+  grid = newGrid();
+  progress = 0;
+  lastMoveClears = 0;
+  updateUI();
+
+  const y0 = ROWS-1;
+  const y1 = ROWS-2;
+  const y2 = ROWS-3;
+
+  // Fill bottom rows with RED (index 0) so they are clearable
+  for(let x=0;x<COLS;x++){
+    grid[y0][x] = 0;
+    if(rowsToClear>=2) grid[y1][x] = 0;
+    if(rowsToClear>=3) grid[y2][x] = 0;
+  }
+
+  // Make sure the row above is NOT clearable (mix colors)
+  if(rowsToClear<3){
+    for(let x=0;x<COLS;x++){
+      grid[y2][x] = (x%2===0)?0:1;
+    }
+  }
+
+  // Now clear using the same cascade function used in the game
+  const actually = clearCascade();
+  lastMoveClears = actually;
+  progress += actually;
+  updateUI();
+
+  showCombo(actually, progress, GOAL_CLEAR);
+  showToast(`TEST result: +${actually} (${progress}/${GOAL_CLEAR})`);
+}
+
+if(test2Btn){ test2Btn.addEventListener("click", ()=>runTestBoard(2)); }
+if(test3Btn){ test3Btn.addEventListener("click", ()=>runTestBoard(3)); }
+
 // Keyboard
 window.addEventListener("keydown",(e)=>{
   if(!running||ending) return;
@@ -532,7 +594,8 @@ nextBtn.addEventListener("click",()=>{
   }
 });
 
-let last=performance.now();
+let showToast(`GOAL: ${GOAL_CLEAR}`);
+  last=performance.now();
 function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
   if(running && !ending){
@@ -546,6 +609,12 @@ function loop(now){
 
 function start(){
   readStageFromURL();
+  // v1.6.21: enforce goal/progress reset
+  GOAL_CLEAR = STAGE_GOALS[Math.min(stage, STAGE_GOALS.length)-1];
+  progress = 0;
+  lastMoveClears = 0;
+  beeHelpedThisTurn = false;
+
   overlay.classList.add("hidden");
   if (nextBtn) nextBtn.style.display = "none";
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }
@@ -565,6 +634,7 @@ function start(){
   beeHelpedThisTurn = false;
   timeLabel.textContent="03:00"; levelLabel.textContent="Lv 1";
   last=performance.now();
+  requestAnimationFrame(loop);
 }
 
 start();
