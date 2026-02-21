@@ -97,7 +97,7 @@ function maybeBeeAssist(){
   return true;
 }
 
-// CuBee v1.6.4
+// CuBee v1.6.6
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -574,26 +574,50 @@ function loop(now){
 }
 
 function start(){
+  // v1.6.6: Safe init order (prevents "piece not appearing" / stuck beePause)
   readStageFromURL();
   overlay.classList.add("hidden");
-  if (nextBtn) nextBtn.style.display = "none";
+  if (typeof nextBtn !== "undefined" && nextBtn) nextBtn.style.display = "none";
+
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }
   if(toastTimerId){ clearTimeout(toastTimerId); toastTimerId=null; }
-  toast.classList.add("hidden"); beeFly.classList.add("hidden");
-  grid=newGrid();
-  rainbowUsed=false; rainbowPending=false;
-  assistUsed = 0;
-  piece=spawnPiece();
-  running=true; ending=false;
-  elapsedMs=0; level=1; fallIntervalMs=FALL_START_MS; fallAccMs=0;
-  progress=0; updateUI();
-  if(debugClear) debugClear.textContent = "+0";
+  toast.classList.add("hidden");
+  beeFly.classList.add("hidden");
+
+  // --- Reset bee state completely ---
   beeMark = null;
-  clearingRows = null;
-  clearingUntil = 0;
-  beeHelpedThisTurn = false;
-  timeLabel.textContent="03:00"; levelLabel.textContent="Lv 1";
-  last=performance.now();
+  if (typeof beeCarryAnim !== "undefined") beeCarryAnim = null;
+  if (typeof beePause !== "undefined") beePause = false;
+  if (typeof beeHelpedThisTurn !== "undefined") beeHelpedThisTurn = false;
+  if (typeof pendingPiece !== "undefined") pendingPiece = null;
+
+  // --- Reset core state ---
+  grid = newGrid();
+  rainbowUsed = false;
+  rainbowPending = false;
+  assistUsed = 0;
+  progress = 0;
+  updateUI();
+
+  ending = false;
+  running = true;
+  elapsedMs = 0;
+  level = 1;
+  fallIntervalMs = FALL_START_MS;
+  fallAccMs = 0;
+
+  // Spawn piece after flags
+  piece = spawnPiece();
+  if (collides(piece)) {
+    endGame("DOWN…","置けなくなりました");
+    return;
+  }
+
+  timeLabel.textContent="03:00";
+  levelLabel.textContent="Lv 1";
+
+  last = performance.now();
+  requestAnimationFrame(loop);
 }
 
 start();
