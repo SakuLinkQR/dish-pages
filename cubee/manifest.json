@@ -1,7 +1,7 @@
 {
   "name": "CuBee",
   "short_name": "CuBee",
-  "start_url": "./index.html?v=1.6.2",
+  "start_url": "./index.html?v=1.6.3",
   "display": "standalone",
   "background_color": "#f6f8ff",
   "theme_color": "#f6f8ff",

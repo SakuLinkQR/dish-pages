@@ -17,15 +17,12 @@ const ASSIST_STAGE_BONUS = 0.03; // + per stage
 const ASSIST_MAX_PER_GAME = 3;
 let assistUsed = 0;
 
-// ===== Bee Carry (v1.6.2) =====
-// Deterministic (time-based) animation: never depends on "distance < eps"
+// ===== Bee Carry helpers (v1.6.3) =====
 function buildSnakePath(tx, ty){
-  // Start near top-right inside the board
   const sx = COLS - 1;
   const sy = 0;
   const pts = [{x:sx, y:sy}];
 
-  // Snake down, alternating horizontal direction each row
   let goLeft = true;
   for(let y=0; y<=ty; y++){
     if(y!==0){
@@ -35,15 +32,12 @@ function buildSnakePath(tx, ty){
     pts.push({x: goLeft ? 0 : (COLS-1), y});
     goLeft = !goLeft;
   }
-
-  // Move horizontally on target row to target x
   const lx = pts[pts.length-1].x;
   if(lx !== tx) pts.push({x:tx, y:ty});
   return pts;
 }
 
 function lerp(a,b,t){ return a + (b-a)*t; }
-
 function pointOnPath(pts, t){
   if(pts.length<=1) return pts[0];
   const segs = pts.length - 1;
@@ -78,7 +72,7 @@ function findOneHoleRow(){
 }
 
 function maybeBeeAssist(){
-  // v1.6.2: Bee carries ONE cube with a short freeze.
+  // v1.6.3: Start bee carry animation (deterministic time-based).
   if(assistUsed >= ASSIST_MAX_PER_GAME) return false;
   const cand = findOneHoleRow();
   if(!cand) return false;
@@ -88,21 +82,20 @@ function maybeBeeAssist(){
 
   beeCarryAnim = {
     t0: performance.now(),
-    dur: 900, // enough to notice (kids friendly)
+    dur: 900,
     pts: buildSnakePath(cand.xHole, cand.y),
     color: cand.color,
     tx: cand.xHole,
     ty: cand.y
   };
-  beePause = true;          // pause falling/time only
+  beePause = true;
   assistUsed++;
   beeHelpedThisTurn = true;
-
   showToast("🐝 Bringing one cube…");
   return true;
 }
 
-// CuBee v1.6.2
+// CuBee v1.6.3
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -430,7 +423,7 @@ function draw(){
   for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++) if(grid[y][x]!==null) drawBlock(x,y,grid[y][x]);
   if(!ending) for(const c of cellsOfPiece(piece)) if(c.y>=0) drawBlock(c.x,c.y,c.c);
 
-  // Bee carry animation (v1.6.2)
+  // Bee carry animation (v1.6.3)
   if(beeCarryAnim){
     const t = Math.min(1, Math.max(0, (performance.now()-beeCarryAnim.t0)/beeCarryAnim.dur));
     const pos = pointOnPath(beeCarryAnim.pts, t);
@@ -511,10 +504,9 @@ nextBtn.addEventListener("click",()=>{
 });
 
 let last=performance.now();
-function resolveAfterPlacement(prefix){
+function resolveAfterBeePlacement(){
   const rows = getClearableRows();
   const cleared = rows.length;
-
   if(cleared > 0){
     const actually = applyClearRows(rows);
     progress += actually;
@@ -526,18 +518,9 @@ function resolveAfterPlacement(prefix){
       endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
       return;
     } else if(progress === GOAL_CLEAR - 1){
-      showToast(`${prefix}+${actually}（あと1！🔥）`);
+      showToast(`🐝 +${actually}（あと1！🔥）`);
     } else {
-      showToast(actually >= 2 ? `${prefix}+${actually} NICE!` : `${prefix}+1`);
-    }
-  }
-
-  // Ensure there is an active piece to fall
-  if(!ending){
-    piece = spawnPiece();
-    if(collides(piece)){
-      endGame("DOWN…", "置けなくなりました");
-      return;
+      showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
     }
   }
 }
@@ -549,7 +532,6 @@ function updateBeeAnim(now){
   if(t >= 1){
     const {tx, ty, color} = beeCarryAnim;
 
-    // Place cube exactly once
     if(grid[ty][tx] === null){
       grid[ty][tx] = color;
       beeMark = {x:tx, y:ty, until: Date.now() + 900};
@@ -558,8 +540,8 @@ function updateBeeAnim(now){
     beeCarryAnim = null;
     beePause = false;
 
-    // Resolve clear + next piece
-    resolveAfterPlacement("🐝 ");
+    // After placing, resolve clears. Then resume falling with current piece (already spawned).
+    resolveAfterBeePlacement();
   }
 }
 
