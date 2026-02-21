@@ -1,4 +1,8 @@
-let beeMark = null; // {x,y,until}
+let beeMark = null;
+  beeCarryAnim = null;
+  beePause = false; // {x,y,until}
+let beeCarryAnim = null; // {t0,dur,pts,color,tx,ty}
+let beePause = false; // true while bee is carrying
 
 let beeHelpedThisTurn = false;
 
@@ -12,6 +16,45 @@ const ASSIST_BASE_CHANCE = 0.16; // Stage1
 const ASSIST_STAGE_BONUS = 0.03; // + per stage
 const ASSIST_MAX_PER_GAME = 3;
 let assistUsed = 0;
+
+function buildSnakePath(tx, ty){
+  // Start near top-right inside the board
+  const sx = COLS - 1;
+  const sy = 0;
+  const pts = [{x:sx, y:sy}];
+
+  // Snake down, alternating horizontal direction each row
+  let goLeft = true;
+  for(let y=0; y<=ty; y++){
+    if(y!==0){
+      pts.push({x: pts[pts.length-1].x, y});
+    }
+    if(y===ty) break;
+    if(goLeft){
+      pts.push({x:0, y});
+    } else {
+      pts.push({x:COLS-1, y});
+    }
+    goLeft = !goLeft;
+  }
+
+  // Move horizontally on target row to target x
+  const lx = pts[pts.length-1].x;
+  if(lx !== tx) pts.push({x:tx, y:ty});
+  return pts;
+}
+
+function lerp(a,b,t){ return a + (b-a)*t; }
+
+function pointOnPath(pts, t){
+  if(pts.length<=1) return pts[0];
+  const segs = pts.length - 1;
+  const u = Math.min(0.999999, Math.max(0, t)) * segs;
+  const i = Math.floor(u);
+  const lt = u - i;
+  const p0 = pts[i], p1 = pts[i+1];
+  return {x: lerp(p0.x, p1.x, lt), y: lerp(p0.y, p1.y, lt)};
+}
 
 function findOneHoleRow(){
   // Returns {y, xHole, color} or null
@@ -37,38 +80,32 @@ function findOneHoleRow(){
 }
 
 function maybeBeeAssist(){
-  // v1.5.0: Bee fills a hole, but the actual clear is handled by lockPiece with strict validation + highlight.
-  if(assistUsed >= ASSIST_MAX_PER_GAME) return 0;
+  // v1.6.0: Freeze briefly and show bee carrying ONE cube along a snake path.
+  if(assistUsed >= ASSIST_MAX_PER_GAME) return false;
   const cand = findOneHoleRow();
-  if(!cand) return 0;
+  if(!cand) return false;
 
   const p = Math.min(0.40, ASSIST_BASE_CHANCE + (stage-1)*ASSIST_STAGE_BONUS);
-  if(Math.random() > p) return 0;
+  if(Math.random() > p) return false;
 
-  grid[cand.y][cand.xHole] = cand.color;
-  beeMark = {x:cand.xHole, y:cand.y, until: Date.now() + 900}; // slower/visible
+  const pts = buildSnakePath(cand.xHole, cand.y);
+  beeCarryAnim = {
+    t0: performance.now(),
+    dur: 850,
+    pts,
+    color: cand.color,
+    tx: cand.xHole,
+    ty: cand.y
+  };
+  beePause = true;
   assistUsed++;
   beeHelpedThisTurn = true;
 
-  // Safety check
-  for(let x=0;x<COLS;x++){
-    const v = grid[cand.y][x];
-    if(v===null || v==="rainbow" || v!==cand.color){
-      grid[cand.y][cand.xHole] = null;
-      assistUsed--;
-      beeMark = null;
-  clearingRows = null;
-  clearingUntil = 0;
-  beeHelpedThisTurn = false;
-return 0;
-    }
-  }
-
-  showToast("🐝 BEE HELP!");
-  return 0;
+  showToast("🐝 Bringing one cube…");
+  return true;
 }
 
-// CuBee v1.5.8
+// CuBee v1.6.0
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 const COLORS=[
@@ -257,6 +294,7 @@ function lockPiece() {
     if (typeof maybeBeeAssist === 'function') {
       maybeBeeAssist();
     }
+    if (beePause) { running = false; return; }
     // 加勢後の再判定
     rows = getClearableRows();
     cleared = rows.length;
@@ -395,6 +433,27 @@ function draw(){
 
   for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++) if(grid[y][x]!==null) drawBlock(x,y,grid[y][x]);
   if(!ending) for(const c of cellsOfPiece(piece)) if(c.y>=0) drawBlock(c.x,c.y,c.c);
+
+  // Bee carry animation (v1.6.0)
+  if(beeCarryAnim){
+    const t = Math.min(1, Math.max(0, (performance.now()-beeCarryAnim.t0)/beeCarryAnim.dur));
+    const pos = pointOnPath(beeCarryAnim.pts, t);
+    const bx = (pos.x + 0.5) * cell;
+    const by = (pos.y + 0.5) * cell;
+    ctx.save();
+    ctx.globalAlpha = 0.95;
+    const ci = beeCarryAnim.color;
+    const px = bx - cell*0.55;
+    const py = by - cell*0.20;
+    const s = cell*0.55;
+    roundRect(px, py, s, s, Math.floor(s*0.28), COLORS[ci].fill, COLORS[ci].stroke);
+    ctx.font = `${Math.floor(cell*0.9)}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🐝', bx, by);
+    ctx.restore();
+  }
+
 }
 
 function formatMMSS(sec){
@@ -456,9 +515,59 @@ nextBtn.addEventListener("click",()=>{
 });
 
 let last=performance.now();
+function updateBeeAnim(now){
+  if(!beeCarryAnim) return;
+
+  const t = (now - beeCarryAnim.t0) / beeCarryAnim.dur;
+  if(t >= 1){
+    const {tx, ty, color} = beeCarryAnim;
+
+    // Place cube
+    if(grid[ty][tx] === null){
+      grid[ty][tx] = color;
+      beeMark = {x:tx, y:ty, until: Date.now() + 900};
+    }
+
+    beeCarryAnim = null;
+    beePause = false;
+
+    // Clear after place (strict)
+    const rows = getClearableRows();
+    const cleared = rows.length;
+    if(cleared > 0){
+      const actually = applyClearRows(rows);
+      progress += actually;
+      updateUI();
+      if(debugClear) debugClear.textContent = `+${actually}`;
+
+      if(progress >= GOAL_CLEAR){
+        showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
+        endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
+        return;
+      } else if(progress === GOAL_CLEAR - 1){
+        showToast(`🐝 +${actually}（あと1！🔥）`);
+      } else {
+        showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
+      }
+    } else {
+      showToast("🐝 done!");
+    }
+
+    if(!ending){
+      piece = spawnPiece();
+      if(collides(piece)){
+        endGame("DOWN…", "置けなくなりました");
+        return;
+      }
+      running = true;
+    }
+  }
+}
+
 function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
-  if(running && !ending){
+  updateBeeAnim(now);
+  if(running && !ending && !beePause){
     tickTime(dt);
     fallAccMs+=dt;
     while(fallAccMs>=fallIntervalMs){ fallAccMs-=fallIntervalMs; softDrop(); if(!running) break; }
