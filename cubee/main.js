@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.31
+// CuBee v1.6.34
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -210,23 +210,29 @@ function collides(p,nx=p.x,ny=p.y){
 }
 
 function getClearableRows(){
-  const rows=[];
-  for(let y=0;y<ROWS;y++){
-    let c=null;
-    let ok=true;
-    for(let x=0;x<COLS;x++){
-      const v=grid[y][x];
-      if(v===null){ ok=false; break; }
-      if(v==="rainbow"){ ok=false; break; }
-      if(c===null) c=v;
-      else if(v!==c){ ok=false; break; }
+  // v1.6.34: STRICT rule - row clears only if ALL cells are filled AND same color.
+  const rows = [];
+  for(let y=0; y<ROWS; y++){
+    const first = grid[y][0];
+    if(first === null || first === "rainbow") continue;
+    let ok = true;
+    for(let x=1; x<COLS; x++){
+      const v = grid[y][x];
+      if(v === null || v === "rainbow" || v !== first){
+        ok = false;
+        break;
+      }
     }
     if(ok) rows.push(y);
   }
-  return rows;
+  // Unique + sort bottom-up (helps stable clearing)
+  return Array.from(new Set(rows)).sort((a,b)=>b-a);
 }
 
 function applyClearRows(rows){
+  // v1.6.34 safety: unique row indices
+  rows = Array.from(new Set(rows)).sort((a,b)=>b-a);
+
   rows.sort((a,b)=>b-a);
   for(const y of rows){
     grid.splice(y,1);
