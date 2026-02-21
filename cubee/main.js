@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.27
+// CuBee v1.6.28
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -626,3 +626,25 @@ function start(){
 
 start();
 requestAnimationFrame(loop);
+
+
+// AUTO TEST autorun (v1.6.28)
+document.addEventListener('DOMContentLoaded', ()=>{
+  try{
+    const dbg = new URLSearchParams(location.search).get('debug');
+    if(dbgFixed) dbgFixed.textContent = `DBG qs debug=${dbg||'none'}`;
+    if(dbg==='2' || dbg==='3'){
+      const n = dbg==='2' ? 2 : 3;
+      // If the game hasn't started yet, start it first, then run the test.
+      if(typeof start === 'function'){
+        start();
+        setTimeout(()=>runAutoTest(n), 60);
+      } else {
+        setTimeout(()=>runAutoTest(n), 60);
+      }
+    }
+  }catch(e){
+    if(dbgFixed) dbgFixed.textContent = 'DBG autorun ERR: ' + (e.message||'?').slice(0,80);
+  }
+});
+
