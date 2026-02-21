@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.8
+// CuBee v1.6.9
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=20;
 
@@ -275,6 +275,9 @@ function lockPiece() {
   if (cleared === 0) {
     if (typeof maybeBeeAssist === 'function') {
       maybeBeeAssist();
+    // v1.6.9: clear immediately if bee completed a row
+    const beeCleared = clearLinesSameColor();
+    if(beeCleared>0){ progress += beeCleared; updateUI(); }
     }
     // 加勢後の再判定
     rows = getClearableRows();
