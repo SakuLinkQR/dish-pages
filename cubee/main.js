@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.25
+// CuBee v1.6.26
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -143,12 +143,6 @@ canvas.addEventListener("touchmove",(e)=>e.preventDefault(),{passive:false});
 const timeLabel=document.getElementById("timeLabel");
 const levelLabel=document.getElementById("levelLabel");
 const comboBanner=document.getElementById("comboBanner");
-const debugTools=document.getElementById("debugTools");
-const test2Btn=document.getElementById("test2");
-const test3Btn=document.getElementById("test3");
-const isDebug = new URLSearchParams(location.search).get("debug") === "1";
-if(isDebug && debugTools){ debugTools.style.display="flex"; }
-
 let comboTimerId=null;
 const debugClear=document.getElementById("debugClear");
 const comboLabel=document.getElementById("comboLabel");
@@ -515,10 +509,8 @@ function showCombo(n, progress, goal){
   comboTimerId = setTimeout(()=>{ comboBanner.style.display='none'; }, 900);
 }
 
-
-function runTestBoard(rowsToClear){
-  // Create an artificial board where exactly rowsToClear rows should clear.
-  // This helps reproduce/confirm the "2 rows clears but CLEAR triggers" issue.
+function runAutoTest(nRows){
+  // Build a board where exactly nRows full rows exist and the row above is NOT full.
   grid = newGrid();
   progress = 0;
   lastMoveClears = 0;
@@ -528,32 +520,21 @@ function runTestBoard(rowsToClear){
   const y1 = ROWS-2;
   const y2 = ROWS-3;
 
-  // Fill bottom rows with RED (index 0) so they are clearable
   for(let x=0;x<COLS;x++){
     grid[y0][x] = 0;
-    if(rowsToClear>=2) grid[y1][x] = 0;
-    if(rowsToClear>=3) grid[y2][x] = 0;
+    if(nRows>=2) grid[y1][x] = 0;
+    // y2 is filled only when nRows>=3; otherwise make it mixed so it cannot clear
+    if(nRows>=3) grid[y2][x] = 0;
+    else grid[y2][x] = (x%2===0)?0:1;
   }
 
-  // Make sure the row above is NOT clearable (mix colors)
-  if(rowsToClear<3){
-    for(let x=0;x<COLS;x++){
-      grid[y2][x] = (x%2===0)?0:1;
-    }
-  }
-
-  // Now clear using the same cascade function used in the game
-  const actually = clearCascade();
+  const actually = clearCascade ? clearCascade() : (getClearableRows().length ? applyClearRows(getClearableRows()) : 0);
   lastMoveClears = actually;
   progress += actually;
   updateUI();
 
-  showCombo(actually, progress, GOAL_CLEAR);
-  showToast(`TEST result: +${actually} (${progress}/${GOAL_CLEAR})`);
+  showToast(`AUTO TEST ${nRows}: +${actually} (${progress}/${GOAL_CLEAR})`);
 }
-
-if(test2Btn){ test2Btn.addEventListener("click", ()=>runTestBoard(2)); }
-if(test3Btn){ test3Btn.addEventListener("click", ()=>runTestBoard(3)); }
 
 // Keyboard
 window.addEventListener("keydown",(e)=>{

@@ -173,7 +173,3 @@ a, button {
   z-index: 9999;
   display:none;
 }
-
-
-/* v1.6.25: debug tools */
-#debugTools{display:flex;}
