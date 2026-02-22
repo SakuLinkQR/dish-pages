@@ -245,15 +245,14 @@ function applyClearRows(rows){
 }
 // v1.6.17: clear repeatedly until no more full same-color rows appear (after rows drop).
 function clearCascade(){
-  // v1.6.36: count cleared rows deterministically (sum of rows.length each pass).
-  let total = 0;
-  for(let k=0; k<10; k++){
-    const rows = getClearableRows();
-    if(!rows || rows.length===0) break;
-    total += rows.length;
-    applyClearRows(rows);
-  }
-  return total;
+  // v1.6.41: Tetris-like clear (NO multi-pass cascade).
+  // Only the rows that are clearable immediately after locking are counted for progress.
+  const rows = getClearableRows();
+  if(!rows || rows.length===0) return 0;
+  applyClearRows(rows);
+  return rows.length;
+}
+return total;
 }
 
 function endGame(title,sub,withBee=false){
@@ -314,7 +313,7 @@ if (cleared === 0) {
           showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
           endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
           return;
-        } else if (progress === GOAL_CLEAR - 1) {
+        } else if (actually === 1 && progress === GOAL_CLEAR - 1) {
           showToast(`🐝 +${actually}（あと1！🔥）`);
         } else {
           showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
@@ -353,7 +352,7 @@ if (cleared === 0) {
         return;
       } else {
         const honeyPrefix = beeHelpedThisTurn ? "🐝 " : "";
-        if (progress === GOAL_CLEAR - 1) {
+        if (actually === 1 && progress === GOAL_CLEAR - 1) {
           showToast(`${honeyPrefix}+${actually}（あと1！🔥）`);
         } else {
           showToast(actually >= 2 ? `${honeyPrefix}+${actually} NICE!` : `${honeyPrefix}+1`);
