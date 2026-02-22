@@ -72,17 +72,28 @@ function stbFindOneHoleRow(){
   return null;
 }
 
+
+function getBeeAssistParams(){
+  // First Stage tuning (v1.6.42)
+  // Bee is a theme: early stages use bees as "reward" rather than rescue.
+  if(stage===1) return { enabled:false, base:0, bonus:0, max:0 };
+  if(stage===2) return { enabled:false, base:0, bonus:0, max:0 };
+  if(stage===3) return { enabled:true, base:0.10, bonus:0.00, max:2 };
+  if(stage===4) return { enabled:true, base:0.08, bonus:0.00, max:2 };
+  if(stage===5) return { enabled:true, base:0.05, bonus:0.00, max:1 };
+  return { enabled:true, base:0.08, bonus:0.00, max:2 };
+}
 function maybeBeeAssist(){
-  // v1.6.37: Stage1 has no bee assist
-  if(stage===1) return false;
+  const cfg = getBeeAssistParams();
+  if(!cfg.enabled) return false;
 
   if(!STB_ENABLE_BEE_ASSIST) return false;
-  if(stbAssistUsed >= STB_ASSIST_MAX_PER_GAME) return false;
+  if(stbAssistUsed >= cfg.max) return false;
 
   const cand = stbFindOneHoleRow();
   if(!cand) return false;
 
-  const p = Math.min(0.45, STB_ASSIST_BASE_CHANCE + (stage-1)*STB_ASSIST_STAGE_BONUS);
+  const p = Math.min(0.45, cfg.base + (stage-1)*cfg.bonus);
   if(Math.random() > p) return false;
 
   grid[cand.y][cand.xHole] = cand.color;
@@ -102,10 +113,9 @@ const COLORS = [
 const MODE_SECONDS=180;
 let GOAL_CLEAR = 3; // stage-dependent
 
-// ====== Stage System (v1.3) ======
-// Stage 1: CLEAR 3, Stage 2: CLEAR 4
-const STAGE_MAX = 30;
-  const STAGE_GOALS = Array.from({length: STAGE_MAX}, (_, i) => 3 + i); // Stage1..30 // Stage1..5 // extend later: [3,4,5,6,...]
+// ====== Stage System (First Stage v1.6.42) ======
+// First Stage is designed as a standalone mode: Stage 1..5 with clear goals 3..7
+const STAGE_GOALS = [3,4,5,6,7];
 let stage = 1;
 
 function readStageFromURL(){
@@ -157,6 +167,8 @@ const toast=document.getElementById("toast");
 let grid, piece, running=true, ending=false;
 let elapsedMs=0, level=1, fallIntervalMs=FALL_START_MS, fallAccMs=0;
 let progress=0;
+let clearStreak=0; // consecutive turns with >=1 line cleared
+let stageBeeBonusUsed=0; // per-stage bonus indicator
 let endTimerId=null, toastTimerId=null;
 let rainbowUsed=false, rainbowPending=false;
 
@@ -307,6 +319,8 @@ if (cleared === 0) {
       if (beeCleared > 0) {
         const actually = clearCascade();
         progress += actually;
+        // Streak counts even when bee assists (feels consistent)
+        if (actually > 0) clearStreak++; else clearStreak = 0;
         updateUI();
 
         if (progress >= GOAL_CLEAR) {
@@ -344,6 +358,21 @@ if (cleared === 0) {
     setTimeout(() => {
       const actually = clearCascade();
       progress += actually;
+      // --- First Stage bee "reward" tuning (v1.6.42) ---
+      // Track consecutive clear streaks (combo feeling)
+      if (actually > 0) clearStreak++; else clearStreak = 0;
+
+      // Stage2: reward big clear (2+ lines) with a bee mark (no gameplay impact)
+      if (stage === 2 && actually >= 2 && stageBeeBonusUsed === 0) {
+        beeHelpedThisTurn = true;
+        stageBeeBonusUsed = 1;
+      }
+      // Stage4: reward "streak" (clearing on consecutive turns) with a bee mark
+      if (stage === 4 && clearStreak >= 2 && stageBeeBonusUsed === 0) {
+        beeHelpedThisTurn = true;
+        stageBeeBonusUsed = 1;
+      }
+
       updateUI();
 
       if (progress >= GOAL_CLEAR) {
@@ -367,6 +396,8 @@ if (cleared === 0) {
       running = true;
     }, 240);
   } else {
+    // No clear -> reset streak
+    clearStreak = 0;
     // 消去が全くなかった場合：次のピースへ
     piece = spawnPiece();
     if (collides(piece)) {
@@ -561,7 +592,7 @@ function start(){
   piece=spawnPiece();
   running=true; ending=false;
   elapsedMs=0; level=1; fallIntervalMs=FALL_START_MS; fallAccMs=0;
-  progress=0; stbAssistUsed=0; updateUI();
+  progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
   if(debugClear) debugClear.textContent = "+0";
   beeMark = null;
   clearingRows = null;
