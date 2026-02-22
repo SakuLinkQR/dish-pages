@@ -77,6 +77,8 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 /* v1.5.8: stabilize viewport sizing (prevent iOS address-bar resize jump) */
 html, body {
   height: 100%;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 body {
   height: 100svh;
@@ -95,6 +97,7 @@ body {
   height: calc(100svh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
   overflow: hidden;
   display: flex;
+  touch-action: none;
   flex-direction: column;
 }
 /* Ensure score/header never goes outside */
@@ -150,3 +153,36 @@ a, button, #game {
 
 /* v1.6.51: locked button */
 .btn.disabled{opacity:0.55;}
+
+/* Honey gauge + Bee button */
+.honey-gauge{
+  display:inline-block;
+  min-width:3.2em;
+  text-align:center;
+  letter-spacing:0.05em;
+  font-size:14px;
+  padding:2px 6px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.12);
+}
+.bee-btn{
+  border:none;
+  border-radius:999px;
+  padding:2px 8px;
+  font-size:14px;
+  background:rgba(255,255,255,0.18);
+  color:#fff;
+  cursor:pointer;
+}
+.bee-btn[disabled]{
+  opacity:0.4;
+  cursor:default;
+}
+.bee-btn.ready{
+  animation: beePulse 0.8s infinite;
+}
+@keyframes beePulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+  100%{transform:scale(1);}
+}

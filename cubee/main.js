@@ -124,6 +124,17 @@ const STAGE_GOALS_NORMAL = [5,6]; // Normal Stage 1..2 goals (Stage2 enables Oth
 let mode = "first"; // "first" | "normal"
 let stage = 1;
 
+// Honey Gauge (Normal mode)
+// Fill by clearing lines; when full, the bee can perform a special "Bee Carry".
+const HONEY_MAX = 3;
+let honey = 0;
+let beeCarryUsedThisStage = 0;
+let beeReady = false;
+let beeReadyUntil = 0;
+let beeReadyCandidate = null; // {y, fromX, toX}
+let beeManualUsed = false; // if player pressed during READY window
+let beeCooldownTurns = 0; // prevent back-to-back
+
 // Green Larva (Normal mode) - sometimes appears, transforms when sandwiched left/right.
 const LARVA_COLOR = 2; // uses COLORS[2] (Green)
 const LARVA_CHANCE_PER_PIECE = 0.12;
@@ -162,14 +173,22 @@ const canvas=document.getElementById("game");
 canvas.addEventListener('touchstart',(e)=>e.preventDefault(),{passive:false});
 canvas.addEventListener('touchmove',(e)=>e.preventDefault(),{passive:false});
 
+// v1.6.53: prevent iOS rubber-band (screen 'shake') while playing
+(function(){
+  const prevent = (e)=>{ e.preventDefault(); };
+  // prevent page scroll / bounce on mobile
+  document.addEventListener('touchmove', prevent, {passive:false});
+})();
+
 const ctx=canvas.getContext("2d");
 const cell=Math.floor(Math.min(canvas.width/COLS, canvas.height/ROWS));
-canvas.addEventListener("touchmove",(e)=>e.preventDefault(),{passive:false});
 
 const timeLabel=document.getElementById("timeLabel");
 const levelLabel=document.getElementById("levelLabel");
 const debugClear=document.getElementById("debugClear");
 const comboLabel=document.getElementById("comboLabel");
+const honeyGauge=document.getElementById("honeyGauge");
+const beeBtn=document.getElementById("beeBtn");
 const overlay=document.getElementById("overlay");
 const retryBtn=document.getElementById("retryBtn");
 const nextBtn=document.getElementById("nextBtn");
@@ -187,8 +206,27 @@ let endTimerId=null, toastTimerId=null;
 let rainbowUsed=false, rainbowPending=false;
 
 function updateUI(){
-  comboLabel.textContent=`${mode === "normal" ? "NORMAL" : "STAGE"} ${stage}  CLEAR ${progress} / ${GOAL_CLEAR}`;
+  comboLabel.textContent=`${mode === "normal" ? "NORMAL" : "STAGE"} ${stage}  CLEAR ${Math.min(progress,GOAL_CLEAR)} / ${GOAL_CLEAR}`;
+  // Honey gauge (Normal mode only)
+  if (honeyGauge) {
+    if (mode === "normal") {
+      honeyGauge.style.display = "inline-block";
+      const full = "🍯".repeat(honey);
+      const empty = "·".repeat(Math.max(0, HONEY_MAX - honey));
+      honeyGauge.textContent = full + empty;
+      honeyGauge.title = `Honey ${honey}/${HONEY_MAX}`;
+    } else {
+      honeyGauge.style.display = "none";
+    }
+  }
+  if (beeBtn) {
+    const canPress = (mode === "normal" && honey >= HONEY_MAX && beeReadyCandidate && Date.now() < beeReadyUntil);
+    beeBtn.disabled = !canPress;
+    if (canPress) beeBtn.classList.add("ready"); else beeBtn.classList.remove("ready");
+    beeBtn.title = (mode === "normal") ? (honey>=HONEY_MAX ? "BEE READY" : "Need more honey") : "";
+  }
 }
+
 function showToast(t){
   toast.textContent=t;
   toast.classList.remove("hidden","play");
@@ -197,6 +235,112 @@ function showToast(t){
   if(toastTimerId) clearTimeout(toastTimerId);
   toastTimerId=setTimeout(()=>toast.classList.add("hidden"),TOAST_MS);
 }
+
+// ===== Honey Gauge & Bee Carry =====
+function clampHoney(){
+  honey = Math.max(0, Math.min(HONEY_MAX, honey));
+}
+function addHoney(amount){
+  if (mode !== "normal") return;
+  if (amount <= 0) return;
+  honey += amount;
+  clampHoney();
+}
+function resetHoney(){
+  honey = 0;
+  beeReady = false;
+  beeReadyUntil = 0;
+  beeReadyCandidate = null;
+  beeManualUsed = false;
+  if (beeBtn) { beeBtn.disabled = true; beeBtn.classList.remove("ready"); }
+}
+
+function findBeeCarryCandidate(){
+  if (mode !== "normal") return null;
+  if (honey < HONEY_MAX) return null;
+  if (beeCarryUsedThisStage >= 1) return null;
+  if (beeCooldownTurns > 0) return null;
+  // Scan rows for an edge larva with opposite edge empty.
+  for (let y=ROWS-1; y>=0; y--){
+    const left = grid[y][0];
+    const right = grid[y][COLS-1];
+    if (left === LARVA_COLOR && grid[y][COLS-1] === null) {
+      return {y, fromX:0, toX:COLS-1};
+    }
+    if (right === LARVA_COLOR && grid[y][0] === null) {
+      return {y, fromX:COLS-1, toX:0};
+    }
+  }
+  return null;
+}
+
+function triggerBeeCarry(c){
+  if (!c) return false;
+  if (mode !== "normal") return false;
+  if (honey < HONEY_MAX) return false;
+  // Move the larva
+  const y=c.y, fromX=c.fromX, toX=c.toX;
+  if (grid[y][fromX] !== LARVA_COLOR) return false;
+  if (grid[y][toX] !== null) return false;
+
+  grid[y][fromX] = null;
+  grid[y][toX] = LARVA_COLOR;
+
+  // Optional: pollen-paint into adjacent color at destination (helps but not guaranteed)
+  const adjX = (toX===0) ? 1 : COLS-2;
+  const adj = grid[y][adjX];
+  if (adj === 0 || adj === 1) {
+    grid[y][toX] = adj;
+  }
+
+  beeCarryUsedThisStage += 1;
+  honey = 0;
+  beeCooldownTurns = 5;
+  beeReady = false;
+  beeReadyUntil = 0;
+  beeReadyCandidate = null;
+  showToast("🐝 BEE CARRY!");
+  updateUI();
+  // After carry, run clear check once
+  const gained = clearCascade();
+  if (gained > 0){
+    progress += gained;
+    // Honey gain from the carried clear (small bonus)
+    addHoney(gained >= 3 ? 2 : 1);
+    updateUI();
+  }
+  draw();
+  return true;
+}
+
+function tickBeeCarry(){
+  if (mode !== "normal") return;
+  const now = Date.now();
+  const cand = findBeeCarryCandidate();
+  if (!cand){
+    beeReady = false;
+    beeReadyUntil = 0;
+    beeReadyCandidate = null;
+    updateUI();
+    return;
+  }
+  // If candidate changed, restart window.
+  const changed = !beeReadyCandidate || beeReadyCandidate.y!==cand.y || beeReadyCandidate.fromX!==cand.fromX || beeReadyCandidate.toX!==cand.toX;
+  if (!beeReady || changed){
+    beeReady = true;
+    beeManualUsed = false;
+    beeReadyCandidate = cand;
+    beeReadyUntil = now + 3000; // 3 sec window to press
+    showToast("🍯 BEE READY! (3s)");
+    updateUI();
+    return;
+  }
+  // Auto trigger if window expired and not manually used
+  if (now >= beeReadyUntil && beeReadyCandidate){
+    triggerBeeCarry(beeReadyCandidate);
+  }
+}
+
 function playClearBee(){
   beeFly.classList.remove("hidden","play");
   void beeFly.offsetWidth;
@@ -393,6 +537,7 @@ function endGame(title,sub,withBee=false){
 
 function lockPiece() {
   if (ending) return;
+  if (mode === "normal" && beeCooldownTurns > 0) beeCooldownTurns--;
 
   // ピースを盤面に固定
   const placed = cellsOfPiece(piece);
@@ -419,6 +564,14 @@ if (cleared === 0) {
       if (beeCleared > 0) {
         const actually = clearCascade();
         progress += actually;
+        if (mode === "normal" && actually > 0) {
+          const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
+          addHoney(gain);
+        }
+        if (mode === "normal" && actually > 0) {
+          const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
+          addHoney(gain);
+        }
         // Streak counts even when bee assists (feels consistent)
         if (actually > 0) clearStreak++; else clearStreak = 0;
         updateUI();
@@ -673,6 +826,16 @@ canvas.addEventListener("pointerup",(e)=>{
 
 retryBtn.addEventListener("click",()=>start());
 
+if (beeBtn){
+  beeBtn.addEventListener("click",()=>{
+    if (mode !== "normal") return;
+    if (Date.now() >= beeReadyUntil) return;
+    if (!beeReadyCandidate) return;
+    // Manual override during READY window
+    triggerBeeCarry(beeReadyCandidate);
+  });
+}
+
 nextBtn.addEventListener("click",()=>{
   const base = `./game.html?mode=${mode}&stage=`;
   if (hasNextStage()) {
@@ -689,6 +852,7 @@ function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
   if(running && !ending){
     tickTime(dt);
+    tickBeeCarry();
     fallAccMs+=dt;
     while(fallAccMs>=fallIntervalMs){ fallAccMs-=fallIntervalMs; softDrop(); if(!running) break; }
   }
