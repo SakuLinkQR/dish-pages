@@ -263,6 +263,7 @@ function clearCascade(){
   if(!rows || rows.length===0) return 0;
   applyClearRows(rows);
   return rows.length;
+}
 
 function endGame(title,sub,withBee=false){
   if(ending) return;
