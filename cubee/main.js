@@ -8,9 +8,9 @@ let clearingUntil = 0;
 // ====== Bee Assist (v1.4.4) ======
 // When there is a row with exactly 1 hole (and all other cells are same color),
 // the worker bee may fill it and clear the row.
-const ASSIST_BASE_CHANCE = 0.16; // Stage1
-const ASSIST_STAGE_BONUS = 0.03; // + per stage
-const ASSIST_MAX_PER_GAME = 3;
+const ASSIST_BASE_CHANCE = 0.08; // Stage1
+const ASSIST_STAGE_BONUS = 0.01; // + per stage
+const ASSIST_MAX_PER_GAME = 1;
 let assistUsed = 0;
 
 function findOneHoleRow(){
@@ -39,7 +39,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee v1.6.35
+// CuBee v1.6.37
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -73,6 +73,9 @@ function stbFindOneHoleRow(){
 }
 
 function maybeBeeAssist(){
+  // v1.6.37: Stage1 has no bee assist
+  if(stage===1) return false;
+
   if(!STB_ENABLE_BEE_ASSIST) return false;
   if(stbAssistUsed >= STB_ASSIST_MAX_PER_GAME) return false;
 
@@ -242,12 +245,13 @@ function applyClearRows(rows){
 }
 // v1.6.17: clear repeatedly until no more full same-color rows appear (after rows drop).
 function clearCascade(){
+  // v1.6.36: count cleared rows deterministically (sum of rows.length each pass).
   let total = 0;
-  // Safety limit to avoid infinite loops
-  for(let k=0;k<10;k++){
+  for(let k=0; k<10; k++){
     const rows = getClearableRows();
     if(!rows || rows.length===0) break;
-    total += applyClearRows(rows);
+    total += rows.length;
+    applyClearRows(rows);
   }
   return total;
 }
