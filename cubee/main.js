@@ -330,7 +330,6 @@ if (cleared === 0) {
         return;
       }
       running = true;
-      requestAnimationFrame(loop);
       return;
     }
   }
@@ -367,7 +366,6 @@ if (cleared === 0) {
         return;
       }
       running = true;
-      requestAnimationFrame(loop);
     }, 240);
   } else {
     // 消去が全くなかった場合：次のピースへ
