@@ -1,4 +1,5 @@
 let beeMark = null; // {x,y,until}
+let debugPanel = null;
 
 let beeHelpedThisTurn = false;
 
@@ -575,7 +576,11 @@ function loop(now){
     fallAccMs+=dt;
     while(fallAccMs>=fallIntervalMs){ fallAccMs-=fallIntervalMs; softDrop(); if(!running) break; }
   }
-  draw();
+  
+  if(debugPanel){
+    debugPanel.textContent = `running=${running} ending=${ending} stage=${stage} progress=${progress}/${GOAL_CLEAR} pieceY=${piece?piece.y:'null'} fallAcc=${Math.floor(fallAccMs)} int=${fallIntervalMs}`;
+  }
+draw();
   requestAnimationFrame(loop);
 }
 
@@ -599,8 +604,18 @@ function start(){
   clearingUntil = 0;
   beeHelpedThisTurn = false;
   timeLabel.textContent="03:00"; levelLabel.textContent = `Lv ${stage}`;
-  last=performance.now();
+  
+  // DEBUG PANEL (v1.6.44)
+  debugPanel = document.getElementById('debugPanel');
+  if(debugPanel){ debugPanel.textContent = 'debug: start ok'; }
+last=performance.now();
 }
 
-start();
-requestAnimationFrame(loop);
+try{
+  start();
+  requestAnimationFrame(loop);
+}catch(e){
+  console.error(e);
+  const dp=document.getElementById('debugPanel');
+  if(dp){ dp.textContent = 'JS ERROR: '+(e&&e.message?e.message:e); }
+}
