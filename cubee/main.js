@@ -5,6 +5,9 @@ let beeHelpedThisTurn = false;
 let clearingRows = null; // array of y
 let clearingUntil = 0;
 
+// Last cascade info (for combo toast)
+let lastCascadePasses = 0;
+
 // ====== Bee Assist (v1.4.4) ======
 // When there is a row with exactly 1 hole (and all other cells are same color),
 // the worker bee may fill it and clear the row.
@@ -257,13 +260,22 @@ function applyClearRows(rows){
 }
 // v1.6.17: clear repeatedly until no more full same-color rows appear (after rows drop).
 function clearCascade(){
-  // v1.6.41: Tetris-like clear (NO multi-pass cascade).
-  // Only the rows that are clearable immediately after locking are counted for progress.
-  const rows = getClearableRows();
-  if(!rows || rows.length===0) return 0;
-  applyClearRows(rows);
-  return rows.length;
+  // v1.6.48: multi-pass cascade clear (count all clears in this lock)
+  // This fixes the case where clearing one row makes the row above drop into a clearable full row.
+  let total = 0;
+  let passes = 0;
+  while(true){
+    const rows = getClearableRows();
+    if(!rows || rows.length===0) break;
+    applyClearRows(rows);
+    total += rows.length;
+    passes += 1;
+    if(passes >= 10) break; // safety
+  }
+  lastCascadePasses = passes;
+  return total;
 }
+
 
 function endGame(title,sub,withBee=false){
   if(ending) return;
@@ -323,7 +335,12 @@ if (cleared === 0) {
 
         if (progress >= GOAL_CLEAR) {
           showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-          endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
+          // Ensure the cleared board is rendered once before showing the CLEAR modal
+          clearingRows = null; clearingUntil = 0;
+          draw();
+          requestAnimationFrame(() => {
+            endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
+          });
           return;
         } else if (actually === 1 && progress === GOAL_CLEAR - 1) {
           showToast(`🐝 +${actually}（あと1！🔥）`);
@@ -375,14 +392,24 @@ if (cleared === 0) {
 
       if (progress >= GOAL_CLEAR) {
         showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-        endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
+        // Ensure the cleared board is rendered once before showing the CLEAR modal
+        clearingRows = null; clearingUntil = 0;
+        draw();
+        requestAnimationFrame(() => {
+          endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
+        });
         return;
       } else {
         const honeyPrefix = beeHelpedThisTurn ? "🐝 " : "";
         if (actually === 1 && progress === GOAL_CLEAR - 1) {
           showToast(`${honeyPrefix}+${actually}（あと1！🔥）`);
         } else {
-          showToast(actually >= 2 ? `${honeyPrefix}+${actually} NICE!` : `${honeyPrefix}+1`);
+          const combo = lastCascadePasses > 1;
+      if (combo && actually >= 2) {
+        showToast(`${honeyPrefix}+${actually} COMBO!`);
+      } else {
+        showToast(actually >= 2 ? `${honeyPrefix}+${actually} NICE!` : `${honeyPrefix}+1`);
+      }
         }
       }
 
