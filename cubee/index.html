@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
-  <title>CuBee Drop v1.6.49</title>
+  <title>CuBee Drop v1.6.52</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./assets/icons/icon-180.png" />
   <link rel="icon" href="./assets/icons/icon-32.png" sizes="32x32" />
-  <link rel="stylesheet" href="./style.css?v=1.6.49" />
+  <link rel="stylesheet" href="./style.css?v=1.6.52" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand">CuBee Drop</div>
     <div class="meta">
-      <span class="badge">v1.6.49</span>
+      <span class="badge">v1.6.52</span>
     </div>
   </header>
 
@@ -25,13 +25,14 @@
     <section class="hero">
       <div class="logo-sub">Color Match Drop Puzzle</div>
       <div class="menu-buttons">
-        <a class="btn" href="./game.html?stage=1">PLAY</a>
+        <a class="btn" href="./game.html?mode=first&stage=1">PLAY</a>
+        <a class="btn ghost disabled" id="normalBtn" href="./game.html?mode=normal&stage=1" aria-disabled="true">NORMAL (Locked)</a>
         <button class="btn ghost" id="howtoBtn" type="button">HOW TO</button>
       </div>
 
       <div class="menu-foot">
         <div class="small">© CuBee Drop Prototype</div>
-        <div class="small">Version 1.6.45</div>
+        <div class="small">Version 1.6.52</div>
       </div>
     </section>
 
@@ -59,6 +60,18 @@
     document.getElementById('howtoBtn').addEventListener('click', () => m.classList.remove('hidden'));
     document.getElementById('closeHowto').addEventListener('click', () => m.classList.add('hidden'));
     m.addEventListener('click', (e) => { if (e.target === m) m.classList.add('hidden'); });
+    // Unlock Normal after First Stage cleared (stage 5 clear)
+    const normalBtn = document.getElementById('normalBtn');
+    try{
+      const unlocked = localStorage.getItem('firstStageCleared') === '1';
+      if(unlocked){
+        normalBtn.classList.remove('disabled');
+        normalBtn.removeAttribute('aria-disabled');
+        normalBtn.textContent = 'NORMAL';
+      }else{
+        normalBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('NORMAL is locked. Clear First Stage (Stage 1-5) to unlock.'); });
+      }
+    }catch(e){}
   </script>
 </body>
 </html>

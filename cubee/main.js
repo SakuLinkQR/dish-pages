@@ -42,7 +42,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee Drop Drop v1.6.38
+// CuBee Drop v1.6.52
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -116,25 +116,36 @@ const COLORS = [
 const MODE_SECONDS=180;
 let GOAL_CLEAR = 3; // stage-dependent
 
-// ====== Stage System (First Stage v1.6.42) ======
-// First Stage is designed as a standalone mode: Stage 1..5 with clear goals 3..7
-const STAGE_GOALS = [3,4,5,6,7];
+// ====== Stage System (First Stage + Normal) ======
+// First Stage: Stage 1..5 with clear goals 3..7
+// Normal: separate mode (more mechanics) - currently Stage 1 only
+const STAGE_GOALS_FIRST = [3,4,5,6,7];
+const STAGE_GOALS_NORMAL = [5,6]; // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
+let mode = "first"; // "first" | "normal"
 let stage = 1;
+
+// Green Larva (Normal mode) - sometimes appears, transforms when sandwiched left/right.
+const LARVA_COLOR = 2; // uses COLORS[2] (Green)
+const LARVA_CHANCE_PER_PIECE = 0.12;
 
 function readStageFromURL(){
   const sp = new URLSearchParams(location.search);
+  const m = (sp.get("mode") || "first").toLowerCase();
+  mode = (m === "normal") ? "normal" : "first";
+
   const n = Number(sp.get("stage") || "1");
   stage = (Number.isFinite(n) && n>=1) ? Math.floor(n) : 1;
+
   if (typeof level !== "undefined") level = stage;
-  if (typeof STAGE_GOALS !== "undefined") {
-    GOAL_CLEAR = STAGE_GOALS[Math.min(stage, STAGE_GOALS.length)-1];
-  } else {
-    GOAL_CLEAR = 3;
-  }
+
+  const goals = (mode === "normal") ? STAGE_GOALS_NORMAL : STAGE_GOALS_FIRST;
+  GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 3;
 }
 
+
 function hasNextStage(){
-  return stage < STAGE_GOALS.length;
+  const goals = (mode === "normal") ? STAGE_GOALS_NORMAL : STAGE_GOALS_FIRST;
+  return stage < goals.length;
 }
 
 
@@ -176,7 +187,7 @@ let endTimerId=null, toastTimerId=null;
 let rainbowUsed=false, rainbowPending=false;
 
 function updateUI(){
-  comboLabel.textContent=`STAGE ${stage}  CLEAR ${progress} / ${GOAL_CLEAR}`;
+  comboLabel.textContent=`${mode === "normal" ? "NORMAL" : "STAGE"} ${stage}  CLEAR ${progress} / ${GOAL_CLEAR}`;
 }
 function showToast(t){
   toast.textContent=t;
@@ -215,7 +226,16 @@ function spawnPiece(){
     rainbowPending=true;
     showToast("⚠️ BUZZ…");
   }
-  return {x,y:0,kind:"pair2",blocks:[{dx:0,dy:0,c:randBasicColor()},{dx:0,dy:1,c:randBasicColor()}]};
+  {
+    // base 2-color pair
+    let c0 = randBasicColor();
+    let c1 = randBasicColor();
+    // Normal mode: sometimes mix a Green Larva
+    if(mode === "normal" && Math.random() < LARVA_CHANCE_PER_PIECE){
+      if(Math.random() < 0.5) c0 = LARVA_COLOR; else c1 = LARVA_COLOR;
+    }
+    return {x,y:0,kind:"pair2",blocks:[{dx:0,dy:0,c:c0},{dx:0,dy:1,c:c1}]};
+  }
 }
 function cellsOfPiece(p){ return p.blocks.map(b=>({x:p.x+b.dx,y:p.y+b.dy,c:b.c})); }
 function collides(p,nx=p.x,ny=p.y){
@@ -227,16 +247,81 @@ function collides(p,nx=p.x,ny=p.y){
   return false;
 }
 
+// ====== Green Larva transform (Normal mode) ======
+// Normal Stage 1: single larva transforms when directly sandwiched left/right by same color.
+// Normal Stage 2+: "Othello Flip" — when you place Red/Blue and sandwich one-or-more Larva between
+// the placed color and an existing same color, ALL Larva in-between flips to that color.
+function applyLarvaTransforms(placedCells){
+  if(mode !== "normal") return 0;
+  let changed = 0;
+
+  // --- Stage 2+: Othello-style multi-larva flip (only flips Larva, never flips Red/Blue) ---
+  if(stage >= 2){
+    for(const pc of placedCells){
+      if(pc.y < 0 || pc.y >= ROWS) continue;
+      const color = grid[pc.y][pc.x];
+      if(color !== 0 && color !== 1) continue; // only Red/Blue triggers flipping
+
+      // LEFT: [sameColor][Larva...][placedColor]
+      let x = pc.x - 1;
+      const toFlipL = [];
+      while(x >= 0 && grid[pc.y][x] === LARVA_COLOR){
+        toFlipL.push(x);
+        x--;
+      }
+      if(toFlipL.length > 0 && x >= 0 && grid[pc.y][x] === color){
+        for(const fx of toFlipL){ grid[pc.y][fx] = color; }
+        changed += toFlipL.length;
+        beeMark = {x: pc.x, y: pc.y, until: performance.now() + 420};
+      }
+
+      // RIGHT: [placedColor][Larva...][sameColor]
+      x = pc.x + 1;
+      const toFlipR = [];
+      while(x < COLS && grid[pc.y][x] === LARVA_COLOR){
+        toFlipR.push(x);
+        x++;
+      }
+      if(toFlipR.length > 0 && x < COLS && grid[pc.y][x] === color){
+        for(const fx of toFlipR){ grid[pc.y][fx] = color; }
+        changed += toFlipR.length;
+        beeMark = {x: pc.x, y: pc.y, until: performance.now() + 420};
+      }
+    }
+  }
+
+  // --- Stage 1+: single-larva direct sandwich (also works in Stage2+) ---
+  for(const c of placedCells){
+    if(c.y < 0 || c.y >= ROWS) continue;
+    if(grid[c.y][c.x] !== LARVA_COLOR) continue;
+
+    const lx = c.x - 1, rx = c.x + 1;
+    if(lx < 0 || rx >= COLS) continue;
+    const left = grid[c.y][lx];
+    const right = grid[c.y][rx];
+    if(left === null || right === null) continue;
+    if(left === "rainbow" || right === "rainbow") continue;
+    if(left === LARVA_COLOR || right === LARVA_COLOR) continue;
+    if(left === right){
+      grid[c.y][c.x] = left;
+      changed++;
+      beeMark = {x:c.x, y:c.y, until: performance.now() + 420};
+    }
+  }
+
+  return changed;
+}
+
 function getClearableRows(){
   // v1.6.34: STRICT rule - row clears only if ALL cells are filled AND same color.
   const rows = [];
   for(let y=0; y<ROWS; y++){
     const first = grid[y][0];
-    if(first === null || first === "rainbow") continue;
+    if(first === null || first === "rainbow" || first === LARVA_COLOR) continue;
     let ok = true;
     for(let x=1; x<COLS; x++){
       const v = grid[y][x];
-      if(v === null || v === "rainbow" || v !== first){
+      if(v === null || v === "rainbow" || v === LARVA_COLOR || v !== first){
         ok = false;
         break;
       }
@@ -288,7 +373,8 @@ function endGame(title,sub,withBee=false){
       nextBtn.textContent = "NEXT";
     } else {
       nextBtn.style.display = "";
-      nextBtn.textContent = "MENU";
+      nextBtn.textContent = "PLAY AGAIN";
+      try{ if(mode==="first") localStorage.setItem("firstStageCleared","1"); }catch(e){}
     }
   } else {
     nextBtn.style.display = "none";
@@ -309,9 +395,13 @@ function lockPiece() {
   if (ending) return;
 
   // ピースを盤面に固定
-  for (const c of cellsOfPiece(piece)) {
+  const placed = cellsOfPiece(piece);
+  for (const c of placed) {
     if (c.y >= 0 && c.y < ROWS) grid[c.y][c.x] = c.c;
   }
+
+  // Normal mode: Green Larva may transform if sandwiched left/right on placement
+  applyLarvaTransforms(placed);
 
   // 1. 通常の消去判定
   let rows = getClearableRows();
@@ -378,12 +468,12 @@ if (cleared === 0) {
       if (actually > 0) clearStreak++; else clearStreak = 0;
 
       // Stage2: reward big clear (2+ lines) with a bee mark (no gameplay impact)
-      if (stage === 2 && actually >= 2 && stageBeeBonusUsed === 0) {
+      if (mode === "first" && stage === 2 && actually >= 2 && stageBeeBonusUsed === 0) {
         beeHelpedThisTurn = true;
         stageBeeBonusUsed = 1;
       }
       // Stage4: reward "streak" (clearing on consecutive turns) with a bee mark
-      if (stage === 4 && clearStreak >= 2 && stageBeeBonusUsed === 0) {
+      if (mode === "first" && stage === 4 && clearStreak >= 2 && stageBeeBonusUsed === 0) {
         beeHelpedThisTurn = true;
         stageBeeBonusUsed = 1;
       }
@@ -584,11 +674,13 @@ canvas.addEventListener("pointerup",(e)=>{
 retryBtn.addEventListener("click",()=>start());
 
 nextBtn.addEventListener("click",()=>{
+  const base = `./game.html?mode=${mode}&stage=`;
   if (hasNextStage()) {
     const next = stage + 1;
-    location.href = `./game.html?stage=${next}`;
+    location.href = `${base}${next}`;
   } else {
-    location.href = `./index.html`;
+    // Final clear: loop back to stage 1 (arcade loop)
+    location.href = `${base}1`;
   }
 });
 
@@ -623,7 +715,7 @@ function start(){
   clearingRows = null;
   clearingUntil = 0;
   beeHelpedThisTurn = false;
-  timeLabel.textContent="03:00"; levelLabel.textContent = `Lv ${stage}`;
+  timeLabel.textContent="03:00"; levelLabel.textContent = `${mode === "normal" ? "N" : "Lv"} ${stage}`;
   last=performance.now();
 }
 

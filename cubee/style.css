@@ -146,3 +146,7 @@ a, button, #game {
   user-select: none;
   -webkit-touch-callout: none;
 }
+
+
+/* v1.6.51: locked button */
+.btn.disabled{opacity:0.55;}
