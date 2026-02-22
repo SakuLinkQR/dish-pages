@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
-  <title>CuBee Drop v1.6.44</title>
+  <title>CuBee Drop v1.6.45</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./assets/icons/icon-180.png" />
   <link rel="icon" href="./assets/icons/icon-32.png" sizes="32x32" />
-  <link rel="stylesheet" href="./style.css?v=1.6.44" />
+  <link rel="stylesheet" href="./style.css?v=1.6.45" />
 </head>
 <body>
   <header class="topbar">
@@ -23,6 +23,8 @@
 
   <main class="wrap">
     <canvas id="game" width="320" height="512" aria-label="CuBee game canvas"></canvas>
+
+    <div id="debugPanel" style="position:absolute;left:8px;bottom:8px;font:12px/1.2 monospace;color:#fff;background:rgba(0,0,0,.55);padding:4px 6px;border-radius:6px;max-width:95vw;white-space:pre;z-index:50;display:none;">debug panel</div>
 
     <div id="toast" class="toast hidden" aria-hidden="true"></div>
     <div id="beeFly" class="bee-fly hidden" aria-hidden="true">🐝</div>
@@ -45,10 +47,8 @@
       <div class="note">※キャンバス上ではスクロールしません（操作優先）。</div>
       <div class="note">※ステージ制：Stage1=3 から始まり、Stage30まで段数が1ずつ増えます（3→4→5…） を目標にCLEAR。</div>
     </div>
-  
-    <div id="debugPanel" style="position:fixed;left:8px;bottom:8px;right:8px;z-index:9999;font:12px/1.2 monospace;background:rgba(0,0,0,.65);color:#fff;padding:6px 8px;border-radius:8px;pointer-events:none;">debug</div>
   </main>
 
-  <script src="./main.js?v=1.6.44"></script>
+  <script src="./main.js?v=1.6.45"></script>
 </body>
 </html>
