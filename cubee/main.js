@@ -591,7 +591,7 @@ if (cleared === 0) {
         }
         // Streak counts even when bee assists (feels consistent)
         if (actually > 0) clearStreak++; else clearStreak = 0;
-      const shownLines = (mode === "first" && stage === 1) ? Math.min(actually, beeCleared) : actually;
+      const shownLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
         updateUI();
 
         if (progress >= GOAL_CLEAR) {
@@ -625,6 +625,7 @@ if (cleared === 0) {
 
   // 3. 消去演出と処理
   if (cleared > 0) {
+    const initialCleared = cleared;
     clearingRows = rows.slice();
     clearingUntil = Date.now() + 240;
     if (debugClear) debugClear.textContent = `+${cleared}`;
@@ -633,7 +634,7 @@ if (cleared === 0) {
     setTimeout(() => {
       const actually = clearCascade();
       // Stage1 (First) safety: don't let cascade add extra lines beyond the initial clear
-      const addLines = (mode === "first" && stage === 1) ? Math.min(actually, beeCleared) : actually;
+      const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
       const shownLines = addLines;
       // --- First Stage bee "reward" tuning (v1.6.42) ---
