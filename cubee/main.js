@@ -572,6 +572,7 @@ function lockPiece() {
   // 1. 通常の消去判定
   let rows = getClearableRows();
   let cleared = rows.length;
+  const initialCleared = cleared;
 
   // 2. 消去がなかった場合、蜂の加勢をチェック
   beeHelpedThisTurn = false;
@@ -582,6 +583,7 @@ if (cleared === 0) {
       // v1.6.10: Bee helped -> clear immediately and safely, then continue with next piece.
       const rowsBee = getClearableRows();
       const beeCleared = rowsBee.length;
+      const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
         progress += actually;
@@ -591,7 +593,7 @@ if (cleared === 0) {
         }
         // Streak counts even when bee assists (feels consistent)
         if (actually > 0) clearStreak++; else clearStreak = 0;
-      const shownLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
+      const shownLines = (mode === "first" && stage === 1) ? Math.min(actually, initialClearedBee) : actually;
         updateUI();
 
         if (progress >= GOAL_CLEAR) {
@@ -634,7 +636,7 @@ if (cleared === 0) {
     setTimeout(() => {
       const actually = clearCascade();
       // Stage1 (First) safety: don't let cascade add extra lines beyond the initial clear
-      const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
+      const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialClearedBee) : actually;
       progress += addLines;
       const shownLines = addLines;
       // --- First Stage bee "reward" tuning (v1.6.42) ---
