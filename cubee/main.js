@@ -217,6 +217,19 @@ const overlaySub=document.getElementById("overlaySub");
 const beeFly=document.getElementById("beeFly");
 const toast=document.getElementById("toast");
 
+// Global error trap (helps diagnose "nothing falls" issues on iOS/PC)
+window.addEventListener("error", (ev) => {
+  try {
+    const msg = ev && ev.message ? ev.message : String(ev);
+    console.error("GLOBAL ERROR:", msg, ev && ev.error ? ev.error : "");
+    // Show as toast so it's visible without console
+    showToast(`ERR: ${msg}`);
+    // Prevent stuck state: allow loop to keep running and user can retry
+    running = false;
+    ending = false;
+  } catch(_) {}
+});
+
 // Toast failsafe: hide on animation end (iOS can sometimes keep it visible)
 toast.addEventListener("animationend", ()=>{ toast.classList.add("hidden"); toast.style.display="none"; });
 
@@ -906,13 +919,23 @@ if (beeBtn){
 }
 
 nextBtn.addEventListener("click",()=>{
-  const base = `./game.html?mode=${mode}&stage=`;
-  if (hasNextStage()) {
-    const next = stage + 1;
-    location.href = `${base}${next}`;
-  } else {
-    // Final clear: loop back to stage 1 (arcade loop)
-    location.href = `${base}1`;
+  try{
+    // Advance stage without full reload (avoids iOS/PWA cache issues)
+    if (hasNextStage()) {
+      stage = stage + 1;
+    } else {
+      stage = 1;
+    }
+    // Update URL for sharing/debugging, but keep app state in-place
+    const url = `./game.html?mode=${mode}&stage=${stage}`;
+    history.replaceState(null, "", url);
+    start();
+  }catch(e){
+    // Fallback to hard navigation if something goes wrong
+    try{
+      const base = `./game.html?mode=${mode}&stage=`;
+      location.href = `${base}${hasNextStage() ? (stage+1) : 1}`;
+    }catch(_){}
   }
 });
 
@@ -960,10 +983,11 @@ function start(){
   clearingUntil = 0;
   beeHelpedThisTurn = false;
   timeLabel.textContent="03:00"; levelLabel.textContent = `${mode === "normal" ? "N" : "Lv"} ${stage}`;
+    draw();
   last=performance.now();
 }
 
-start();
+try{ start(); }catch(e){ console.error(e); try{ showToast('ERR: '+(e&&e.message?e.message:e)); }catch(_){} }
 requestAnimationFrame(loop);
 
 // Capture JS errors (iOS Safari often fails silently)
