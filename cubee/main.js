@@ -42,7 +42,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee Drop v1.6.61
+// CuBee Drop v1.6.60
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -120,7 +120,7 @@ let GOAL_CLEAR = 3; // stage-dependent
 // First Stage: Stage 1..5 with clear goals 3..7
 // Normal: separate mode (more mechanics) - currently Stage 1 only
 const STAGE_GOALS_FIRST = [3,4,5,6,7];
-const STAGE_GOALS_NORMAL = [6,7,8,9,10]; // Normal N-1..N-5 goals
+const STAGE_GOALS_NORMAL = [5,6]; // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
 let mode = "first"; // "first" | "normal"
 let stage = 1;
 
@@ -137,25 +137,7 @@ let beeCooldownTurns = 0; // prevent back-to-back
 
 // Green Larva (Normal mode) - sometimes appears, transforms when sandwiched left/right.
 const LARVA_COLOR = 2; // uses COLORS[2] (Green)
-function getLarvaChance(){
-  // Normal N-1: gentle, N-2..N-5: higher but constant
-  if(mode !== "normal") return 0;
-  return (stage <= 1) ? 0.12 : 0.18;
-}
-
-
-function stageCode(){
-  const prefix = (mode === "normal") ? "N" : "B";
-  return `${prefix}-${stage}`;
-}
-function modeNameJP(){
-  if(mode === "normal") return "ノーマル";
-  return "初級";
-}
-function modeNameEN(){
-  if(mode === "normal") return "Normal";
-  return "Beginner";
-}
+const LARVA_CHANCE_PER_PIECE = 0.12;
 
 function readStageFromURL(){
   const sp = new URLSearchParams(location.search);
@@ -228,9 +210,7 @@ let endTimerId=null, toastTimerId=null;
 let rainbowUsed=false, rainbowPending=false;
 
 function updateUI(){
-  comboLabel.textContent=`CLEAR ${Math.min(progress,GOAL_CLEAR)} / ${GOAL_CLEAR}`;
-  modeLabel.textContent = `${modeNameJP()} ${stageCode()}`;
-  levelLabel.textContent = stageCode();
+  comboLabel.textContent=`${mode === "normal" ? "NORMAL" : "STAGE"} ${stage}  CLEAR ${Math.min(progress,GOAL_CLEAR)} / ${GOAL_CLEAR}`;
   // Honey gauge (Normal mode only)
   if (honeyGauge) {
     if (mode === "normal") {
@@ -413,7 +393,7 @@ function spawnPiece(){
     let c0 = randBasicColor();
     let c1 = randBasicColor();
     // Normal mode: sometimes mix a Green Larva
-    if(mode === "normal" && Math.random() < getLarvaChance()){
+    if(mode === "normal" && Math.random() < LARVA_CHANCE_PER_PIECE){
       if(Math.random() < 0.5) c0 = LARVA_COLOR; else c1 = LARVA_COLOR;
     }
     return {x,y:0,kind:"pair2",blocks:[{dx:0,dy:0,c:c0},{dx:0,dy:1,c:c1}]};
@@ -438,7 +418,7 @@ function applyLarvaTransforms(placedCells){
   let changed = 0;
 
   // --- Stage 2+: Othello-style multi-larva flip (only flips Larva, never flips Red/Blue) ---
-  if(true){ // Othello flip enabled in all Normal stages
+  if(stage >= 2){
     for(const pc of placedCells){
       if(pc.y < 0 || pc.y >= ROWS) continue;
       const color = grid[pc.y][pc.x];
@@ -609,13 +589,9 @@ if (cleared === 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
         }
-        if (mode === "normal" && actually > 0) {
-          const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
-          addHoney(gain);
-        }
         // Streak counts even when bee assists (feels consistent)
         if (actually > 0) clearStreak++; else clearStreak = 0;
-      const shownLines = (mode === "first" && stage === 1) ? Math.min(actually, cleared) : actually;
+      const shownLines = (mode === "first" && stage === 1) ? Math.min(actually, beeCleared) : actually;
         updateUI();
 
         if (progress >= GOAL_CLEAR) {
@@ -657,8 +633,9 @@ if (cleared === 0) {
     setTimeout(() => {
       const actually = clearCascade();
       // Stage1 (First) safety: don't let cascade add extra lines beyond the initial clear
-      const addLines = (mode === "first" && stage === 1) ? Math.min(actually, cleared) : actually;
+      const addLines = (mode === "first" && stage === 1) ? Math.min(actually, beeCleared) : actually;
       progress += addLines;
+      const shownLines = addLines;
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
       if (actually > 0) clearStreak++; else clearStreak = 0;
@@ -677,13 +654,14 @@ if (cleared === 0) {
       updateUI();
 
       if (progress >= GOAL_CLEAR) {
-        showToast(`CLEAR! (/)`);
-          // Ensure the cleared board is rendered once before showing the CLEAR modal
-          clearingRows = null; clearingUntil = 0;
-          draw();
-          // Call endGame immediately (avoid rare rAF scheduling issues on iOS)
-          endGame("CLEAR!", `Stage  CLEAR / 達成！`, true);
-          return;
+        showToast(`CLEAR! ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR}`);
+        // Ensure the cleared board is rendered once before showing the CLEAR modal
+        clearingRows = null; clearingUntil = 0;
+        draw();
+        // Stage1 should not play bee clear anim; others can
+        const withBee = !(mode === "first" && stage === 1);
+        endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} 達成！`, withBee);
+        return;
       } else {
         const honeyPrefix = beeHelpedThisTurn ? "🐝 " : "";
         if (shownLines === 1 && progress === GOAL_CLEAR - 1) {

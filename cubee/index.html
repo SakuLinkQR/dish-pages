@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
-  <title>CuBee Drop v1.6.61</title>
+  <title>CuBee Drop v1.6.62</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./assets/icons/icon-180.png" />
   <link rel="icon" href="./assets/icons/icon-32.png" sizes="32x32" />
-  <link rel="stylesheet" href="./style.css?v=1.6.61" />
+  <link rel="stylesheet" href="./style.css?v=1.6.62" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand">CuBee Drop</div>
     <div class="meta">
-      <span class="badge">v1.6.61</span>
+      <span class="badge">v1.6.62</span>
     </div>
   </header>
 
@@ -25,16 +25,14 @@
     <section class="hero">
       <div class="logo-sub">Color Match Drop Puzzle</div>
       <div class="menu-buttons">
-        <a class="btn" href="./game.html?mode=first&stage=1">初級 (B-1)</a>
-        <a class="btn ghost disabled" id="normalBtn" href="./game.html?mode=normal&stage=1" aria-disabled="true">ノーマル (N-1) <span class="small">(Locked)</span></a>
-        <a class="btn ghost disabled" id="advBtn" href="#" aria-disabled="true">中級 (A-1) <span class="small">(Coming Soon)</span></a>
-        <a class="btn ghost disabled" id="expBtn" href="#" aria-disabled="true">上級 (E-1) <span class="small">(Coming Soon)</span></a>
-        <button class="btn ghost" id="howtoBtn" type="button">遊び方 / Hints</button>
+        <a class="btn" href="./game.html?mode=first&stage=1">PLAY</a>
+        <a class="btn ghost disabled" id="normalBtn" href="./game.html?mode=normal&stage=1" aria-disabled="true">NORMAL (Locked)</a>
+        <button class="btn ghost" id="howtoBtn" type="button">HOW TO</button>
       </div>
 
       <div class="menu-foot">
         <div class="small">© CuBee Drop Prototype</div>
-        <div class="small">Version 1.6.61</div>
+        <div class="small">Version 1.6.52</div>
       </div>
     </section>
 
@@ -69,9 +67,9 @@
       if(unlocked){
         normalBtn.classList.remove('disabled');
         normalBtn.removeAttribute('aria-disabled');
-        normalBtn.textContent = 'ノーマル (N-1)';
+        normalBtn.textContent = 'NORMAL';
       }else{
-        normalBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('ノーマルはロック中です。初級（B-1〜B-5）をクリアすると解放されます。'); });
+        normalBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('NORMAL is locked. Clear First Stage (Stage 1-5) to unlock.'); });
       }
     }catch(e){}
   </script>
