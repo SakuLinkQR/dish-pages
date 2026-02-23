@@ -197,6 +197,10 @@ const overlaySub=document.getElementById("overlaySub");
 const beeFly=document.getElementById("beeFly");
 const toast=document.getElementById("toast");
 
+// Toast failsafe: hide on animation end (iOS can sometimes keep it visible)
+toast.addEventListener("animationend", ()=>{ toast.classList.add("hidden"); toast.style.display="none"; });
+
+
 let grid, piece, running=true, ending=false;
 let elapsedMs=0, level=1, fallIntervalMs=FALL_START_MS, fallAccMs=0;
 let progress=0;
@@ -228,12 +232,26 @@ function updateUI(){
 }
 
 function showToast(t){
-  toast.textContent=t;
+  // Use a sequence token so older timers can't keep the toast visible
+  toastSeq = (toastSeq || 0) + 1;
+  const seq = toastSeq;
+  toast.textContent = t;
+  toast.style.display = "block";
   toast.classList.remove("hidden","play");
   void toast.offsetWidth;
   toast.classList.add("play");
-  if(toastTimerId) clearTimeout(toastTimerId);
-  toastTimerId=setTimeout(()=>toast.classList.add("hidden"),TOAST_MS);
+  if (toastTimerId) clearTimeout(toastTimerId);
+  toastTimerId = setTimeout(()=>{
+    if (seq !== toastSeq) return;
+    toast.classList.add("hidden");
+    toast.style.display = "none";
+  }, TOAST_MS);
+  // Extra failsafe hide
+  setTimeout(()=>{
+    if (seq !== toastSeq) return;
+    toast.classList.add("hidden");
+    toast.style.display = "none";
+  }, TOAST_MS + 1200);
 }
 
 // ===== Honey Gauge & Bee Carry =====
