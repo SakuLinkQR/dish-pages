@@ -680,6 +680,10 @@ if (cleared === 0) {
         }
       }
 
+      // Clear flashing highlight after processing
+      clearingRows = null;
+      clearingUntil = 0;
+
       piece = spawnPiece();
       if (collides(piece)) {
         endGame("DOWN…", "置けなくなりました");
@@ -690,6 +694,13 @@ if (cleared === 0) {
       } catch (e) {
         console.error(e);
         showToast("ERROR");
+        // Fail-safe: resume the game even if something went wrong during clear handling
+        clearingRows = null;
+        clearingUntil = 0;
+        try {
+          piece = spawnPiece();
+          fallAccMs = 0;
+        } catch (_) {}
         running = true;
       }
 }, 240);
