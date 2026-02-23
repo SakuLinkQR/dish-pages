@@ -42,7 +42,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee Drop v1.6.60
+// CuBee Drop v1.6.61
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -120,7 +120,7 @@ let GOAL_CLEAR = 3; // stage-dependent
 // First Stage: Stage 1..5 with clear goals 3..7
 // Normal: separate mode (more mechanics) - currently Stage 1 only
 const STAGE_GOALS_FIRST = [3,4,5,6,7];
-const STAGE_GOALS_NORMAL = [5,6]; // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
+const STAGE_GOALS_NORMAL = [6,7,8,9,10]; // Normal N-1..N-5 goals
 let mode = "first"; // "first" | "normal"
 let stage = 1;
 
@@ -137,7 +137,25 @@ let beeCooldownTurns = 0; // prevent back-to-back
 
 // Green Larva (Normal mode) - sometimes appears, transforms when sandwiched left/right.
 const LARVA_COLOR = 2; // uses COLORS[2] (Green)
-const LARVA_CHANCE_PER_PIECE = 0.12;
+function getLarvaChance(){
+  // Normal N-1: gentle, N-2..N-5: higher but constant
+  if(mode !== "normal") return 0;
+  return (stage <= 1) ? 0.12 : 0.18;
+}
+
+
+function stageCode(){
+  const prefix = (mode === "normal") ? "N" : "B";
+  return `${prefix}-${stage}`;
+}
+function modeNameJP(){
+  if(mode === "normal") return "ノーマル";
+  return "初級";
+}
+function modeNameEN(){
+  if(mode === "normal") return "Normal";
+  return "Beginner";
+}
 
 function readStageFromURL(){
   const sp = new URLSearchParams(location.search);
@@ -210,7 +228,9 @@ let endTimerId=null, toastTimerId=null;
 let rainbowUsed=false, rainbowPending=false;
 
 function updateUI(){
-  comboLabel.textContent=`${mode === "normal" ? "NORMAL" : "STAGE"} ${stage}  CLEAR ${Math.min(progress,GOAL_CLEAR)} / ${GOAL_CLEAR}`;
+  comboLabel.textContent=`CLEAR ${Math.min(progress,GOAL_CLEAR)} / ${GOAL_CLEAR}`;
+  modeLabel.textContent = `${modeNameJP()} ${stageCode()}`;
+  levelLabel.textContent = stageCode();
   // Honey gauge (Normal mode only)
   if (honeyGauge) {
     if (mode === "normal") {
@@ -393,7 +413,7 @@ function spawnPiece(){
     let c0 = randBasicColor();
     let c1 = randBasicColor();
     // Normal mode: sometimes mix a Green Larva
-    if(mode === "normal" && Math.random() < LARVA_CHANCE_PER_PIECE){
+    if(mode === "normal" && Math.random() < getLarvaChance()){
       if(Math.random() < 0.5) c0 = LARVA_COLOR; else c1 = LARVA_COLOR;
     }
     return {x,y:0,kind:"pair2",blocks:[{dx:0,dy:0,c:c0},{dx:0,dy:1,c:c1}]};
@@ -418,7 +438,7 @@ function applyLarvaTransforms(placedCells){
   let changed = 0;
 
   // --- Stage 2+: Othello-style multi-larva flip (only flips Larva, never flips Red/Blue) ---
-  if(stage >= 2){
+  if(true){ // Othello flip enabled in all Normal stages
     for(const pc of placedCells){
       if(pc.y < 0 || pc.y >= ROWS) continue;
       const color = grid[pc.y][pc.x];
