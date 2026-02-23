@@ -116,6 +116,11 @@ const COLORS = [
 const MODE_SECONDS=180;
 let GOAL_CLEAR = 3; // stage-dependent
 
+// Beginner speed tiers (every 5 stages) up to 2.00x
+const FIRST_SPEED_STEPS = [1.00, 1.25, 1.50, 1.75, 2.00];
+let firstSpeedMul = 1.00;
+let firstSpeedTier = 0;
+
 // ====== Stage System (First Stage + Normal) ======
 // First Stage: Stage 1..5 with clear goals 3..7
 // Normal: separate mode (more mechanics) - currently Stage 1 only
@@ -151,13 +156,26 @@ function readStageFromURL(){
 
   if (typeof level !== "undefined") level = stage;
 
-  const goals = (mode === "normal") ? STAGE_GOALS_NORMAL : STAGE_GOALS_FIRST;
-  GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 3;
+  if(mode === "first"){
+    const len = STAGE_GOALS_FIRST.length;
+    const idx = ((stage - 1) % len + len) % len;
+    GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
+
+    // speed tier increases every 5 stages, capped
+    firstSpeedTier = Math.min(FIRST_SPEED_STEPS.length-1, Math.floor((stage - 1) / len));
+    firstSpeedMul = FIRST_SPEED_STEPS[firstSpeedTier] ?? 1.00;
+  }else{
+    const goals = STAGE_GOALS_NORMAL;
+    GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
+    firstSpeedTier = 0;
+    firstSpeedMul = 1.00;
+  }
 }
 
 
 function hasNextStage(){
-  const goals = (mode === "normal") ? STAGE_GOALS_NORMAL : STAGE_GOALS_FIRST;
+  if(mode === "first") return true; // endless (B-6, B-7, ...)
+  const goals = STAGE_GOALS_NORMAL;
   return stage < goals.length;
 }
 
@@ -536,6 +554,8 @@ function endGame(title,sub,withBee=false){
 
   // Stage clearの場合：NEXTの出し分け
   if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
+    // Unlock NORMAL when Beginner B-5 cleared
+    try{ if(mode==="first" && stage===STAGE_GOALS_FIRST.length){ localStorage.setItem("firstStageCleared","1"); } }catch(e){}
     if (hasNextStage()) {
       nextBtn.style.display = "";
       nextBtn.textContent = "NEXT";
@@ -840,7 +860,7 @@ function tickTime(dt){
   if(newLevel!==level){
     level=newLevel;
     levelLabel.textContent=`Lv ${level}`;
-    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS*Math.pow(0.90,level-1)));
+    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul:1.0)));
   }
   if(remain<=0) endGame("DOWN…",`時間切れ（Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR}）`);
 }
@@ -928,8 +948,12 @@ function start(){
   assistUsed = 0;
   piece=spawnPiece();
   running=true; ending=false;
-  elapsedMs=0; level=1; fallIntervalMs=FALL_START_MS; fallAccMs=0;
+  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/firstSpeedMul)); fallAccMs=0;
   progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
+  // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
+  if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
+    showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`), 900);
+  }
   if(debugClear) debugClear.textContent = "+0";
   beeMark = null;
   clearingRows = null;
