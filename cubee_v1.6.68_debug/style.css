@@ -1,0 +1,188 @@
+:root{--bg:#f6f8ff;--panel:#eef2ff;--text:#1b223a;--muted:#5a6280;--btn:#3b84ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif}
+.topbar{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:rgba(246,248,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid rgba(27,34,58,.10);z-index:10}
+.brand{font-weight:900;letter-spacing:.5px;display:flex;gap:8px;align-items:baseline}
+.brand-ver{font-size:12px;color:var(--muted);font-weight:800}
+.meta{display:flex;gap:10px;color:var(--muted);font-size:14px;flex-wrap:wrap;align-items:center}
+.badge{padding:6px 10px;border-radius:999px;background:rgba(27,34,58,.08);border:1px solid rgba(27,34,58,.12);color:#1b223a;font-weight:900;letter-spacing:.3px}
+.wrap{max-width:520px;margin:0 auto;padding:12px;position:relative}
+#game{width:min(100%, calc((100vh - 250px) * 0.625));height:auto;max-height:calc(100vh - 250px);aspect-ratio: 10 / 16;background:var(--panel);border:1px solid rgba(27,34,58,.12);border-radius:14px;touch-action:none;}
+.hint{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.4}
+.hint .note{margin-top:6px;opacity:.9}
+.menu-wrap{max-width:520px;margin:0 auto;padding:18px 12px}
+.hero{background:rgba(255,255,255,.88);border:1px solid rgba(27,34,58,.12);border-radius:16px;padding:18px;box-shadow:0 18px 40px rgba(0,0,0,.10)}
+.logo{text-align:center;padding:14px 0 6px}
+.logo-cube{font-size:46px;transform:translateY(2px);opacity:.95}
+.logo-text{font-size:38px;font-weight:1000;letter-spacing:.8px}
+.logo-sub{color:var(--muted);font-weight:700;margin-top:4px;font-size:13px}
+.menu-buttons{display:flex;gap:10px;margin-top:16px}
+.menu-buttons .btn{flex:1;text-decoration:none;display:inline-flex;justify-content:center;align-items:center}
+.menu-foot{margin-top:16px;display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
+.small{font-size:12px}
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:30}
+.overlay.hidden{display:none}
+.card{width:min(380px,92vw);background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:18px;text-align:center}
+.card.left{text-align:left}
+.title{font-size:28px;font-weight:900;margin-bottom:6px}
+.sub{color:var(--muted);margin-bottom:14px}
+.row{display:flex;gap:10px}
+.row .btn{flex:1;text-decoration:none;display:inline-flex;justify-content:center;align-items:center}
+.btn{width:100%;padding:12px 14px;border:none;border-radius:12px;background:var(--btn);color:white;font-weight:900;font-size:16px;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid rgba(27,34,58,.18);color:#1b223a}
+.howto{margin:10px 0 12px;padding-left:18px;color:#1b223a}
+.howto li{margin:8px 0;line-height:1.35}
+.tip{color:var(--muted);font-size:12px;margin-bottom:12px}
+.toast{position:fixed;left:50%;top:18vh;transform:translateX(-50%);padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.78);border:1px solid rgba(27,34,58,.18);color:#1b223a;font-weight:900;letter-spacing:.3px;z-index:26;pointer-events:none;backdrop-filter:blur(6px);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.toast.hidden{display:none}
+@keyframes popFade{0%{transform:translateX(-50%) translateY(6px) scale(.98);opacity:0}15%{opacity:1}60%{opacity:1}100%{transform:translateX(-50%) translateY(-8px) scale(1.02);opacity:0}}
+.toast.play{display:block;animation:popFade .55s ease-out 1}
+.bee-fly{position:fixed;left:-60px;top:22vh;font-size:44px;z-index:25;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));transform:translateX(0) rotate(-8deg)}
+.bee-fly.hidden{display:none}
+@keyframes beeFlyAcross{0%{transform:translateX(-80px) translateY(0) rotate(-8deg);opacity:0}10%{opacity:1}50%{transform:translateX(55vw) translateY(-10px) rotate(6deg)}100%{transform:translateX(calc(100vw + 80px)) translateY(0) rotate(-2deg);opacity:0}}
+.bee-fly.play{display:block;animation:beeFlyAcross .6s ease-out 1}
+
+
+.bee-idle{font-size:18px;display:inline-block;transform-origin:50% 60%;opacity:.95}
+@keyframes beeIdle{0%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-2px) rotate(6deg)}100%{transform:translateY(0) rotate(-6deg)}}
+.bee-idle{animation:beeIdle 1.4s ease-in-out infinite}
+
+
+.front-art{margin-top:6px;margin-bottom:12px;display:flex;justify-content:center;align-items:center}
+.front-art img{width:min(520px,94vw);max-height:62vh;height:auto;object-fit:contain;filter:drop-shadow(0 18px 34px rgba(0,0,0,.18));border-radius:22px}
+
+
+/* v1.4.6 front layout */
+.menu-wrap{padding-top:14px}
+
+.menu-btns{margin:0 auto 8px;display:flex;gap:12px;justify-content:center;max-width:560px}
+
+
+.debug-clear{display:inline-block;min-width:34px;text-align:center;font-weight:800;font-size:12px;padding:4px 8px;border-radius:999px;background:rgba(27,34,58,.08);border:1px solid rgba(27,34,58,.12);color:#1b223a}
+
+
+/* v1.5.7: mobile fit (no scroll) */
+@media (max-width: 520px), (max-height: 760px) {
+  .hint { display:none; }
+  /* Use small viewport height on mobile browsers (address bar safe) */
+  #game {
+    max-height: calc(100svh - 170px);
+    width: min(100%, calc((100svh - 170px) * 0.625));
+    height: auto;
+  }
+  .wrap { padding-bottom: 12px; }
+}
+
+
+/* v1.5.8: stabilize viewport sizing (prevent iOS address-bar resize jump) */
+html, body {
+  height: 100%;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+body {
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden; /* no page scroll while playing */
+}
+.topbar {
+  padding-top: env(safe-area-inset-top);
+}
+/* Keep main area fixed */
+.wrap, .menu-wrap {
+  min-height: 0;
+}
+/* Game page: make the whole layout fit inside 100svh */
+.game-wrap {
+  height: calc(100svh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+  overflow: hidden;
+  display: flex;
+  touch-action: none;
+  flex-direction: column;
+}
+/* Ensure score/header never goes outside */
+.hud {
+  flex: 0 0 auto;
+}
+/* Canvas sizes from remaining space; keep aspect ratio stable */
+.game-area {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#game {
+  max-height: calc(100svh - 210px);
+  width: min(100%, calc((100svh - 210px) * 0.625));
+  height: auto;
+}
+
+
+/* v1.6.11: center board and reduce "right empty" feeling */
+.wrap, .game-wrap {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.hud, .topbar {
+  width: min(520px, 96vw);
+}
+.game-area {
+  width: min(520px, 96vw);
+  display:flex;
+  justify-content:center;
+}
+#game {
+  margin: 0 auto;
+}
+
+
+/* v1.6.29: Disable iOS text selection / callout while playing */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+a, button, #game {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+
+/* v1.6.51: locked button */
+.btn.disabled{opacity:0.55;}
+
+/* Honey gauge + Bee button */
+.honey-gauge{
+  display:inline-block;
+  min-width:3.2em;
+  text-align:center;
+  letter-spacing:0.05em;
+  font-size:14px;
+  padding:2px 6px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.12);
+}
+.bee-btn{
+  border:none;
+  border-radius:999px;
+  padding:2px 8px;
+  font-size:14px;
+  background:rgba(255,255,255,0.18);
+  color:#fff;
+  cursor:pointer;
+}
+.bee-btn[disabled]{
+  opacity:0.4;
+  cursor:default;
+}
+.bee-btn.ready{
+  animation: beePulse 0.8s infinite;
+}
+@keyframes beePulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+  100%{transform:scale(1);}
+}
