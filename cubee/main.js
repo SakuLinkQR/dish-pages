@@ -42,7 +42,7 @@ function findOneHoleRow(){
 // (removed duplicate maybeBeeAssist)
 
 
-// CuBee Drop v1.6.52
+// CuBee Drop v1.6.60
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
@@ -548,8 +548,11 @@ function endGame(title,sub,withBee=false){
     overlay.classList.remove("hidden");
   };
   if(withBee){
-    playClearBee();
-    endTimerId=setTimeout(show,CLEAR_ANIM_MS);
+    try{ playClearBee(); }catch(e){ console.warn("playClearBee failed",e); }
+    const ms = (typeof CLEAR_ANIM_MS==="number" && isFinite(CLEAR_ANIM_MS)) ? CLEAR_ANIM_MS : 0;
+    endTimerId=setTimeout(show, ms);
+    // watchdog: ensure overlay shows even if timers/anim glitch
+    setTimeout(()=>{ try{ if(overlay.classList.contains("hidden")) show(); }catch(e){} }, ms+150);
   } else show();
 }
 
@@ -592,18 +595,18 @@ if (cleared === 0) {
         }
         // Streak counts even when bee assists (feels consistent)
         if (actually > 0) clearStreak++; else clearStreak = 0;
+      const shownLines = (mode === "first" && stage === 1) ? Math.min(actually, cleared) : actually;
         updateUI();
 
         if (progress >= GOAL_CLEAR) {
-          showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
+          showToast(`CLEAR! (/)`);
           // Ensure the cleared board is rendered once before showing the CLEAR modal
           clearingRows = null; clearingUntil = 0;
           draw();
-          requestAnimationFrame(() => {
-            endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
-          });
+          // Call endGame immediately (avoid rare rAF scheduling issues on iOS)
+          endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} 達成！`, !(mode==="first" && stage===1));
           return;
-        } else if (actually === 1 && progress === GOAL_CLEAR - 1) {
+        } else if (shownLines === 1 && progress === GOAL_CLEAR - 1) {
           showToast(`🐝 +${actually}（あと1！🔥）`);
         } else {
           showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
@@ -633,7 +636,9 @@ if (cleared === 0) {
 
     setTimeout(() => {
       const actually = clearCascade();
-      progress += actually;
+      // Stage1 (First) safety: don't let cascade add extra lines beyond the initial clear
+      const addLines = (mode === "first" && stage === 1) ? Math.min(actually, cleared) : actually;
+      progress += addLines;
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
       if (actually > 0) clearStreak++; else clearStreak = 0;
@@ -652,24 +657,23 @@ if (cleared === 0) {
       updateUI();
 
       if (progress >= GOAL_CLEAR) {
-        showToast(`CLEAR! (${progress}/${GOAL_CLEAR})`);
-        // Ensure the cleared board is rendered once before showing the CLEAR modal
-        clearingRows = null; clearingUntil = 0;
-        draw();
-        requestAnimationFrame(() => {
-          endGame("CLEAR!", `Stage ${stage} CLEAR ${progress}/${GOAL_CLEAR} 達成！`, true);
-        });
-        return;
+        showToast(`CLEAR! (/)`);
+          // Ensure the cleared board is rendered once before showing the CLEAR modal
+          clearingRows = null; clearingUntil = 0;
+          draw();
+          // Call endGame immediately (avoid rare rAF scheduling issues on iOS)
+          endGame("CLEAR!", `Stage  CLEAR / 達成！`, true);
+          return;
       } else {
         const honeyPrefix = beeHelpedThisTurn ? "🐝 " : "";
-        if (actually === 1 && progress === GOAL_CLEAR - 1) {
-          showToast(`${honeyPrefix}+${actually}（あと1！🔥）`);
+        if (shownLines === 1 && progress === GOAL_CLEAR - 1) {
+          showToast(`${honeyPrefix}+${shownLines}（あと1！🔥）`);
         } else {
           const combo = lastCascadePasses > 1;
-      if (combo && actually >= 2) {
-        showToast(`${honeyPrefix}+${actually} COMBO!`);
+      if (combo && shownLines >= 2) {
+        showToast(`${honeyPrefix}+${shownLines} COMBO!`);
       } else {
-        showToast(actually >= 2 ? `${honeyPrefix}+${actually} NICE!` : `${honeyPrefix}+1`);
+        showToast(shownLines >= 2 ? `${honeyPrefix}+${shownLines} NICE!` : `${honeyPrefix}+1`);
       }
         }
       }
