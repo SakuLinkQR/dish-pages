@@ -207,6 +207,9 @@ let progress=0;
 let clearStreak=0; // consecutive turns with >=1 line cleared
 let stageBeeBonusUsed=0; // per-stage bonus indicator
 let endTimerId=null, toastTimerId=null;
+// toast sequence token (prevents stale timers from keeping toast visible)
+let toastSeq = 0;
+
 let rainbowUsed=false, rainbowPending=false;
 
 function updateUI(){
