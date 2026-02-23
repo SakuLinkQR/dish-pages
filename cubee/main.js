@@ -593,7 +593,7 @@ if (cleared === 0) {
         }
         // Streak counts even when bee assists (feels consistent)
         if (actually > 0) clearStreak++; else clearStreak = 0;
-      const shownLines = (mode === "first" && stage === 1) ? Math.min(actually, initialClearedBee) : actually;
+      const shownLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
         updateUI();
 
         if (progress >= GOAL_CLEAR) {
@@ -634,9 +634,10 @@ if (cleared === 0) {
     running = false;
 
     setTimeout(() => {
+      try {
       const actually = clearCascade();
       // Stage1 (First) safety: don't let cascade add extra lines beyond the initial clear
-      const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialClearedBee) : actually;
+      const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
       const shownLines = addLines;
       // --- First Stage bee "reward" tuning (v1.6.42) ---
@@ -685,7 +686,13 @@ if (cleared === 0) {
         return;
       }
       running = true;
-    }, 240);
+    
+      } catch (e) {
+        console.error(e);
+        showToast("ERROR");
+        running = true;
+      }
+}, 240);
   } else {
     // No clear -> reset streak
     clearStreak = 0;
@@ -797,7 +804,9 @@ function draw(){
   ctx.restore();
 
   for(let y=0;y<ROWS;y++) for(let x=0;x<COLS;x++) if(grid[y][x]!==null) drawBlock(x,y,grid[y][x]);
-  if(!ending) for(const c of cellsOfPiece(piece)) if(c.y>=0) drawBlock(c.x,c.y,c.c);
+  // Draw the falling piece only while the game is running.
+  // This prevents a "ghost piece" from lingering during line-clear animations.
+  if(!ending && running && piece) for(const c of cellsOfPiece(piece)) if(c.y>=0) drawBlock(c.x,c.y,c.c);
 }
 
 function formatMMSS(sec){
