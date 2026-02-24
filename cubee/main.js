@@ -245,6 +245,7 @@ let toastSeq = 0;
 
 // Prevent double-tap / double-click on overlay buttons (iOS can fire twice)
 let modalNavLocked = false;
+const lang = ((document.documentElement.getAttribute("lang") || "en").toLowerCase().startsWith("ja")) ? "ja" : "en";
 
 
 let rainbowUsed=false, rainbowPending=false;
@@ -961,7 +962,7 @@ nextBtn.addEventListener("click",()=>{
     // Fallback to hard navigation if something goes wrong
     try{
       const base = `./game.html?mode=${mode}&stage=`;
-      location.href = `${base}${hasNextStage() ? (stage+1) : 1}`;
+      location.href = `${base}${hasNextStage() ? stage : 1}`;
     }catch(_){}
   }
 });
@@ -1002,7 +1003,7 @@ function start(){
   progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
-    showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`), 900);
+    showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`));
   }
   if(debugClear) debugClear.textContent = "+0";
   beeMark = null;
