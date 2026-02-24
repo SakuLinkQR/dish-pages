@@ -243,6 +243,10 @@ let endTimerId=null, toastTimerId=null;
 // toast sequence token (prevents stale timers from keeping toast visible)
 let toastSeq = 0;
 
+// Prevent double-tap / double-click on overlay buttons (iOS can fire twice)
+let modalNavLocked = false;
+
+
 let rainbowUsed=false, rainbowPending=false;
 
 function updateUI(){
@@ -511,37 +515,47 @@ function applyLarvaTransforms(placedCells){
   return changed;
 }
 
+function isClearColor(v){
+  // Only finite numeric colors can participate in normal line clear.
+  // Treat null/undefined/NaN/strings as empty or invalid.
+  return (typeof v === "number") && Number.isFinite(v) && v !== LARVA_COLOR;
+}
+function isRowClearableStrict(y){
+  const row = grid[y];
+  const first = row[0];
+  if(!isClearColor(first)) return false;
+  for(let x=1; x<COLS; x++){
+    const v = row[x];
+    if(!isClearColor(v) || v !== first) return false;
+  }
+  return true;
+}
+
 function getClearableRows(){
-  // v1.6.34: STRICT rule - row clears only if ALL cells are filled AND same color.
+  // STRICT rule: clear only if ALL cells are filled AND same color (no larva/invalid cells).
   const rows = [];
   for(let y=0; y<ROWS; y++){
-    const first = grid[y][0];
-    if(first === null || first === "rainbow" || first === LARVA_COLOR) continue;
-    let ok = true;
-    for(let x=1; x<COLS; x++){
-      const v = grid[y][x];
-      if(v === null || v === "rainbow" || v === LARVA_COLOR || v !== first){
-        ok = false;
-        break;
-      }
-    }
-    if(ok) rows.push(y);
+    if(isRowClearableStrict(y)) rows.push(y);
   }
-  // Unique + sort bottom-up (helps stable clearing)
-  return Array.from(new Set(rows)).sort((a,b)=>b-a);
+  return rows.sort((a,b)=>b-a); // bottom-up
 }
 
 function applyClearRows(rows){
-  // v1.6.34 safety: unique row indices
+  // Safety: unique row indices, sorted bottom-up
   rows = Array.from(new Set(rows)).sort((a,b)=>b-a);
 
-  rows.sort((a,b)=>b-a);
+  let cleared = 0;
   for(const y of rows){
+    if(y < 0 || y >= ROWS) continue;
+    // Re-validate at the moment of clearing to prevent any false clears.
+    if(!isRowClearableStrict(y)) continue;
     grid.splice(y,1);
     grid.unshift(Array(COLS).fill(null));
+    cleared += 1;
   }
-  return rows.length;
+  return cleared;
 }
+
 // v1.6.17: clear repeatedly until no more full same-color rows appear (after rows drop).
 function clearCascade(){
   // v1.6.48: multi-pass cascade clear (count all clears in this lock)
@@ -582,6 +596,9 @@ function endGame(title,sub,withBee=false){
   }
 
   const show=()=>{
+    modalNavLocked = false;
+    try{ retryBtn.disabled = false; retryBtn.style.pointerEvents="auto"; }catch(e){}
+    try{ nextBtn.disabled = false; nextBtn.style.pointerEvents="auto"; }catch(e){}
     overlayTitle.textContent=title;
     overlaySub.textContent=sub;
     overlay.classList.remove("hidden");
@@ -906,7 +923,13 @@ canvas.addEventListener("pointerup",(e)=>{
   touchStart=null;
 });
 
-retryBtn.addEventListener("click",()=>start());
+retryBtn.addEventListener("click",()=>{
+  if(modalNavLocked) return;
+  modalNavLocked = true;
+  try{ retryBtn.disabled = true; retryBtn.style.pointerEvents="none"; }catch(e){}
+  try{ nextBtn.disabled = true; nextBtn.style.pointerEvents="none"; }catch(e){}
+  start();
+});
 
 if (beeBtn){
   beeBtn.addEventListener("click",()=>{
@@ -919,6 +942,10 @@ if (beeBtn){
 }
 
 nextBtn.addEventListener("click",()=>{
+  if(modalNavLocked) return;
+  modalNavLocked = true;
+  try{ retryBtn.disabled = true; retryBtn.style.pointerEvents="none"; }catch(e){}
+  try{ nextBtn.disabled = true; nextBtn.style.pointerEvents="none"; }catch(e){}
   try{
     // Advance stage without full reload (avoids iOS/PWA cache issues)
     if (hasNextStage()) {
