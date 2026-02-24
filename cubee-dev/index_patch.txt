@@ -1,0 +1,16 @@
+【メニュー画面に「規約等」ボタンを追加する方法】
+
+あなたのメニュー画面（多くの場合 index.html）の「ボタンが並んでいる場所」に、次のどちらか1行を追加します。
+※どちらが合うか分からない場合は、まず index.html の中に "<a " が多いか "<button" が多いかを見てください。
+
+A）ボタン形式の場合（button が多い）
+<button onclick="location.href='./policy.html'">規約等</button>
+
+B）リンク形式の場合（a が多い / class="menu-btn" のようなものがある）
+<a class="menu-btn" href="./policy.html">規約等</a>
+
+追加後、公開ページで以下が開ければOKです。
+/cubee/policy.html
+/cubee/terms.html
+/cubee/privacy.html
+/cubee/legal.html
