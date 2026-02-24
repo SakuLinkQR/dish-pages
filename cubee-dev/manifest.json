@@ -1,7 +1,7 @@
 {
-  "name": "CuBee Drop",
-  "short_name": "CuBeeDrop",
-  "start_url": "./index.html?v=1.6.38",
+  "name": "CuBee Drop (DEV)",
+  "short_name": "CuBeeDev",
+  "start_url": "./index.html?v=dev-1.6.77",
   "display": "standalone",
   "background_color": "#f6f8ff",
   "theme_color": "#f6f8ff",
@@ -17,5 +17,6 @@
       "type": "image/png"
     }
   ],
-  "description": "Color Match Drop Puzzle with Bee Assist"
+  "description": "Color Match Drop Puzzle with Bee Assist",
+  "scope": "./"
 }

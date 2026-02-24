@@ -947,24 +947,16 @@ nextBtn.addEventListener("click",()=>{
   modalNavLocked = true;
   try{ retryBtn.disabled = true; retryBtn.style.pointerEvents="none"; }catch(e){}
   try{ nextBtn.disabled = true; nextBtn.style.pointerEvents="none"; }catch(e){}
+
+  // Reliable navigation for iOS/PWA: compute next stage and hard-navigate.
+  // This avoids any rare double-step caused by in-place re-init + URL parsing.
+  let nextStage = 1;
   try{
-    // Advance stage without full reload (avoids iOS/PWA cache issues)
-    if (hasNextStage()) {
-      stage = stage + 1;
-    } else {
-      stage = 1;
-    }
-    // Update URL for sharing/debugging, but keep app state in-place
-    const url = `./game.html?mode=${mode}&stage=${stage}`;
-    history.replaceState(null, "", url);
-    start();
-  }catch(e){
-    // Fallback to hard navigation if something goes wrong
-    try{
-      const base = `./game.html?mode=${mode}&stage=`;
-      location.href = `${base}${hasNextStage() ? stage : 1}`;
-    }catch(_){}
-  }
+    nextStage = hasNextStage() ? (stage + 1) : 1;
+  }catch(e){ nextStage = stage + 1; }
+
+  const url = `./game.html?mode=${mode}&stage=${nextStage}`;
+  location.href = url;
 });
 
 let last=performance.now();
