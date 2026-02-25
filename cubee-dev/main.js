@@ -81,10 +81,10 @@ function getBeeAssistParams(){
   // Bee is a theme: early stages use bees as "reward" rather than rescue.
   if(stage===1) return { enabled:false, base:0, bonus:0, max:0 };
   if(stage===2) return { enabled:false, base:0, bonus:0, max:0 };
-  if(stage===3) return { enabled:true, base:0.10, bonus:0.00, max:2 };
-  if(stage===4) return { enabled:true, base:0.08, bonus:0.00, max:2 };
-  if(stage===5) return { enabled:true, base:0.05, bonus:0.00, max:1 };
-  return { enabled:true, base:0.08, bonus:0.00, max:2 };
+  if(stage===3) return { enabled:true, base:0.03, bonus:0.00, max:1 };
+  if(stage===4) return { enabled:true, base:0.02, bonus:0.00, max:1 };
+  if(stage===5) return { enabled:true, base:0.02, bonus:0.00, max:1 };
+  return { enabled:true, base:0.03, bonus:0.00, max:1 };
 }
 function maybeBeeAssist(){
   const cfg = getBeeAssistParams();
@@ -95,6 +95,10 @@ function maybeBeeAssist(){
 
   const cand = stbFindOneHoleRow();
   if(!cand) return false;
+
+  // Reduce bee frequency: only help when stack is getting high (5+ rows)
+  const stackHeight = ROWS - topMostFilledY();
+  if(stackHeight < 5) return false;
 
   const p = Math.min(0.45, cfg.base + (stage-1)*cfg.bonus);
   if(Math.random() > p) return false;
@@ -947,16 +951,24 @@ nextBtn.addEventListener("click",()=>{
   modalNavLocked = true;
   try{ retryBtn.disabled = true; retryBtn.style.pointerEvents="none"; }catch(e){}
   try{ nextBtn.disabled = true; nextBtn.style.pointerEvents="none"; }catch(e){}
-
-  // Reliable navigation for iOS/PWA: compute next stage and hard-navigate.
-  // This avoids any rare double-step caused by in-place re-init + URL parsing.
-  let nextStage = 1;
   try{
-    nextStage = hasNextStage() ? (stage + 1) : 1;
-  }catch(e){ nextStage = stage + 1; }
-
-  const url = `./game.html?mode=${mode}&stage=${nextStage}`;
-  location.href = url;
+    // Advance stage without full reload (avoids iOS/PWA cache issues)
+    if (hasNextStage()) {
+      stage = stage + 1;
+    } else {
+      stage = 1;
+    }
+    // Update URL for sharing/debugging, but keep app state in-place
+    const url = `./game.html?mode=${mode}&stage=${stage}`;
+    history.replaceState(null, "", url);
+    start();
+  }catch(e){
+    // Fallback to hard navigation if something goes wrong
+    try{
+      const base = `./game.html?mode=${mode}&stage=`;
+      location.href = `${base}${hasNextStage() ? stage : 1}`;
+    }catch(_){}
+  }
 });
 
 let last=performance.now();
