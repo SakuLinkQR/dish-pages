@@ -56,6 +56,7 @@ const STB_ASSIST_BASE_CHANCE = 0.18;  // Stage1
 const STB_ASSIST_STAGE_BONUS = 0.03;
 const STB_ASSIST_MAX_PER_GAME = 3;
 let stbAssistUsed = 0;
+let stbAssistCooldownTurns = 0; // prevent too frequent bee assist
 
 function stbFindOneHoleRow(){
   for(let y=ROWS-1;y>=0;y--){
@@ -81,10 +82,10 @@ function getBeeAssistParams(){
   // Bee is a theme: early stages use bees as "reward" rather than rescue.
   if(stage===1) return { enabled:false, base:0, bonus:0, max:0 };
   if(stage===2) return { enabled:false, base:0, bonus:0, max:0 };
-  if(stage===3) return { enabled:true, base:0.10, bonus:0.00, max:2 };
-  if(stage===4) return { enabled:true, base:0.08, bonus:0.00, max:2 };
-  if(stage===5) return { enabled:true, base:0.05, bonus:0.00, max:1 };
-  return { enabled:true, base:0.08, bonus:0.00, max:2 };
+  if(stage===3) return { enabled:true, base:0.03, bonus:0.00, max:1 };
+  if(stage===4) return { enabled:true, base:0.02, bonus:0.00, max:1 };
+  if(stage===5) return { enabled:true, base:0.02, bonus:0.00, max:1 };
+  return { enabled:true, base:0.03, bonus:0.00, max:1 };
 }
 function maybeBeeAssist(){
   const cfg = getBeeAssistParams();
@@ -92,6 +93,7 @@ function maybeBeeAssist(){
 
   if(!STB_ENABLE_BEE_ASSIST) return false;
   if(stbAssistUsed >= cfg.max) return false;
+  if(stbAssistCooldownTurns > 0) return false;
 
   const cand = stbFindOneHoleRow();
   if(!cand) return false;
@@ -101,6 +103,7 @@ function maybeBeeAssist(){
 
   grid[cand.y][cand.xHole] = cand.color;
   stbAssistUsed++;
+  stbAssistCooldownTurns = 20;
 
   showToast("🐝 BEE HELP!");
   playClearBee();
@@ -668,6 +671,7 @@ function endGame(title,sub,withBee=false){
 function lockPiece() {
   if (ending) return;
   if (mode === "normal" && beeCooldownTurns > 0) beeCooldownTurns--;
+  if (stbAssistCooldownTurns > 0) stbAssistCooldownTurns--;
 
   // ピースを盤面に固定
   const placed = cellsOfPiece(piece);
@@ -695,9 +699,8 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
-      addScore(actually, false);
+      addScore(actually, true);
         progress += actually;
-        addScore(actually, true);
         if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
@@ -750,6 +753,8 @@ if (cleared === 0) {
       // Stage1 (First) safety: don't let cascade add extra lines beyond the initial clear
       const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
+      // Score: add points only for normal clears (bee clears do not score)
+      addScore(addLines, false);
       const shownLines = addLines;
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
@@ -1100,7 +1105,7 @@ function start(){
   piece=spawnPiece();
   running=true; ending=false;
   elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/firstSpeedMul)); fallAccMs=0;
-  progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
+  progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; stbAssistCooldownTurns=0; updateUI();
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
     showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`));
