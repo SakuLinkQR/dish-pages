@@ -140,10 +140,7 @@ function baseScoreForLines(n){
   return 700 + (n-4)*200;
 }
 function getBestKey(){
-  // Best score per mode (stable keys)
-  if(mode === "normal") return "cubee_best_normal";
-  if(mode === "time") return "cubee_best_time";
-  return "cubee_best_first";
+  return `cubee_best_${mode}`; // simple: best per mode
 }
 function loadBestScore(){
   try{
@@ -634,15 +631,6 @@ function endGame(title,sub,withBee=false){
   }
 
 
-
-
-  // Ensure BEST is updated for this mode (B/N/TT)
-  if (score > bestScore) {
-    bestScore = score;
-    saveBestScore();
-    updateScoreUI();
-  }
-
   // Stage clearの場合：NEXTの出し分け
   if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
     // Unlock NORMAL when Beginner B-5 cleared
@@ -707,9 +695,11 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
-      addScore(actually, false);
+      // addScore(actually, false); // disabled: bee assist should not score
+      addScore(actually, true);
         progress += actually;
-        addScore(actually, true);
+        // addScore(actually, true); // already called (no score)
+
         if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
@@ -762,7 +752,8 @@ if (cleared === 0) {
       // Stage1 (First) safety: don't let cascade add extra lines beyond the initial clear
       const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
-      const shownLines = addLines;
+            addScore(addLines, false);
+const shownLines = addLines;
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
       if (actually > 0) clearStreak++; else clearStreak = 0;
