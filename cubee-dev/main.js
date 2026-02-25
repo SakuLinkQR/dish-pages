@@ -81,10 +81,10 @@ function getBeeAssistParams(){
   // Bee is a theme: early stages use bees as "reward" rather than rescue.
   if(stage===1) return { enabled:false, base:0, bonus:0, max:0 };
   if(stage===2) return { enabled:false, base:0, bonus:0, max:0 };
-  if(stage===3) return { enabled:true, base:0.03, bonus:0.00, max:1 };
-  if(stage===4) return { enabled:true, base:0.02, bonus:0.00, max:1 };
-  if(stage===5) return { enabled:true, base:0.02, bonus:0.00, max:1 };
-  return { enabled:true, base:0.03, bonus:0.00, max:1 };
+  if(stage===3) return { enabled:true, base:0.10, bonus:0.00, max:2 };
+  if(stage===4) return { enabled:true, base:0.08, bonus:0.00, max:2 };
+  if(stage===5) return { enabled:true, base:0.05, bonus:0.00, max:1 };
+  return { enabled:true, base:0.08, bonus:0.00, max:2 };
 }
 function maybeBeeAssist(){
   const cfg = getBeeAssistParams();
@@ -95,10 +95,6 @@ function maybeBeeAssist(){
 
   const cand = stbFindOneHoleRow();
   if(!cand) return false;
-
-  // Reduce bee frequency: only help when stack is getting high (5+ rows)
-  const stackHeight = ROWS - topMostFilledY();
-  if(stackHeight < 5) return false;
 
   const p = Math.min(0.45, cfg.base + (stage-1)*cfg.bonus);
   if(Math.random() > p) return false;
@@ -130,8 +126,33 @@ let firstSpeedTier = 0;
 // Normal: separate mode (more mechanics) - currently Stage 1 only
 const STAGE_GOALS_FIRST = [3,4,5,6,7];
 const STAGE_GOALS_NORMAL = [5,6,7,8,9]; // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
-let mode = "first"; // "first" | "normal"
+let mode = "first"; // "first" | "normal" | "time"
 let stage = 1;
+// ====== Score System ======
+let score = 0;
+let bestScore = 0;
+let lastClearAtMs = 0;
+let combo = 0;
+
+const SCORE_TABLE = [0, 100, 250, 450, 700]; // 1..4 lines
+function baseScoreForLines(n){
+  if(n <= 4) return SCORE_TABLE[n] || 0;
+  return 700 + (n-4)*200;
+}
+function getBestKey(){
+  return `cubee_best_${mode}`; // simple: best per mode
+}
+function loadBestScore(){
+  try{
+    const v = localStorage.getItem(getBestKey());
+    bestScore = v ? Number(v) : 0;
+    if(!Number.isFinite(bestScore)) bestScore = 0;
+  }catch(e){ bestScore = 0; }
+}
+function saveBestScore(){
+  try{ localStorage.setItem(getBestKey(), String(bestScore)); }catch(e){}
+}
+
 
 // Honey Gauge (Normal mode)
 // Fill by clearing lines; when full, the bee can perform a special "Bee Carry".
@@ -153,7 +174,7 @@ function larvaChance(){ return (mode === "normal" && stage >= 2) ? LARVA_CHANCE_
 function readStageFromURL(){
   const sp = new URLSearchParams(location.search);
   const m = (sp.get("mode") || "first").toLowerCase();
-  mode = (m === "normal") ? "normal" : "first";
+  mode = (m === "normal") ? "normal" : (m === "time") ? "time" : "first";
 
   const n = Number(sp.get("stage") || "1");
   stage = (Number.isFinite(n) && n>=1) ? Math.floor(n) : 1;
@@ -161,6 +182,7 @@ function readStageFromURL(){
   if (typeof level !== "undefined") level = stage;
 
   if(mode === "first"){
+
     const len = STAGE_GOALS_FIRST.length;
     const idx = ((stage - 1) % len + len) % len;
     GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
@@ -168,7 +190,14 @@ function readStageFromURL(){
     // speed tier increases every 5 stages, capped
     firstSpeedTier = Math.min(FIRST_SPEED_STEPS.length-1, Math.floor((stage - 1) / len));
     firstSpeedMul = FIRST_SPEED_STEPS[firstSpeedTier] ?? 1.00;
-  }else{
+  } else if(mode === "time"){
+    const len = STAGE_GOALS_FIRST.length;
+    const idx = ((stage - 1) % len + len) % len;
+    GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
+    // Time Trial uses a stable speed tier (no surprise speed-ups)
+    firstSpeedTier = 0;
+    firstSpeedMul = 1.00;
+  } else {
     const goals = STAGE_GOALS_NORMAL;
     GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
     firstSpeedTier = 0;
@@ -207,6 +236,9 @@ canvas.addEventListener('touchmove',(e)=>e.preventDefault(),{passive:false});
 const ctx=canvas.getContext("2d");
 const cell=Math.floor(Math.min(canvas.width/COLS, canvas.height/ROWS));
 
+const scoreLabel=document.getElementById("scoreLabel");
+const bestLabel=document.getElementById("bestLabel");
+const overlayBonus=document.getElementById("overlayBonus");
 const timeLabel=document.getElementById("timeLabel");
 const levelLabel=document.getElementById("levelLabel");
 const debugClear=document.getElementById("debugClear");
@@ -255,7 +287,7 @@ const lang = ((document.documentElement.getAttribute("lang") || "en").toLowerCas
 let rainbowUsed=false, rainbowPending=false;
 
 function updateUI(){
-  const code = (mode === "normal") ? `N-${stage}` : `B-${stage}`;
+  const code = (mode === "normal") ? `N-${stage}` : (mode === "time") ? `TT-${stage}` : `B-${stage}`;
   comboLabel.textContent=`${code}  CLEAR ${Math.min(progress,GOAL_CLEAR)} / ${GOAL_CLEAR}`;
   // Honey gauge (Normal mode only)
   if (honeyGauge) {
@@ -584,6 +616,21 @@ function endGame(title,sub,withBee=false){
   if(ending) return;
   ending=true; running=false;
 
+
+  // Time Trial bonus (rank by time left)
+  let timeBonusText = "";
+  if ((title === "CLEAR!" || String(title).startsWith("CLEAR")) && mode === "time") {
+    const remainSec = Math.max(0, MODE_SECONDS - Math.floor((elapsedMs||0)/1000));
+    const tb = calcTimeBonus(remainSec);
+    if (tb.bonus > 0) {
+      score += tb.bonus;
+      if (score > bestScore) { bestScore = score; saveBestScore(); }
+      updateScoreUI();
+    }
+    timeBonusText = `TIME LEFT ${formatMMSS(remainSec)}  ${tb.rank}  +${tb.bonus}`;
+  }
+
+
   // Stage clearの場合：NEXTの出し分け
   if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
     // Unlock NORMAL when Beginner B-5 cleared
@@ -606,6 +653,7 @@ function endGame(title,sub,withBee=false){
     try{ nextBtn.disabled = false; nextBtn.style.pointerEvents="auto"; }catch(e){}
     overlayTitle.textContent=title;
     overlaySub.textContent=sub;
+    if(overlayBonus){ overlayBonus.textContent = timeBonusText; overlayBonus.style.display = timeBonusText ? "block" : "none"; }
     overlay.classList.remove("hidden");
   };
   if(withBee){
@@ -647,7 +695,9 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
+      addScore(actually, false);
         progress += actually;
+        addScore(actually, true);
         if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
@@ -886,6 +936,51 @@ function formatMMSS(sec){
   const s=String(sec%60).padStart(2,"0");
   return `${m}:${s}`;
 }
+
+function updateScoreUI(){
+  if(scoreLabel) scoreLabel.textContent = `SCORE ${score}`;
+  if(bestLabel) bestLabel.textContent = `BEST ${bestScore}`;
+}
+function resetScoreForStage(){
+  score = 0;
+  combo = 0;
+  lastClearAtMs = 0;
+  loadBestScore();
+  updateScoreUI();
+}
+function addScore(lines, isBee=false){
+  if(lines<=0) return;
+  // Bee clears are rescue: no score (change to 0.5 if you want)
+  if(isBee) return;
+
+  const now = elapsedMs || 0;
+  // simple combo: within 3000ms counts
+  if(now - lastClearAtMs <= 3000){
+    combo = Math.min(combo + 1, 4);
+  }else{
+    combo = 1;
+  }
+  lastClearAtMs = now;
+
+  const base = baseScoreForLines(lines);
+  const comboBonusRate = [0, 0, 0.10, 0.20, 0.30]; // index=combo
+  const rate = comboBonusRate[combo] || 0;
+  const gained = Math.round(base * (1 + rate));
+  score += gained;
+  if(score > bestScore){
+    bestScore = score;
+    saveBestScore();
+  }
+  updateScoreUI();
+}
+function calcTimeBonus(remainSec){
+  // Rank bonus
+  if(remainSec >= 120) return {rank:"GOLD", bonus:3000};
+  if(remainSec >= 60)  return {rank:"SILVER", bonus:1500};
+  if(remainSec >= 1)   return {rank:"BRONZE", bonus:500};
+  return {rank:"NO BONUS", bonus:0};
+}
+
 function tickTime(dt){
   if(ending) return;
   elapsedMs+=dt;
@@ -993,6 +1088,7 @@ function loop(now){
 
 function start(){
   readStageFromURL();
+  resetScoreForStage();
   overlay.classList.add("hidden");
   if (nextBtn) nextBtn.style.display = "none";
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }

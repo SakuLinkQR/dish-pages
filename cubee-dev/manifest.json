@@ -1,13 +1,21 @@
 {
-  "name": "CuBee Drop DEV",
-  "short_name": "CuBeeDEV",
-  "start_url": "./index.html?dev=1",
-  "scope": "./",
+  "name": "CuBee Drop",
+  "short_name": "CuBeeDrop",
+  "start_url": "./index.html?v=1.6.38",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#f6f8ff",
+  "theme_color": "#f6f8ff",
   "icons": [
-    { "src": "./assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "./assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
-  ]
+    {
+      "src": "./assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "description": "Color Match Drop Puzzle with Bee Assist"
 }
