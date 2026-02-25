@@ -46,6 +46,10 @@ function findOneHoleRow(){
 // v1.2.1：クリア判定を「連続COMBO」から「累積CLEAR」に変更
 const COLS=10, ROWS=16;
 
+// Current falling piece
+let piece = null;
+let pieceSpawnY = 0;
+
 
 /* ===== Bee Assist Stable (v1.6.7) =====
    - No freeze / no path animation
@@ -56,7 +60,6 @@ const STB_ASSIST_BASE_CHANCE = 0.18;  // Stage1
 const STB_ASSIST_STAGE_BONUS = 0.03;
 const STB_ASSIST_MAX_PER_GAME = 3;
 let stbAssistUsed = 0;
-let stbAssistCooldownTurns = 0; // prevent too frequent bee assist
 
 function stbFindOneHoleRow(){
   for(let y=ROWS-1;y>=0;y--){
@@ -82,10 +85,10 @@ function getBeeAssistParams(){
   // Bee is a theme: early stages use bees as "reward" rather than rescue.
   if(stage===1) return { enabled:false, base:0, bonus:0, max:0 };
   if(stage===2) return { enabled:false, base:0, bonus:0, max:0 };
-  if(stage===3) return { enabled:true, base:0.03, bonus:0.00, max:1 };
-  if(stage===4) return { enabled:true, base:0.02, bonus:0.00, max:1 };
-  if(stage===5) return { enabled:true, base:0.02, bonus:0.00, max:1 };
-  return { enabled:true, base:0.03, bonus:0.00, max:1 };
+  if(stage===3) return { enabled:true, base:0.10, bonus:0.00, max:2 };
+  if(stage===4) return { enabled:true, base:0.08, bonus:0.00, max:2 };
+  if(stage===5) return { enabled:true, base:0.05, bonus:0.00, max:1 };
+  return { enabled:true, base:0.08, bonus:0.00, max:2 };
 }
 function maybeBeeAssist(){
   const cfg = getBeeAssistParams();
@@ -93,7 +96,6 @@ function maybeBeeAssist(){
 
   if(!STB_ENABLE_BEE_ASSIST) return false;
   if(stbAssistUsed >= cfg.max) return false;
-  if(stbAssistCooldownTurns > 0) return false;
 
   const cand = stbFindOneHoleRow();
   if(!cand) return false;
@@ -103,7 +105,6 @@ function maybeBeeAssist(){
 
   grid[cand.y][cand.xHole] = cand.color;
   stbAssistUsed++;
-  stbAssistCooldownTurns = 20;
 
   showToast("🐝 BEE HELP!");
   playClearBee();
@@ -142,6 +143,24 @@ function baseScoreForLines(n){
   if(n <= 4) return SCORE_TABLE[n] || 0;
   return 700 + (n-4)*200;
 }
+
+function getRunScoreKey(){
+  return `cubee_runscore_${mode}`; // session score until back to MENU
+}
+function loadRunScore(){
+  try{
+    const v = sessionStorage.getItem(getRunScoreKey());
+    const n = v ? Number(v) : 0;
+    return Number.isFinite(n) ? n : 0;
+  }catch(e){ return 0; }
+}
+function saveRunScore(){
+  try{ sessionStorage.setItem(getRunScoreKey(), String(score)); }catch(e){}
+}
+function clearRunScore(){
+  try{ sessionStorage.removeItem(getRunScoreKey()); }catch(e){}
+}
+
 function getBestKey(){
   return `cubee_best_${mode}`; // simple: best per mode
 }
@@ -251,6 +270,7 @@ const beeBtn=document.getElementById("beeBtn");
 const overlay=document.getElementById("overlay");
 const retryBtn=document.getElementById("retryBtn");
 const nextBtn=document.getElementById("nextBtn");
+const menuLink=document.getElementById("menuLink");
 const overlayTitle=document.getElementById("overlayTitle");
 const overlaySub=document.getElementById("overlaySub");
 const beeFly=document.getElementById("beeFly");
@@ -627,6 +647,7 @@ function endGame(title,sub,withBee=false){
     const tb = calcTimeBonus(remainSec);
     if (tb.bonus > 0) {
       score += tb.bonus;
+      saveRunScore();
       if (score > bestScore) { bestScore = score; saveBestScore(); }
       updateScoreUI();
     }
@@ -671,7 +692,6 @@ function endGame(title,sub,withBee=false){
 function lockPiece() {
   if (ending) return;
   if (mode === "normal" && beeCooldownTurns > 0) beeCooldownTurns--;
-  if (stbAssistCooldownTurns > 0) stbAssistCooldownTurns--;
 
   // ピースを盤面に固定
   const placed = cellsOfPiece(piece);
@@ -680,6 +700,20 @@ function lockPiece() {
   }
 
   // Normal mode: Green Larva may transform if sandwiched left/right on placement
+
+// --- Small score (1's digit) bonuses ---
+// +7 per placed piece, plus drop distance bonus (+1 per cell, max +12)
+const PLACEMENT_BONUS = 7;
+const DROP_BONUS_MAX = 12;
+try{
+  let drop = Math.max(0, (piece.y - (pieceSpawnY||0)));
+  drop = Math.min(drop, DROP_BONUS_MAX);
+  score += PLACEMENT_BONUS + drop;
+  saveRunScore();
+  if(score > bestScore){ bestScore = score; saveBestScore(); }
+  updateScoreUI();
+}catch(e){}
+
   applyLarvaTransforms(placed);
 
   // 1. 通常の消去判定
@@ -699,8 +733,9 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
-      addScore(actually, true);
+      addScore(actually, false);
         progress += actually;
+        addScore(actually, true);
         if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
@@ -729,6 +764,7 @@ if (cleared === 0) {
 
       // Next piece
       piece = spawnPiece();
+      pieceSpawnY = piece.y;
       if (collides(piece)) {
         endGame("DOWN…", "置けなくなりました");
         return;
@@ -753,8 +789,6 @@ if (cleared === 0) {
       // Stage1 (First) safety: don't let cascade add extra lines beyond the initial clear
       const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
-      // Score: add points only for normal clears (bee clears do not score)
-      addScore(addLines, false);
       const shownLines = addLines;
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
@@ -801,6 +835,7 @@ if (cleared === 0) {
       clearingUntil = 0;
 
       piece = spawnPiece();
+      pieceSpawnY = piece.y;
       if (collides(piece)) {
         endGame("DOWN…", "置けなくなりました");
         return;
@@ -815,6 +850,7 @@ if (cleared === 0) {
         clearingUntil = 0;
         try {
           piece = spawnPiece();
+      pieceSpawnY = piece.y;
           fallAccMs = 0;
         } catch (_) {}
         running = true;
@@ -825,6 +861,7 @@ if (cleared === 0) {
     clearStreak = 0;
     // 消去が全くなかった場合：次のピースへ
     piece = spawnPiece();
+      pieceSpawnY = piece.y;
     if (collides(piece)) {
       endGame("DOWN…", "置けなくなりました");
       return;
@@ -947,10 +984,23 @@ function updateScoreUI(){
   if(bestLabel) bestLabel.textContent = `BEST ${bestScore}`;
 }
 function resetScoreForStage(){
-  score = 0;
+  // combo resets per stage, but SCORE continues within the same MODE until MENU.
   combo = 0;
   lastClearAtMs = 0;
   loadBestScore();
+
+  if(mode === "time"){
+    // time trial: each run is standalone
+    score = 0;
+    clearRunScore();
+  }else if(stage === 1){
+    // new run for this mode
+    score = 0;
+    clearRunScore();
+  }else{
+    // continue within this mode
+    score = loadRunScore();
+  }
   updateScoreUI();
 }
 function addScore(lines, isBee=false){
@@ -972,6 +1022,7 @@ function addScore(lines, isBee=false){
   const rate = comboBonusRate[combo] || 0;
   const gained = Math.round(base * (1 + rate));
   score += gained;
+  saveRunScore();
   if(score > bestScore){
     bestScore = score;
     saveBestScore();
@@ -1046,6 +1097,14 @@ if (beeBtn){
   });
 }
 
+
+if(menuLink){
+  menuLink.addEventListener("click", () => {
+    // Clear run score for this mode when returning to menu
+    clearRunScore();
+  });
+}
+
 nextBtn.addEventListener("click",()=>{
   if(modalNavLocked) return;
   modalNavLocked = true;
@@ -1102,10 +1161,11 @@ function start(){
   grid=newGrid();
   rainbowUsed=false; rainbowPending=false;
   assistUsed = 0;
-  piece=spawnPiece();
+  piece = spawnPiece();
+      pieceSpawnY = piece.y;
   running=true; ending=false;
   elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/firstSpeedMul)); fallAccMs=0;
-  progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; stbAssistCooldownTurns=0; updateUI();
+  progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
     showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`));

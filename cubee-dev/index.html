@@ -30,10 +30,15 @@
         <a class="btn" href="./game.html?mode=first&stage=1">PLAY</a>
         <a class="btn ghost disabled" id="normalBtn" href="./game.html?mode=normal&stage=1" aria-disabled="true">NORMAL (Locked)</a>
         <button class="btn ghost" id="howtoBtn" type="button">HOW TO</button>
+        <a class="btn ghost" href="./game.html?mode=time&stage=1">TIME TRIAL (3:00)</a>
         <a class="btn ghost" href="./policy.html">POLICY</a>
       </div>
 
       <div class="menu-foot">
+        <div class="small" id="bestB">BEST (B): 0</div>
+        <div class="small" id="bestN">BEST (N): 0</div>
+        <div class="small" id="bestTT">BEST (TT): 0</div>
+
         <div class="small">© CuBee Drop Prototype</div>
         <div class="small">Version 1.6.77</div>
       </div>
@@ -75,6 +80,19 @@
         normalBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('NORMAL is locked. Clear First Stage (Stage 1-5) to unlock.'); });
       }
     }catch(e){}
-  </script>
+  
+    // --- BEST scores (per mode) ---
+    try{
+      const b = Number(localStorage.getItem("cubee_best_first")||0) || 0;
+      const n = Number(localStorage.getItem("cubee_best_normal")||0) || 0;
+      const t = Number(localStorage.getItem("cubee_best_time")||0) || 0;
+      const elB=document.getElementById('bestB');
+      const elN=document.getElementById('bestN');
+      const elT=document.getElementById('bestTT');
+      if(elB) elB.textContent = `BEST (B): ${b}`;
+      if(elN) elN.textContent = `BEST (N): ${n}`;
+      if(elT) elT.textContent = `BEST (TT): ${t}`;
+    }catch(e){}
+</script>
 </body>
 </html>
