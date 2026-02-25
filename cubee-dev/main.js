@@ -140,7 +140,10 @@ function baseScoreForLines(n){
   return 700 + (n-4)*200;
 }
 function getBestKey(){
-  return `cubee_best_${mode}`; // simple: best per mode
+  // Best score per mode (stable keys)
+  if(mode === "normal") return "cubee_best_normal";
+  if(mode === "time") return "cubee_best_time";
+  return "cubee_best_first";
 }
 function loadBestScore(){
   try{
@@ -631,6 +634,15 @@ function endGame(title,sub,withBee=false){
   }
 
 
+
+
+  // Ensure BEST is updated for this mode (B/N/TT)
+  if (score > bestScore) {
+    bestScore = score;
+    saveBestScore();
+    updateScoreUI();
+  }
+
   // Stage clearの場合：NEXTの出し分け
   if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
     // Unlock NORMAL when Beginner B-5 cleared
@@ -678,12 +690,6 @@ function lockPiece() {
   // Normal mode: Green Larva may transform if sandwiched left/right on placement
   applyLarvaTransforms(placed);
 
-  // Score: small placement bonuses to make the last digit feel alive
-  // +7 per locked piece, plus +1 per drop cell (max +12). This does NOT affect clear/progress logic.
-  const dropDist = Math.max(0, (piece && typeof piece.y === 'number' ? piece.y : 0) - (piece && typeof piece.spawnY === 'number' ? piece.spawnY : 0));
-  score += 7 + Math.min(12, dropDist);
-  updateScoreUI();
-
   // 1. 通常の消去判定
   let rows = getClearableRows();
   let cleared = rows.length;
@@ -701,8 +707,8 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
+      addScore(actually, false);
         progress += actually;
-        // Bee assist clears are treated as rescue: no score gain.
         addScore(actually, true);
         if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
@@ -1094,8 +1100,7 @@ function loop(now){
 
 function start(){
   readStageFromURL();
-  // Reset score only when starting a new run (stage 1). Keep score across stages within the same mode.
-  if (stage === 1) resetScoreForStage();
+  resetScoreForStage();
   overlay.classList.add("hidden");
   if (nextBtn) nextBtn.style.display = "none";
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }
