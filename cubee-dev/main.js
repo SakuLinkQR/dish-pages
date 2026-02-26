@@ -290,8 +290,8 @@ window.addEventListener("error", (ev) => {
   try {
     const msg = ev && ev.message ? ev.message : String(ev);
     console.error("GLOBAL ERROR:", msg, ev && ev.error ? ev.error : "");
-    // Store as last error (visible in debugStatus if enabled)
-    try{ window.__lastErr = msg; }catch(_){}
+    // Show as toast so it's visible without console
+    showToast(`ERR: ${msg}`);
     // Prevent stuck state: allow loop to keep running and user can retry
     running = false;
     ending = false;
@@ -587,7 +587,7 @@ function applyLarvaTransforms(placedCells){
 function isClearColor(v){
   // Only finite numeric colors can participate in normal line clear.
   // Treat null/undefined/NaN/strings as empty or invalid.
-  return (typeof v === "number") && Number.isFinite(v) && v !== LARVA_COLOR;
+  return (typeof v === "number") && Number.isFinite(v) && (mode !== "normal" || v !== LARVA_COLOR);
 }
 function isRowClearableStrict(y){
   const row = grid[y];
@@ -840,7 +840,6 @@ const shownLines = addLines;
     
       } catch (e) {
         console.error(e);
-        // Store the error for debugging, but avoid flashing "ERROR" to players
         try{ window.__lastErr = (e && e.message) ? e.message : String(e); }catch(_){}
         // Fail-safe: resume the game even if something went wrong during clear handling
         clearingRows = null;
@@ -1174,23 +1173,9 @@ function start(){
   last=performance.now();
 }
 
-// ---- Boot ----
-function __bootStart(){
-  try{ start(); }catch(e){
-    console.error(e);
-    try{ window.__lastErr = (e && e.message) ? e.message : String(e); }catch(_){} 
-    try{ showToast('ERR: '+(e&&e.message?e.message:e)); }catch(_){} 
-  }
-  requestAnimationFrame(loop);
-}
+try{ start(); }catch(e){ console.error(e); try{ showToast('ERR: '+(e&&e.message?e.message:e)); }catch(_){} }
+requestAnimationFrame(loop);
 
 // Capture JS errors (iOS Safari often fails silently)
 window.__lastErr = "";
 window.addEventListener('error', (e)=>{ try{ window.__lastErr = e.message || String(e.error||e); }catch(_){} });
-
-// Ensure DOM is ready before starting (prevents "no cube falling" when elements are not yet in the page)
-if(document.readyState === "loading"){
-  document.addEventListener("DOMContentLoaded", __bootStart, { once:true });
-}else{
-  __bootStart();
-}
