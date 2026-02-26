@@ -297,3 +297,22 @@ html, body{
 .coming-soon:hover{
   opacity: 0.85;
 }
+
+
+/* ===== menuPage scroll override (iPhone/PWA friendly) ===== */
+html, body.menuPage{
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+body.menuPage .background,
+body.menuPage .center-wrap,
+body.menuPage .card{
+  height: auto !important;
+  max-height: none !important;
+}
+body.menuPage .coming-soon{ opacity: 0.6; }
+body.menuPage .coming-soon:active{ opacity: 0.85; }

@@ -10,7 +10,7 @@
   <link rel="icon" href="./assets/icons/icon-32.png" sizes="32x32" />
   <link rel="stylesheet" href="./style.css?v=1.6.78" />
 </head>
-<body>
+<body class="menuPage">
   <div id="devBadge">DEV</div>
 
   <header class="topbar">
@@ -31,7 +31,9 @@
         <a class="btn" href="./game.html?mode=first&stage=1">PLAY</a>
         <a class="btn ghost disabled" id="normalBtn" href="./game.html?mode=normal&stage=1" aria-disabled="true">NORMAL (Locked)</a>
         <button class="btn ghost" id="howtoBtn" type="button">HOW TO</button>
-      </div>
+    <a class="menu-btn coming-soon" id="advancedBtn" href="javascript:void(0)">ADVANCED</a>
+    <a class="menu-btn coming-soon" id="expertBtn" href="javascript:void(0)">EXPERT</a>
+</div>
 
       <div class="bestPanel">
         <div class="bestBig">BEST (B): <span id="bestB">0</span></div>
@@ -128,5 +130,23 @@
       const elT = document.getElementById('bestTT'); if(elT) elT.textContent = String(t);
     }catch(e){}
   </script>
+
+  <script>
+    // Coming soon handlers
+    (function(){
+      const a=document.getElementById('advancedBtn');
+      const e=document.getElementById('expertBtn');
+      const toast=document.getElementById('toast');
+      function showToast(msg){
+        if(!toast) return;
+        toast.textContent=msg;
+        toast.classList.remove('hidden');
+        setTimeout(()=>toast.classList.add('hidden'), 1200);
+      }
+      if(a) a.addEventListener('click', ()=>showToast('COMING SOON'));
+      if(e) e.addEventListener('click', ()=>showToast('COMING SOON'));
+    })();
+  </script>
+
 </body>
 </html>
