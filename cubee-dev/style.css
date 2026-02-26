@@ -266,10 +266,25 @@ html[lang="ja"] .en{display:none !important;}
 html:not([lang="ja"]) .ja{display:none !important;}
 
 
-/* Coming soon buttons */
-.coming-soon{
-  opacity: 0.6;
+/* ===== iOS scroll fix (menu page) =====
+   Some iPhone/PWA setups end up with body locked (overflow:hidden) by earlier styles.
+   These overrides ensure the page can scroll when content is taller than the viewport.
+*/
+html, body{
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
 }
-.coming-soon:hover{
-  opacity: 0.85;
+
+/* If any wrapper is forcing fixed viewport height, relax it */
+#app, .app, .wrap, .container, .root{
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+/* If the page uses fixed positioning on a main panel, allow it to size naturally */
+.panel, .menu-panel, .card{
+  position: relative !important;
 }
