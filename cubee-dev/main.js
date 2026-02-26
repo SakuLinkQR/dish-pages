@@ -290,8 +290,8 @@ window.addEventListener("error", (ev) => {
   try {
     const msg = ev && ev.message ? ev.message : String(ev);
     console.error("GLOBAL ERROR:", msg, ev && ev.error ? ev.error : "");
-    // Show as toast so it's visible without console
-    showToast(`ERR: ${msg}`);
+    // Store as last error (visible in debugStatus if enabled)
+    try{ window.__lastErr = msg; }catch(_){}
     // Prevent stuck state: allow loop to keep running and user can retry
     running = false;
     ending = false;
@@ -585,10 +585,9 @@ function applyLarvaTransforms(placedCells){
 }
 
 function isClearColor(v){
-  // Only finite numeric colors can participate in line clear.
-  // Normal mode uses Green Larva (LARVA_COLOR) which must NOT count as a clearable color.
-  // In First/Time modes, allow all numeric colors (including 2 used by rainbow piece).
-  return (typeof v === "number") && Number.isFinite(v) && (mode !== "normal" || v !== LARVA_COLOR);
+  // Only finite numeric colors can participate in normal line clear.
+  // Treat null/undefined/NaN/strings as empty or invalid.
+  return (typeof v === "number") && Number.isFinite(v) && v !== LARVA_COLOR;
 }
 function isRowClearableStrict(y){
   const row = grid[y];
@@ -841,7 +840,8 @@ const shownLines = addLines;
     
       } catch (e) {
         console.error(e);
-        showToast("ERROR");
+        // Store the error for debugging, but avoid flashing "ERROR" to players
+        try{ window.__lastErr = (e && e.message) ? e.message : String(e); }catch(_){}
         // Fail-safe: resume the game even if something went wrong during clear handling
         clearingRows = null;
         clearingUntil = 0;
