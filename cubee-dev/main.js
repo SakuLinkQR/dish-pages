@@ -1042,10 +1042,6 @@ function calcTimeBonus(remainSec){
   const extra = Math.floor(remainSec / 10) * 10;
 
   return { rank: base.rank, bonus: base.bonus + extra, extra };
-};
-  if(remainSec >= 60)  return {rank:"SILVER", bonus:1500};
-  if(remainSec >= 1)   return {rank:"BRONZE", bonus:500};
-  return {rank:"NO BONUS", bonus:0};
 }
 
 function tickTime(dt){
