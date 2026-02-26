@@ -288,3 +288,12 @@ html, body{
 .panel, .menu-panel, .card{
   position: relative !important;
 }
+
+
+/* Coming soon buttons */
+.coming-soon{
+  opacity: 0.6;
+}
+.coming-soon:hover{
+  opacity: 0.85;
+}
