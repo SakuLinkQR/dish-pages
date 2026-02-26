@@ -756,10 +756,10 @@ if (cleared === 0) {
           clearingRows = null; clearingUntil = 0;
           draw();
           // Call endGame immediately (avoid rare rAF scheduling issues on iOS)
-          endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} 達成！`, !(mode==="first" && stage===1));
+          endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} CLEAR!`, !(mode==="first" && stage===1));
           return;
         } else if (shownLines === 1 && progress === GOAL_CLEAR - 1) {
-          showToast(`🐝 +${actually}（あと1！🔥）`);
+          showToast(`🐝 +${actually}（1 more!🔥）`);
         } else {
           showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
         }
@@ -819,12 +819,12 @@ const shownLines = addLines;
         draw();
         // Stage1 should not play bee clear anim; others can
         const withBee = !(mode === "first" && stage === 1);
-        endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} 達成！`, withBee);
+        endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} CLEAR!`, withBee);
         return;
       } else {
         const honeyPrefix = beeHelpedThisTurn ? "🐝 " : "";
         if (shownLines === 1 && progress === GOAL_CLEAR - 1) {
-          showToast(`${honeyPrefix}+${shownLines}（あと1！🔥）`);
+          showToast(`${honeyPrefix}+${shownLines}（1 more!🔥）`);
         } else {
           const combo = lastCascadePasses > 1;
       if (combo && shownLines >= 2) {

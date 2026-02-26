@@ -264,3 +264,12 @@ body{ overflow-y: auto; }
 /* Language helpers */
 html[lang="ja"] .en{display:none !important;}
 html:not([lang="ja"]) .ja{display:none !important;}
+
+
+/* Coming soon buttons */
+.coming-soon{
+  opacity: 0.6;
+}
+.coming-soon:hover{
+  opacity: 0.85;
+}
