@@ -118,29 +118,16 @@ let GOAL_CLEAR = 3; // stage-dependent
 
 // Beginner speed tiers (every 5 stages) up to 2.00x
 const FIRST_SPEED_STEPS = [1.00, 1.25, 1.50, 1.75, 2.00];
-const NORMAL_SPEED_STEPS = [1.00, 1.30, 1.60, 2.00];
-let firstSpeedTier = 0;
 let firstSpeedMul = 1.00;
-let normalSpeedTier = 0;
-let normalSpeedMul = 1.00;
+let firstSpeedTier = 0;
 
 // ====== Stage System (First Stage + Normal) ======
 // First Stage: Stage 1..5 with clear goals 3..7
 // Normal: separate mode (more mechanics) - currently Stage 1 only
 const STAGE_GOALS_FIRST = [3,4,5,6,7];
-const STAGE_GOALS_NORMAL = [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]; // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
+const STAGE_GOALS_NORMAL = [5,6,7,8,9]; // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
 let mode = "first"; // "first" | "normal" | "time"
 let stage = 1;
-// ====== Stage Navigation ======
-function hasNextStage(){
-  // Beginner: endless (B-1, B-2, ...).
-  // Normal: up to N-20.
-  // Time Trial: single run (no NEXT).
-  if(mode === "time") return false;
-  if(mode === "normal") return stage < 20;
-  return true; // mode === "first"
-}
-
 // ====== Score System ======
 let score = 0;
 let bestScore = 0;
@@ -153,11 +140,7 @@ function baseScoreForLines(n){
   return 700 + (n-4)*200;
 }
 function getBestKey(){
-  // Stable per-mode BEST keys (do not change once released)
-  if(mode === "first") return "cubee_best_first";
-  if(mode === "normal") return "cubee_best_normal";
-  if(mode === "time") return "cubee_best_time";
-  return "cubee_best_first";
+  return `cubee_best_${mode}`; // simple: best per mode
 }
 function loadBestScore(){
   try{
@@ -168,24 +151,6 @@ function loadBestScore(){
 }
 function saveBestScore(){
   try{ localStorage.setItem(getBestKey(), String(bestScore)); }catch(e){}
-}
-
-// ====== Run Score (carry across stages until returning to menu) ======
-function getRunKey(){
-  if(mode === "first") return "cubee_run_first";
-  if(mode === "normal") return "cubee_run_normal";
-  if(mode === "time") return "cubee_run_time";
-  return "cubee_run_first";
-}
-function loadRunScore(){
-  try{
-    const v = localStorage.getItem(getRunKey());
-    const s = v ? Number(v) : 0;
-    return Number.isFinite(s) ? s : 0;
-  }catch(e){ return 0; }
-}
-function saveRunScore(){
-  try{ localStorage.setItem(getRunKey(), String(score)); }catch(e){}
 }
 
 
@@ -217,41 +182,34 @@ function readStageFromURL(){
   if (typeof level !== "undefined") level = stage;
 
   if(mode === "first"){
-    const len = STAGE_GOALS_FIRST.length; // 5
-    const idx = ((stage - 1) % len + len) % len;
-    GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
 
-    // Beginner speed tier increases every 5 stages, capped (B-1..B-5, B-6..B-10, ...)
-    firstSpeedTier = Math.min(FIRST_SPEED_STEPS.length-1, Math.floor((stage - 1) / len));
-    firstSpeedMul = FIRST_SPEED_STEPS[firstSpeedTier] ?? 1.00;
-
-    normalSpeedTier = 0;
-    normalSpeedMul = 1.00;
-    return;
-  }
-
-  if(mode === "time"){
     const len = STAGE_GOALS_FIRST.length;
     const idx = ((stage - 1) % len + len) % len;
     GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
 
-    // Time Trial uses stable speed (no surprise speed-ups)
+    // speed tier increases every 5 stages, capped
+    firstSpeedTier = Math.min(FIRST_SPEED_STEPS.length-1, Math.floor((stage - 1) / len));
+    firstSpeedMul = FIRST_SPEED_STEPS[firstSpeedTier] ?? 1.00;
+  } else if(mode === "time"){
+    const len = STAGE_GOALS_FIRST.length;
+    const idx = ((stage - 1) % len + len) % len;
+    GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
+    // Time Trial uses a stable speed tier (no surprise speed-ups)
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
-    normalSpeedTier = 0;
-    normalSpeedMul = 1.00;
-    return;
+  } else {
+    const goals = STAGE_GOALS_NORMAL;
+    GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
+    firstSpeedTier = 0;
+    firstSpeedMul = 1.00;
   }
+}
 
-  // Normal mode (N-1..N-20)
+
+function hasNextStage(){
+  if(mode === "first") return true; // endless (B-6, B-7, ...)
   const goals = STAGE_GOALS_NORMAL;
-  GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
-
-  normalSpeedTier = Math.min(NORMAL_SPEED_STEPS.length-1, Math.floor((stage - 1) / 5));
-  normalSpeedMul = NORMAL_SPEED_STEPS[normalSpeedTier] ?? 1.00;
-
-  firstSpeedTier = 0;
-  firstSpeedMul = 1.00;
+  return stage < goals.length;
 }
 
 
@@ -597,7 +555,7 @@ function applyLarvaTransforms(placedCells){
 function isClearColor(v){
   // Only finite numeric colors can participate in normal line clear.
   // Treat null/undefined/NaN/strings as empty or invalid.
-  return (typeof v === "number") && Number.isFinite(v) && (mode !== "normal" || v !== LARVA_COLOR);
+  return (typeof v === "number") && Number.isFinite(v) && v !== LARVA_COLOR;
 }
 function isRowClearableStrict(y){
   const row = grid[y];
@@ -664,15 +622,12 @@ function endGame(title,sub,withBee=false){
   if ((title === "CLEAR!" || String(title).startsWith("CLEAR")) && mode === "time") {
     const remainSec = Math.max(0, MODE_SECONDS - Math.floor((elapsedMs||0)/1000));
     const tb = calcTimeBonus(remainSec);
-    // Show time bonus breakdown
-    timeBonusText = `TIME LEFT: ${remainSec}s  ${tb.rank} +${tb.bonus}` + (tb.extra ? ` (extra +${tb.extra})` : ``);
     if (tb.bonus > 0) {
       score += tb.bonus;
       if (score > bestScore) { bestScore = score; saveBestScore(); }
       updateScoreUI();
-      saveRunScore();
     }
-    timeBonusText = `TIME LEFT ${formatMMSS(remainSec)}  ${tb.rank}  +${tb.bonus}`;
+    timeBonusText = `TIME LEFT ${formatMMSS(remainSec)}  ${tb.rank}  +${tb.bonus}` + (tb.extra ? ` (extra +${tb.extra})` : ``);
   }
 
 
@@ -680,17 +635,19 @@ function endGame(title,sub,withBee=false){
   if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
     // Unlock NORMAL when Beginner B-5 cleared
     try{ if(mode==="first" && stage===STAGE_GOALS_FIRST.length){ localStorage.setItem("firstStageCleared","1"); } }catch(e){}
-    const hn = (typeof hasNextStage === "function") ? hasNextStage() : true;
-    if (hn) {
-      if(nextBtn){ nextBtn.style.display = ""; nextBtn.textContent = "NEXT"; }
+    if (hasNextStage()) {
+      nextBtn.style.display = "";
+      nextBtn.textContent = "NEXT";
     } else {
-      if(nextBtn){ nextBtn.style.display = ""; nextBtn.textContent = "PLAY AGAIN"; }
+      nextBtn.style.display = "";
+      nextBtn.textContent = "PLAY AGAIN";
       try{ if(mode==="first") localStorage.setItem("firstStageCleared","1"); }catch(e){}
     }
   } else {
-    if(nextBtn) nextBtn.style.display = "none";
+    nextBtn.style.display = "none";
   }
-const show=()=>{
+
+  const show=()=>{
     modalNavLocked = false;
     try{ retryBtn.disabled = false; retryBtn.style.pointerEvents="auto"; }catch(e){}
     try{ nextBtn.disabled = false; nextBtn.style.pointerEvents="auto"; }catch(e){}
@@ -738,11 +695,9 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
-      // addScore(actually, false); // disabled: bee assist should not score
-      addScore(actually, true);
+      addScore(actually, false);
         progress += actually;
-        // addScore(actually, true); // already called (no score)
-
+        addScore(actually, true);
         if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
@@ -758,10 +713,10 @@ if (cleared === 0) {
           clearingRows = null; clearingUntil = 0;
           draw();
           // Call endGame immediately (avoid rare rAF scheduling issues on iOS)
-          endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} CLEAR!`, !(mode==="first" && stage===1));
+          endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} 達成！`, !(mode==="first" && stage===1));
           return;
         } else if (shownLines === 1 && progress === GOAL_CLEAR - 1) {
-          showToast(`🐝 +${actually}（1 more!🔥）`);
+          showToast(`🐝 +${actually}（あと1！🔥）`);
         } else {
           showToast(actually >= 2 ? `🐝 +${actually} NICE!` : "🐝 +1");
         }
@@ -795,8 +750,7 @@ if (cleared === 0) {
       // Stage1 (First) safety: don't let cascade add extra lines beyond the initial clear
       const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
-            addScore(addLines, false);
-const shownLines = addLines;
+      const shownLines = addLines;
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
       if (actually > 0) clearStreak++; else clearStreak = 0;
@@ -821,12 +775,12 @@ const shownLines = addLines;
         draw();
         // Stage1 should not play bee clear anim; others can
         const withBee = !(mode === "first" && stage === 1);
-        endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} CLEAR!`, withBee);
+        endGame("CLEAR!", `Stage ${stage} CLEAR ${Math.min(progress,GOAL_CLEAR)}/${GOAL_CLEAR} 達成！`, withBee);
         return;
       } else {
         const honeyPrefix = beeHelpedThisTurn ? "🐝 " : "";
         if (shownLines === 1 && progress === GOAL_CLEAR - 1) {
-          showToast(`${honeyPrefix}+${shownLines}（1 more!🔥）`);
+          showToast(`${honeyPrefix}+${shownLines}（あと1！🔥）`);
         } else {
           const combo = lastCascadePasses > 1;
       if (combo && shownLines >= 2) {
@@ -850,7 +804,7 @@ const shownLines = addLines;
     
       } catch (e) {
         console.error(e);
-        try{ window.__lastErr = (e && e.message) ? e.message : String(e); }catch(_){}
+        showToast("ERROR");
         // Fail-safe: resume the game even if something went wrong during clear handling
         clearingRows = null;
         clearingUntil = 0;
@@ -987,21 +941,12 @@ function updateScoreUI(){
   if(scoreLabel) scoreLabel.textContent = `SCORE ${score}`;
   if(bestLabel) bestLabel.textContent = `BEST ${bestScore}`;
 }
-function resetScoreForStage(isNewRun=false){
-  // isNewRun=true when starting a fresh run (B-1 / N-1 / Time Trial start)
-  if(isNewRun){
-    score = 0;
-    try{ saveRunScore(); }catch(e){}
-  }else{
-    // carry from previous stage within the same run
-    score = loadRunScore();
-  }
+function resetScoreForStage(){
+  score = 0;
   combo = 0;
   lastClearAtMs = 0;
   loadBestScore();
   updateScoreUI();
-  // persist run score so it carries to the next stage within the same mode
-  saveRunScore();
 }
 function addScore(lines, isBee=false){
   if(lines<=0) return;
@@ -1027,8 +972,6 @@ function addScore(lines, isBee=false){
     saveBestScore();
   }
   updateScoreUI();
-  // persist run score so it carries to the next stage within the same mode
-  saveRunScore();
 }
 function calcTimeBonus(remainSec){
   // Rank bonus
@@ -1053,12 +996,9 @@ function tickTime(dt){
   if(newLevel!==level){
     level=newLevel;
     levelLabel.textContent=`Lv ${level}`;
-    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul:(mode==="normal"? normalSpeedMul:1.0))));
-  
-  // Safety: if speed multiplier becomes invalid, keep the game falling
-  if(!Number.isFinite(fallIntervalMs) || fallIntervalMs<1){ fallIntervalMs = FALL_START_MS; }
-}
-  if(remain<=0) endGame("DOWN…",`${lang==="ja"?"時間切れ":"TIME UP"} (Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR})`);
+    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul:1.0)));
+  }
+  if(remain<=0) endGame("DOWN…",`時間切れ（Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR}）`);
 }
 
 // Keyboard
@@ -1135,8 +1075,6 @@ nextBtn.addEventListener("click",()=>{
 let last=performance.now();
 function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
-  // Safety: prevent NaN interval from stopping falling
-  if(!Number.isFinite(fallIntervalMs) || fallIntervalMs<1){ fallIntervalMs = FALL_START_MS; }
   if(running && !ending){
     tickTime(dt);
     tickBeeCarry();
@@ -1155,36 +1093,30 @@ function loop(now){
 }
 
 function start(){
-  try{ readStageFromURL(); }catch(e){ console.error('readStageFromURL',e); }
-  try{ resetScoreForStage((mode==="time") || stage===1); }catch(e){ console.error('resetScoreForStage',e); }
-  try{ if(overlay) overlay.classList.add("hidden"); }catch(e){ console.error('overlay',e); }
+  readStageFromURL();
+  resetScoreForStage();
+  overlay.classList.add("hidden");
   if (nextBtn) nextBtn.style.display = "none";
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }
   if(toastTimerId){ clearTimeout(toastTimerId); toastTimerId=null; }
-  try{ if(toast) toast.classList.add("hidden"); if(beeFly) beeFly.classList.add("hidden"); }catch(e){ console.error('toast/beeFly',e); }
+  toast.classList.add("hidden"); beeFly.classList.add("hidden");
   grid=newGrid();
   rainbowUsed=false; rainbowPending=false;
   assistUsed = 0;
-  try{ piece=spawnPiece(); }catch(e){ console.error('spawnPiece',e); piece=null; }
-  if(!piece){ try{ piece=spawnPiece(); }catch(e){} }
+  piece=spawnPiece();
   running=true; ending=false;
-  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/(mode==="first"? firstSpeedMul:(mode==="normal"? normalSpeedMul:1.0)))); fallAccMs=0;
-  progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; try{ updateUI(); }catch(e){ console.error('updateUI',e); }
+  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/firstSpeedMul)); fallAccMs=0;
+  progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
-    showToast(`SPEED UP! ×${firstSpeedMul.toFixed(2)}`);
-  }
-  // Normal speed-up toast (Stage 6/11/16)
-  if(mode==="normal" && normalSpeedTier>0 && ((stage-1)%5)===0){
-    showToast(`SPEED UP! ×${normalSpeedMul.toFixed(2)}`);
+    showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`));
   }
   if(debugClear) debugClear.textContent = "+0";
   beeMark = null;
   clearingRows = null;
   clearingUntil = 0;
   beeHelpedThisTurn = false;
-  try{ if(timeLabel) timeLabel.textContent="03:00"; }catch(e){}
-  try{ if(levelLabel) levelLabel.textContent = `${mode === "normal" ? "N" : "Lv"} ${stage}`; }catch(e){}
+  timeLabel.textContent="03:00"; levelLabel.textContent = `${mode === "normal" ? "N" : "Lv"} ${stage}`;
     draw();
   last=performance.now();
 }
