@@ -585,9 +585,10 @@ function applyLarvaTransforms(placedCells){
 }
 
 function isClearColor(v){
-  // Only finite numeric colors can participate in normal line clear.
-  // Treat null/undefined/NaN/strings as empty or invalid.
-  return (typeof v === "number") && Number.isFinite(v) && v !== LARVA_COLOR;
+  // Only finite numeric colors can participate in line clear.
+  // Normal mode uses Green Larva (LARVA_COLOR) which must NOT count as a clearable color.
+  // In First/Time modes, allow all numeric colors (including 2 used by rainbow piece).
+  return (typeof v === "number") && Number.isFinite(v) && (mode !== "normal" || v !== LARVA_COLOR);
 }
 function isRowClearableStrict(y){
   const row = grid[y];
