@@ -316,3 +316,56 @@ body.menuPage .card{
 }
 body.menuPage .coming-soon{ opacity: 0.6; }
 body.menuPage .coming-soon:active{ opacity: 0.85; }
+
+
+/* ===== Strong iOS scroll fix (menu page) ===== */
+html{
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+body.menuPage{
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* If a fixed background layer is blocking touches, disable pointer events */
+body.menuPage .background{
+  pointer-events: none !important;
+}
+
+/* If some wrapper forces viewport height, relax it */
+body.menuPage .center-wrap,
+body.menuPage .wrap,
+body.menuPage .container,
+body.menuPage .card,
+body.menuPage .panel{
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* ===== Ensure anchor buttons look like buttons ===== */
+.menu-buttons a.menu-btn,
+.menuButtons a.menu-btn,
+a.menu-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
+}
+
+a.menu-btn:visited{ color: inherit; }
+a.menu-btn:hover{ text-decoration: none !important; }
+
+/* Coming soon buttons (still clickable, but looks disabled) */
+a.menu-btn.coming-soon{
+  opacity: 0.65;
+}
