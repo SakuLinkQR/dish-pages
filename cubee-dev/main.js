@@ -664,6 +664,8 @@ function endGame(title,sub,withBee=false){
   if ((title === "CLEAR!" || String(title).startsWith("CLEAR")) && mode === "time") {
     const remainSec = Math.max(0, MODE_SECONDS - Math.floor((elapsedMs||0)/1000));
     const tb = calcTimeBonus(remainSec);
+    // Show time bonus breakdown
+    timeBonusText = `TIME LEFT: ${remainSec}s  ${tb.rank} +${tb.bonus}` + (tb.extra ? ` (extra +${tb.extra})` : ``);
     if (tb.bonus > 0) {
       score += tb.bonus;
       if (score > bestScore) { bestScore = score; saveBestScore(); }
@@ -1030,7 +1032,17 @@ function addScore(lines, isBee=false){
 }
 function calcTimeBonus(remainSec){
   // Rank bonus
-  if(remainSec >= 120) return {rank:"GOLD", bonus:3000};
+  let base;
+  if(remainSec >= 120) base = {rank:"GOLD", bonus:3000};
+  else if(remainSec >= 60) base = {rank:"SILVER", bonus:1500};
+  else if(remainSec >= 1) base = {rank:"BRONZE", bonus:500};
+  else base = {rank:"NO BONUS", bonus:0};
+
+  // Extra time bonus: +10 points per 10 seconds left (e.g. 82s -> +80)
+  const extra = Math.floor(remainSec / 10) * 10;
+
+  return { rank: base.rank, bonus: base.bonus + extra, extra };
+};
   if(remainSec >= 60)  return {rank:"SILVER", bonus:1500};
   if(remainSec >= 1)   return {rank:"BRONZE", bonus:500};
   return {rank:"NO BONUS", bonus:0};
