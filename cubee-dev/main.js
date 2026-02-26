@@ -131,6 +131,16 @@ const STAGE_GOALS_FIRST = [3,4,5,6,7];
 const STAGE_GOALS_NORMAL = [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]; // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
 let mode = "first"; // "first" | "normal" | "time"
 let stage = 1;
+// ====== Stage Navigation ======
+function hasNextStage(){
+  // Beginner: endless (B-1, B-2, ...).
+  // Normal: up to N-20.
+  // Time Trial: single run (no NEXT).
+  if(mode === "time") return false;
+  if(mode === "normal") return stage < 20;
+  return true; // mode === "first"
+}
+
 // ====== Score System ======
 let score = 0;
 let bestScore = 0;
@@ -668,19 +678,17 @@ function endGame(title,sub,withBee=false){
   if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
     // Unlock NORMAL when Beginner B-5 cleared
     try{ if(mode==="first" && stage===STAGE_GOALS_FIRST.length){ localStorage.setItem("firstStageCleared","1"); } }catch(e){}
-    if (hasNextStage()) {
-      nextBtn.style.display = "";
-      nextBtn.textContent = "NEXT";
+    const hn = (typeof hasNextStage === "function") ? hasNextStage() : true;
+    if (hn) {
+      if(nextBtn){ nextBtn.style.display = ""; nextBtn.textContent = "NEXT"; }
     } else {
-      nextBtn.style.display = "";
-      nextBtn.textContent = "PLAY AGAIN";
+      if(nextBtn){ nextBtn.style.display = ""; nextBtn.textContent = "PLAY AGAIN"; }
       try{ if(mode==="first") localStorage.setItem("firstStageCleared","1"); }catch(e){}
     }
   } else {
-    nextBtn.style.display = "none";
+    if(nextBtn) nextBtn.style.display = "none";
   }
-
-  const show=()=>{
+const show=()=>{
     modalNavLocked = false;
     try{ retryBtn.disabled = false; retryBtn.style.pointerEvents="auto"; }catch(e){}
     try{ nextBtn.disabled = false; nextBtn.style.pointerEvents="auto"; }catch(e){}
