@@ -259,3 +259,8 @@ body{ overflow-y: auto; }
   opacity: 0.75;
 }
 .legalLinks a{ text-decoration: none; }
+
+
+/* Language helpers */
+html[lang="ja"] .en{display:none !important;}
+html:not([lang="ja"]) .ja{display:none !important;}

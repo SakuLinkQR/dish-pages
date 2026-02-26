@@ -118,14 +118,19 @@ let GOAL_CLEAR = 3; // stage-dependent
 
 // Beginner speed tiers (every 5 stages) up to 2.00x
 const FIRST_SPEED_STEPS = [1.00, 1.25, 1.50, 1.75, 2.00];
+const NORMAL_SPEED_STEPS = [1.00, 1.30, 1.60, 2.00];
 let firstSpeedMul = 1.00;
+    normalSpeedTier = 0;
+    normalSpeedMul = 1.00;
 let firstSpeedTier = 0;
+let normalSpeedMul = 1.00;
+let normalSpeedTier = 0;
 
 // ====== Stage System (First Stage + Normal) ======
 // First Stage: Stage 1..5 with clear goals 3..7
 // Normal: separate mode (more mechanics) - currently Stage 1 only
 const STAGE_GOALS_FIRST = [3,4,5,6,7];
-const STAGE_GOALS_NORMAL = [5,6,7,8,9]; // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
+const STAGE_GOALS_NORMAL = [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]; // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
 let mode = "first"; // "first" | "normal" | "time"
 let stage = 1;
 // ====== Score System ======
@@ -204,34 +209,41 @@ function readStageFromURL(){
   if (typeof level !== "undefined") level = stage;
 
   if(mode === "first"){
-
-    const len = STAGE_GOALS_FIRST.length;
+    const len = STAGE_GOALS_FIRST.length; // 5
     const idx = ((stage - 1) % len + len) % len;
     GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
 
-    // speed tier increases every 5 stages, capped
+    // Beginner speed tier increases every 5 stages, capped (B-1..B-5, B-6..B-10, ...)
     firstSpeedTier = Math.min(FIRST_SPEED_STEPS.length-1, Math.floor((stage - 1) / len));
     firstSpeedMul = FIRST_SPEED_STEPS[firstSpeedTier] ?? 1.00;
-  } else if(mode === "time"){
+
+    normalSpeedTier = 0;
+    normalSpeedMul = 1.00;
+    return;
+  }
+
+  if(mode === "time"){
     const len = STAGE_GOALS_FIRST.length;
     const idx = ((stage - 1) % len + len) % len;
     GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
-    // Time Trial uses a stable speed tier (no surprise speed-ups)
+
+    // Time Trial uses stable speed (no surprise speed-ups)
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
-  } else {
-    const goals = STAGE_GOALS_NORMAL;
-    GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
-    firstSpeedTier = 0;
-    firstSpeedMul = 1.00;
+    normalSpeedTier = 0;
+    normalSpeedMul = 1.00;
+    return;
   }
-}
 
-
-function hasNextStage(){
-  if(mode === "first") return true; // endless (B-6, B-7, ...)
+  // Normal mode (N-1..N-20)
   const goals = STAGE_GOALS_NORMAL;
-  return stage < goals.length;
+  GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
+
+  normalSpeedTier = Math.min(NORMAL_SPEED_STEPS.length-1, Math.floor((stage - 1) / 5));
+  normalSpeedMul = NORMAL_SPEED_STEPS[normalSpeedTier] ?? 1.00;
+
+  firstSpeedTier = 0;
+  firstSpeedMul = 1.00;
 }
 
 
@@ -1027,9 +1039,9 @@ function tickTime(dt){
   if(newLevel!==level){
     level=newLevel;
     levelLabel.textContent=`Lv ${level}`;
-    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul:1.0)));
+    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul:(mode==="normal"? normalSpeedMul:1.0))));
   }
-  if(remain<=0) endGame("DOWN…",`時間切れ（Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR}）`);
+  if(remain<=0) endGame("DOWN…",`${lang==="ja"?"時間切れ":"TIME UP"} (Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR})`);
 }
 
 // Keyboard
@@ -1136,11 +1148,15 @@ function start(){
   assistUsed = 0;
   piece=spawnPiece();
   running=true; ending=false;
-  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/firstSpeedMul)); fallAccMs=0;
+  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/(mode==="first"? firstSpeedMul:(mode==="normal"? normalSpeedMul:1.0)))); fallAccMs=0;
   progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; try{ updateUI(); }catch(e){ console.error('updateUI',e); }
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
-    showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`));
+    showToast(`SPEED UP! ×${firstSpeedMul.toFixed(2)}`);
+  }
+  // Normal speed-up toast (Stage 6/11/16)
+  if(mode==="normal" && normalSpeedTier>0 && ((stage-1)%5)===0){
+    showToast(`SPEED UP! ×${normalSpeedMul.toFixed(2)}`);
   }
   if(debugClear) debugClear.textContent = "+0";
   beeMark = null;
