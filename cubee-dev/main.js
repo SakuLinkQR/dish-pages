@@ -555,7 +555,7 @@ function applyLarvaTransforms(placedCells){
 function isClearColor(v){
   // Only finite numeric colors can participate in normal line clear.
   // Treat null/undefined/NaN/strings as empty or invalid.
-  return (typeof v === "number") && Number.isFinite(v) && v !== LARVA_COLOR;
+  return (typeof v === "number") && Number.isFinite(v) && (mode !== "normal" || v !== LARVA_COLOR);
 }
 function isRowClearableStrict(y){
   const row = grid[y];
@@ -695,10 +695,9 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
-      addScore(actually, false);
+        // Bee assist is rescue-only: no score is granted
         progress += actually;
-        addScore(actually, true);
-        if (mode === "normal" && actually > 0) {
+if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
         }
@@ -751,6 +750,8 @@ if (cleared === 0) {
       const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
       const shownLines = addLines;
+      // Score: count only normal clears (bee assist is handled separately)
+      addScore(shownLines, false);
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
       if (actually > 0) clearStreak++; else clearStreak = 0;
@@ -804,7 +805,7 @@ if (cleared === 0) {
     
       } catch (e) {
         console.error(e);
-        showToast("ERROR");
+        try{ window.__lastErr = (e && e.message) ? e.message : String(e); }catch(_){}
         // Fail-safe: resume the game even if something went wrong during clear handling
         clearingRows = null;
         clearingUntil = 0;
