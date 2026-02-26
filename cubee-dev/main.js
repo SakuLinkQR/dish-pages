@@ -119,12 +119,10 @@ let GOAL_CLEAR = 3; // stage-dependent
 // Beginner speed tiers (every 5 stages) up to 2.00x
 const FIRST_SPEED_STEPS = [1.00, 1.25, 1.50, 1.75, 2.00];
 const NORMAL_SPEED_STEPS = [1.00, 1.30, 1.60, 2.00];
-let firstSpeedMul = 1.00;
-    normalSpeedTier = 0;
-    normalSpeedMul = 1.00;
 let firstSpeedTier = 0;
-let normalSpeedMul = 1.00;
+let firstSpeedMul = 1.00;
 let normalSpeedTier = 0;
+let normalSpeedMul = 1.00;
 
 // ====== Stage System (First Stage + Normal) ======
 // First Stage: Stage 1..5 with clear goals 3..7
