@@ -1174,9 +1174,23 @@ function start(){
   last=performance.now();
 }
 
-try{ start(); }catch(e){ console.error(e); try{ showToast('ERR: '+(e&&e.message?e.message:e)); }catch(_){} }
-requestAnimationFrame(loop);
+// ---- Boot ----
+function __bootStart(){
+  try{ start(); }catch(e){
+    console.error(e);
+    try{ window.__lastErr = (e && e.message) ? e.message : String(e); }catch(_){} 
+    try{ showToast('ERR: '+(e&&e.message?e.message:e)); }catch(_){} 
+  }
+  requestAnimationFrame(loop);
+}
 
 // Capture JS errors (iOS Safari often fails silently)
 window.__lastErr = "";
 window.addEventListener('error', (e)=>{ try{ window.__lastErr = e.message || String(e.error||e); }catch(_){} });
+
+// Ensure DOM is ready before starting (prevents "no cube falling" when elements are not yet in the page)
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", __bootStart, { once:true });
+}else{
+  __bootStart();
+}
