@@ -369,3 +369,46 @@ a.menu-btn:hover{ text-decoration: none !important; }
 a.menu-btn.coming-soon{
   opacity: 0.65;
 }
+
+
+/* ===== Scroll & viewport rules (menu vs game) ===== */
+/* Default: allow scrolling */
+html, body{
+  height: auto;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Game page only: lock the viewport */
+body.gamePage{
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Menu page: must be scrollable (iPhone/PWA friendly) */
+body.menuPage{
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure menu anchor buttons render like buttons */
+.menu-buttons a.menu-btn, a.menu-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
+}
+a.menu-btn:visited{ color: inherit; }
+a.menu-btn:hover{ text-decoration: none !important; }
+
+/* Coming soon */
+a.menu-btn.coming-soon{ opacity: 0.65; }
