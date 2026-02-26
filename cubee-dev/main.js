@@ -140,7 +140,11 @@ function baseScoreForLines(n){
   return 700 + (n-4)*200;
 }
 function getBestKey(){
-  return `cubee_best_${mode}`; // simple: best per mode
+  // Stable per-mode BEST keys (do not change once released)
+  if(mode === "first") return "cubee_best_first";
+  if(mode === "normal") return "cubee_best_normal";
+  if(mode === "time") return "cubee_best_time";
+  return "cubee_best_first";
 }
 function loadBestScore(){
   try{
@@ -151,6 +155,24 @@ function loadBestScore(){
 }
 function saveBestScore(){
   try{ localStorage.setItem(getBestKey(), String(bestScore)); }catch(e){}
+}
+
+// ====== Run Score (carry across stages until returning to menu) ======
+function getRunKey(){
+  if(mode === "first") return "cubee_run_first";
+  if(mode === "normal") return "cubee_run_normal";
+  if(mode === "time") return "cubee_run_time";
+  return "cubee_run_first";
+}
+function loadRunScore(){
+  try{
+    const v = localStorage.getItem(getRunKey());
+    const s = v ? Number(v) : 0;
+    return Number.isFinite(s) ? s : 0;
+  }catch(e){ return 0; }
+}
+function saveRunScore(){
+  try{ localStorage.setItem(getRunKey(), String(score)); }catch(e){}
 }
 
 
@@ -626,6 +648,7 @@ function endGame(title,sub,withBee=false){
       score += tb.bonus;
       if (score > bestScore) { bestScore = score; saveBestScore(); }
       updateScoreUI();
+      saveRunScore();
     }
     timeBonusText = `TIME LEFT ${formatMMSS(remainSec)}  ${tb.rank}  +${tb.bonus}`;
   }
@@ -944,12 +967,21 @@ function updateScoreUI(){
   if(scoreLabel) scoreLabel.textContent = `SCORE ${score}`;
   if(bestLabel) bestLabel.textContent = `BEST ${bestScore}`;
 }
-function resetScoreForStage(){
-  score = 0;
+function resetScoreForStage(isNewRun=false){
+  // isNewRun=true when starting a fresh run (B-1 / N-1 / Time Trial start)
+  if(isNewRun){
+    score = 0;
+    try{ saveRunScore(); }catch(e){}
+  }else{
+    // carry from previous stage within the same run
+    score = loadRunScore();
+  }
   combo = 0;
   lastClearAtMs = 0;
   loadBestScore();
   updateScoreUI();
+  // persist run score so it carries to the next stage within the same mode
+  saveRunScore();
 }
 function addScore(lines, isBee=false){
   if(lines<=0) return;
@@ -975,6 +1007,8 @@ function addScore(lines, isBee=false){
     saveBestScore();
   }
   updateScoreUI();
+  // persist run score so it carries to the next stage within the same mode
+  saveRunScore();
 }
 function calcTimeBonus(remainSec){
   // Rank bonus
@@ -1091,7 +1125,7 @@ function loop(now){
 
 function start(){
   try{ readStageFromURL(); }catch(e){ console.error('readStageFromURL',e); }
-  try{ resetScoreForStage(); }catch(e){ console.error('resetScoreForStage',e); }
+  try{ resetScoreForStage((mode==="time") || stage===1); }catch(e){ console.error('resetScoreForStage',e); }
   try{ if(overlay) overlay.classList.add("hidden"); }catch(e){ console.error('overlay',e); }
   if (nextBtn) nextBtn.style.display = "none";
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }
