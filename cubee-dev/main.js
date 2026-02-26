@@ -120,9 +120,12 @@ let GOAL_CLEAR = 3; // stage-dependent
 const FIRST_SPEED_STEPS = [1.00, 1.25, 1.50, 1.75, 2.00];
 const NORMAL_SPEED_STEPS = [1.00, 1.30, 1.60, 2.00];
 let firstSpeedMul = 1.00;
+    normalSpeedTier = 0;
+    normalSpeedMul = 1.00;
 let firstSpeedTier = 0;
 let normalSpeedMul = 1.00;
 let normalSpeedTier = 0;
+
 // ====== Stage System (First Stage + Normal) ======
 // First Stage: Stage 1..5 with clear goals 3..7
 // Normal: separate mode (more mechanics) - currently Stage 1 only
@@ -1037,7 +1040,10 @@ function tickTime(dt){
     level=newLevel;
     levelLabel.textContent=`Lv ${level}`;
     fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul:(mode==="normal"? normalSpeedMul:1.0))));
-  }
+  
+  // Safety: if speed multiplier becomes invalid, keep the game falling
+  if(!Number.isFinite(fallIntervalMs) || fallIntervalMs<1){ fallIntervalMs = FALL_START_MS; }
+}
   if(remain<=0) endGame("DOWN…",`${lang==="ja"?"時間切れ":"TIME UP"} (Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR})`);
 }
 
@@ -1115,6 +1121,8 @@ nextBtn.addEventListener("click",()=>{
 let last=performance.now();
 function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
+  // Safety: prevent NaN interval from stopping falling
+  if(!Number.isFinite(fallIntervalMs) || fallIntervalMs<1){ fallIntervalMs = FALL_START_MS; }
   if(running && !ending){
     tickTime(dt);
     tickBeeCarry();
@@ -1143,7 +1151,8 @@ function start(){
   grid=newGrid();
   rainbowUsed=false; rainbowPending=false;
   assistUsed = 0;
-  piece=spawnPiece();
+  try{ piece=spawnPiece(); }catch(e){ console.error('spawnPiece',e); piece=null; }
+  if(!piece){ try{ piece=spawnPiece(); }catch(e){} }
   running=true; ending=false;
   elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/(mode==="first"? firstSpeedMul:(mode==="normal"? normalSpeedMul:1.0)))); fallAccMs=0;
   progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; try{ updateUI(); }catch(e){ console.error('updateUI',e); }
