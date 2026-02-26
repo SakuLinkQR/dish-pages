@@ -81,10 +81,10 @@ function getBeeAssistParams(){
   // Bee is a theme: early stages use bees as "reward" rather than rescue.
   if(stage===1) return { enabled:false, base:0, bonus:0, max:0 };
   if(stage===2) return { enabled:false, base:0, bonus:0, max:0 };
-  if(stage===3) return { enabled:true, base:0.10, bonus:0.00, max:2 };
-  if(stage===4) return { enabled:true, base:0.08, bonus:0.00, max:2 };
-  if(stage===5) return { enabled:true, base:0.05, bonus:0.00, max:1 };
-  return { enabled:true, base:0.08, bonus:0.00, max:2 };
+  if(stage===3) return { enabled:true, base:0.03, bonus:0.00, max:1 };
+  if(stage===4) return { enabled:true, base:0.02, bonus:0.00, max:1 };
+  if(stage===5) return { enabled:true, base:0.02, bonus:0.00, max:1 };
+  return { enabled:true, base:0.03, bonus:0.00, max:1 };
 }
 function maybeBeeAssist(){
   const cfg = getBeeAssistParams();
@@ -92,6 +92,7 @@ function maybeBeeAssist(){
 
   if(!STB_ENABLE_BEE_ASSIST) return false;
   if(stbAssistUsed >= cfg.max) return false;
+  if(beeCooldownTurns > 0) return false;
 
   const cand = stbFindOneHoleRow();
   if(!cand) return false;
@@ -101,6 +102,7 @@ function maybeBeeAssist(){
 
   grid[cand.y][cand.xHole] = cand.color;
   stbAssistUsed++;
+  beeCooldownTurns = 20;
 
   showToast("🐝 BEE HELP!");
   playClearBee();
@@ -150,7 +152,25 @@ function loadBestScore(){
   }catch(e){ bestScore = 0; }
 }
 function saveBestScore(){
-  try{ localStorage.setItem(getBestKey(), String(bestScore)); }catch(e){}
+  try{ localStorage.setItem(getBestKey(), String(bestScore)); }
+// ====== Run Score (persist across stages until back to menu) ======
+function getRunScoreKey(){
+  return `cubee_run_${mode}`;
+}
+function loadRunScore(){
+  try{
+    const v = localStorage.getItem(getRunScoreKey());
+    const n = v ? Number(v) : 0;
+    return Number.isFinite(n) ? n : 0;
+  }catch(e){ return 0; }
+}
+function saveRunScore(){
+  try{ localStorage.setItem(getRunScoreKey(), String(score)); }catch(e){}
+}
+function clearRunScore(){
+  try{ localStorage.removeItem(getRunScoreKey()); }catch(e){}
+}
+catch(e){}
 }
 
 
@@ -667,7 +687,7 @@ function endGame(title,sub,withBee=false){
 
 function lockPiece() {
   if (ending) return;
-  if (mode === "normal" && beeCooldownTurns > 0) beeCooldownTurns--;
+  if (beeCooldownTurns > 0) beeCooldownTurns--;
 
   // ピースを盤面に固定
   const placed = cellsOfPiece(piece);
@@ -943,11 +963,21 @@ function formatMMSS(sec){
 function updateScoreUI(){
   if(scoreLabel) scoreLabel.textContent = `SCORE ${score}`;
   if(bestLabel) bestLabel.textContent = `BEST ${bestScore}`;
+
+  // persist run score
+  if(stage >= 1) saveRunScore();
 }
 function resetScoreForStage(){
-  score = 0;
-  combo = 0;
-  lastClearAtMs = 0;
+  // B/N: score continues until you return to menu. Stage-to-stage keeps the run score.
+  // TT or when starting Stage 1: reset to 0.
+  if(stage === 1){
+    score = 0;
+    combo = 0;
+    lastClearAtMs = 0;
+    clearRunScore();
+  }else{
+    score = loadRunScore();
+  }
   loadBestScore();
   updateScoreUI();
 }
@@ -1106,7 +1136,7 @@ function start(){
   progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
-    showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`));
+    showToast((lang==="ja"?`SPEED UP! ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`));
   }
   if(debugClear) debugClear.textContent = "+0";
   beeMark = null;
