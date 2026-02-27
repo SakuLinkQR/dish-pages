@@ -301,7 +301,7 @@ let toastSeq = 0;
 
 // Prevent double-tap / double-click on overlay buttons (iOS can fire twice)
 let modalNavLocked = false;
-const lang = ((document.documentElement.getAttribute("lang") || "en").toLowerCase().startsWith("ja")) ? "ja" : "en";
+const lang = (((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase().startsWith("ja")) ? "ja" : "en";
 
 
 let rainbowUsed=false, rainbowPending=false;
@@ -1145,6 +1145,11 @@ function start(){
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
     showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`));
+  }
+
+  // Normal speed-up notice at N-6 / N-11 / N-16
+  if(mode==="normal" && (stage===6 || stage===11 || stage===16)){
+    showToast((lang==="ja"?`スピードアップ！ ×${normalSpeedMul.toFixed(1)}`:`SPEED UP! ×${normalSpeedMul.toFixed(1)}`));
   }
   if(debugClear) debugClear.textContent = "+0";
   beeMark = null;
