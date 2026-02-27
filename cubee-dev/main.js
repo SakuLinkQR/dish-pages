@@ -197,16 +197,16 @@ function readStageFromURL(){
 
     const len = STAGE_GOALS_FIRST.length;
     const idx = ((stage - 1) % len + len) % len;
-    GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
+    GOAL_CLEAR = (STAGE_GOALS_FIRST[idx]!==undefined && STAGE_GOALS_FIRST[idx]!==null) ? STAGE_GOALS_FIRST[idx] : 3;
 
     // speed tier increases every 5 stages, capped
     firstSpeedTier = Math.min(FIRST_SPEED_STEPS.length-1, Math.floor((stage - 1) / len));
-    firstSpeedMul = FIRST_SPEED_STEPS[firstSpeedTier] ?? 1.00;
+    firstSpeedMul = (FIRST_SPEED_STEPS[firstSpeedTier]!==undefined && FIRST_SPEED_STEPS[firstSpeedTier]!==null) ? FIRST_SPEED_STEPS[firstSpeedTier] : 1.00;
     normalSpeedMul = 1.0;
   } else if(mode === "time"){
     const len = STAGE_GOALS_FIRST.length;
     const idx = ((stage - 1) % len + len) % len;
-    GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
+    GOAL_CLEAR = (STAGE_GOALS_FIRST[idx]!==undefined && STAGE_GOALS_FIRST[idx]!==null) ? STAGE_GOALS_FIRST[idx] : 3;
     // Time Trial uses a stable speed tier (no surprise speed-ups)
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
@@ -217,11 +217,11 @@ function readStageFromURL(){
     // Normal is capped at N-20
     stage = Math.min(stage, 20);
 
-    GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
+    GOAL_CLEAR = (goals[Math.min(stage, goals.length)-1]!==undefined && goals[Math.min(stage, goals.length)-1]!==null) ? goals[Math.min(stage, goals.length)-1] : (goals[0]||5);
 
     // Speed up every 5 stages: x1.0 / x1.3 / x1.6 / x2.0
     const tier = Math.min(NORMAL_SPEED_STEPS.length-1, Math.floor((stage - 1) / 5));
-    normalSpeedMul = NORMAL_SPEED_STEPS[tier] ?? 1.0;
+    normalSpeedMul = (NORMAL_SPEED_STEPS[tier]!==undefined && NORMAL_SPEED_STEPS[tier]!==null) ? NORMAL_SPEED_STEPS[tier] : 1.0;
 
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
