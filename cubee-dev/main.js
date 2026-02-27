@@ -118,10 +118,6 @@ let GOAL_CLEAR = 3; // stage-dependent
 
 // Beginner speed tiers (every 5 stages) up to 2.00x
 const FIRST_SPEED_STEPS = [1.00, 1.25, 1.50, 1.75, 2.00];
-// Normal speed tiers (every 5 stages) up to 2.00x
-const NORMAL_SPEED_STEPS = [1.00, 1.30, 1.60, 2.00];
-let normalSpeedMul = 1.00;
-let normalSpeedTier = 0;
 let firstSpeedMul = 1.00;
 let firstSpeedTier = 0;
 
@@ -129,7 +125,7 @@ let firstSpeedTier = 0;
 // First Stage: Stage 1..5 with clear goals 3..7
 // Normal: separate mode (more mechanics) - currently Stage 1 only
 const STAGE_GOALS_FIRST = [3,4,5,6,7];
-const STAGE_GOALS_NORMAL = [5,6,7,8,9, 10,11,12,13,14, 15,16,17,18,19, 20,21,22,23,24]; // Normal N-1..N-20 goals // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
+const STAGE_GOALS_NORMAL = [5,6,7,8,9]; // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
 let mode = "first"; // "first" | "normal" | "time"
 let stage = 1;
 // ====== Score System ======
@@ -144,11 +140,7 @@ function baseScoreForLines(n){
   return 700 + (n-4)*200;
 }
 function getBestKey(){
-  // Stable per-mode BEST keys (do not change once released)
-  if(mode === "first") return "cubee_best_first";
-  if(mode === "normal") return "cubee_best_normal";
-  if(mode === "time") return "cubee_best_time";
-  return "cubee_best_first";
+  return `cubee_best_${mode}`; // simple: best per mode
 }
 function loadBestScore(){
   try{
@@ -159,23 +151,6 @@ function loadBestScore(){
 }
 function saveBestScore(){
   try{ localStorage.setItem(getBestKey(), String(bestScore)); }catch(e){}
-
-// ====== Run Score (carry across stages until returning to menu) ======
-function getRunKey(){
-  if(mode === "first") return "cubee_run_first";
-  if(mode === "normal") return "cubee_run_normal";
-  if(mode === "time") return "cubee_run_time";
-  return "cubee_run_first";
-}
-function loadRunScore(){
-  try{ const v = localStorage.getItem(getRunKey()); const s = v ? Number(v) : 0; return Number.isFinite(s) ? s : 0; }catch(e){ return 0; }
-}
-function saveRunScore(){
-  try{ localStorage.setItem(getRunKey(), String(score)); }catch(e){}
-}
-function clearRunScore(){
-  try{ localStorage.removeItem(getRunKey()); }catch(e){}
-}
 }
 
 
@@ -223,11 +198,8 @@ function readStageFromURL(){
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
   } else {
-    const goals = STAGE_GOALS_NORMAL;
-    GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
-    // Normal speed tier increases every 5 stages: x1.00, x1.30, x1.60, x2.00
-    normalSpeedTier = Math.min(NORMAL_SPEED_STEPS.length-1, Math.floor((stage - 1) / 5));
-    normalSpeedMul = NORMAL_SPEED_STEPS[normalSpeedTier] ?? 1.00;
+    const goals = (Array.isArray(STAGE_GOALS_NORMAL) && STAGE_GOALS_NORMAL.length) ? STAGE_GOALS_NORMAL : [5,6,7,8,9];
+    GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0];
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
   }
@@ -235,9 +207,9 @@ function readStageFromURL(){
 
 
 function hasNextStage(){
-  if(mode === "time") return false;
-  if(mode === "first") return true; // endless
-  return stage < 20; // Normal N-1..N-20
+  if(mode === "first") return true; // endless (B-6, B-7, ...)
+    const goals = (Array.isArray(STAGE_GOALS_NORMAL) && STAGE_GOALS_NORMAL.length) ? STAGE_GOALS_NORMAL : [5,6,7,8,9];
+  return stage < goals.length;
 }
 
 
@@ -583,7 +555,7 @@ function applyLarvaTransforms(placedCells){
 function isClearColor(v){
   // Only finite numeric colors can participate in normal line clear.
   // Treat null/undefined/NaN/strings as empty or invalid.
-  return (typeof v === "number") && Number.isFinite(v) && (mode !== "normal" || v !== LARVA_COLOR);
+  return (typeof v === "number") && Number.isFinite(v) && v !== LARVA_COLOR;
 }
 function isRowClearableStrict(y){
   const row = grid[y];
@@ -655,30 +627,24 @@ function endGame(title,sub,withBee=false){
       if (score > bestScore) { bestScore = score; saveBestScore(); }
       updateScoreUI();
     }
-    timeBonusText = `TIME LEFT ${formatMMSS(remainSec)}  ${tb.rank}  +${tb.bonus}` + (tb.extra ? ` (extra +${tb.extra})` : ``);
+    timeBonusText = `TIME LEFT ${formatMMSS(remainSec)}  ${tb.rank}  +${tb.bonus}`;
   }
 
-
-  // Ensure BEST is saved on CLEAR
-  if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
-    if (score > bestScore) { bestScore = score; saveBestScore(); }
-    updateScoreUI();
-  }
 
   // Stage clearの場合：NEXTの出し分け
   if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
     // Unlock NORMAL when Beginner B-5 cleared
     try{ if(mode==="first" && stage===STAGE_GOALS_FIRST.length){ localStorage.setItem("firstStageCleared","1"); } }catch(e){}
     if (hasNextStage()) {
-      if(nextBtn) nextBtn.style.display = "";
-      if(nextBtn) nextBtn.textContent = "NEXT";
+      nextBtn.style.display = "";
+      nextBtn.textContent = "NEXT";
     } else {
-      if(nextBtn) nextBtn.style.display = "";
-      if(nextBtn) nextBtn.textContent = "PLAY AGAIN";
+      nextBtn.style.display = "";
+      nextBtn.textContent = "PLAY AGAIN";
       try{ if(mode==="first") localStorage.setItem("firstStageCleared","1"); }catch(e){}
     }
   } else {
-    if(nextBtn) if(nextBtn) nextBtn.style.display = "none";
+    nextBtn.style.display = "none";
   }
 
   const show=()=>{
@@ -729,9 +695,10 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
-        // Bee assist is rescue-only: no score is granted
+      addScore(actually, false);
         progress += actually;
-if (mode === "normal" && actually > 0) {
+        addScore(actually, true);
+        if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
         }
@@ -784,8 +751,6 @@ if (mode === "normal" && actually > 0) {
       const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
       const shownLines = addLines;
-      // Score: count only normal clears (bee assist is handled separately)
-      addScore(shownLines, false);
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
       if (actually > 0) clearStreak++; else clearStreak = 0;
@@ -839,7 +804,7 @@ if (mode === "normal" && actually > 0) {
     
       } catch (e) {
         console.error(e);
-        try{ window.__lastErr = (e && e.message) ? e.message : String(e); }catch(_){}
+        showToast("ERROR");
         // Fail-safe: resume the game even if something went wrong during clear handling
         clearingRows = null;
         clearingUntil = 0;
@@ -976,15 +941,8 @@ function updateScoreUI(){
   if(scoreLabel) scoreLabel.textContent = `SCORE ${score}`;
   if(bestLabel) bestLabel.textContent = `BEST ${bestScore}`;
 }
-function resetScoreForStage(isNewRun=false){
-  // isNewRun=true when starting a fresh run (B-1 / N-1 / Time Trial start)
-  if(isNewRun){
-    score = 0;
-    saveRunScore();
-  }else{
-    // carry from previous stage within the same run
-    score = loadRunScore();
-  }
+function resetScoreForStage(){
+  score = 0;
   combo = 0;
   lastClearAtMs = 0;
   loadBestScore();
@@ -1014,20 +972,13 @@ function addScore(lines, isBee=false){
     saveBestScore();
   }
   updateScoreUI();
-  saveRunScore();
 }
 function calcTimeBonus(remainSec){
   // Rank bonus
-  let base;
-  if(remainSec >= 120) base = {rank:"GOLD", bonus:3000};
-  else if(remainSec >= 60) base = {rank:"SILVER", bonus:1500};
-  else if(remainSec >= 1) base = {rank:"BRONZE", bonus:500};
-  else base = {rank:"NO BONUS", bonus:0};
-
-  // Extra time bonus: +10 points per 10 seconds left (e.g. 82s -> +80)
-  const extra = Math.floor(remainSec / 10) * 10;
-
-  return { rank: base.rank, bonus: base.bonus + extra, extra };
+  if(remainSec >= 120) return {rank:"GOLD", bonus:3000};
+  if(remainSec >= 60)  return {rank:"SILVER", bonus:1500};
+  if(remainSec >= 1)   return {rank:"BRONZE", bonus:500};
+  return {rank:"NO BONUS", bonus:0};
 }
 
 function tickTime(dt){
@@ -1039,7 +990,7 @@ function tickTime(dt){
   if(newLevel!==level){
     level=newLevel;
     levelLabel.textContent=`Lv ${level}`;
-    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul : (mode==="normal"? normalSpeedMul:1.0))));
+    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul:1.0)));
   }
   if(remain<=0) endGame("DOWN…",`時間切れ（Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR}）`);
 }
@@ -1137,9 +1088,9 @@ function loop(now){
 
 function start(){
   readStageFromURL();
-  resetScoreForStage((mode==="time") || stage===1);
+  resetScoreForStage();
   overlay.classList.add("hidden");
-  if (nextBtn) if(nextBtn) if(nextBtn) nextBtn.style.display = "none";
+  if (nextBtn) nextBtn.style.display = "none";
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }
   if(toastTimerId){ clearTimeout(toastTimerId); toastTimerId=null; }
   toast.classList.add("hidden"); beeFly.classList.add("hidden");
@@ -1148,7 +1099,7 @@ function start(){
   assistUsed = 0;
   piece=spawnPiece();
   running=true; ending=false;
-  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/(mode==="first"?firstSpeedMul:(mode==="normal"?normalSpeedMul:1.0)))); fallAccMs=0;
+  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/firstSpeedMul)); fallAccMs=0;
   progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
