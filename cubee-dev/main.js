@@ -119,13 +119,22 @@ let GOAL_CLEAR = 3; // stage-dependent
 // Beginner speed tiers (every 5 stages) up to 2.00x
 const FIRST_SPEED_STEPS = [1.00, 1.25, 1.50, 1.75, 2.00];
 let firstSpeedMul = 1.00;
+    normalSpeedMul = 1.0;
 let firstSpeedTier = 0;
+
+const NORMAL_SPEED_STEPS = [1.0, 1.3, 1.6, 2.0];
+let normalSpeedMul = 1.0;
 
 // ====== Stage System (First Stage + Normal) ======
 // First Stage: Stage 1..5 with clear goals 3..7
 // Normal: separate mode (more mechanics) - currently Stage 1 only
 const STAGE_GOALS_FIRST = [3,4,5,6,7];
-const STAGE_GOALS_NORMAL = [5,6,7,8,9]; // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
+const STAGE_GOALS_NORMAL = [
+  5,6,7,8,9,   // N-1..N-5
+  9,9,9,9,9,   // N-6..N-10
+  9,9,9,9,9,   // N-11..N-15
+  9,9,9,9,9    // N-16..N-20
+];
 let mode = "first"; // "first" | "normal" | "time"
 let stage = 1;
 // ====== Score System ======
@@ -133,6 +142,9 @@ let score = 0;
 let bestScore = 0;
 let lastClearAtMs = 0;
 let combo = 0;
+
+// Carry score only when moving to NEXT stage (clear chain)
+let carryScoreToNextStage = false;
 
 const SCORE_TABLE = [0, 100, 250, 450, 700]; // 1..4 lines
 function baseScoreForLines(n){
@@ -190,6 +202,7 @@ function readStageFromURL(){
     // speed tier increases every 5 stages, capped
     firstSpeedTier = Math.min(FIRST_SPEED_STEPS.length-1, Math.floor((stage - 1) / len));
     firstSpeedMul = FIRST_SPEED_STEPS[firstSpeedTier] ?? 1.00;
+    normalSpeedMul = 1.0;
   } else if(mode === "time"){
     const len = STAGE_GOALS_FIRST.length;
     const idx = ((stage - 1) % len + len) % len;
@@ -197,9 +210,19 @@ function readStageFromURL(){
     // Time Trial uses a stable speed tier (no surprise speed-ups)
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
+    normalSpeedMul = 1.0;
   } else {
     const goals = STAGE_GOALS_NORMAL;
+
+    // Normal is capped at N-20
+    stage = Math.min(stage, 20);
+
     GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
+
+    // Speed up every 5 stages: x1.0 / x1.3 / x1.6 / x2.0
+    const tier = Math.min(NORMAL_SPEED_STEPS.length-1, Math.floor((stage - 1) / 5));
+    normalSpeedMul = NORMAL_SPEED_STEPS[tier] ?? 1.0;
+
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
   }
@@ -943,9 +966,18 @@ function updateScoreUI(){
   if(bestLabel) bestLabel.textContent = `BEST ${bestScore}`;
 }
 function resetScoreForStage(){
-  score = 0;
-  combo = 0;
-  lastClearAtMs = 0;
+  // Keep score when moving to NEXT stage; reset only on retry / new run
+  if(!carryScoreToNextStage){
+    score = 0;
+    combo = 0;
+    lastClearAtMs = 0;
+  }else{
+    // Prevent combo carry-over across stages
+    combo = 0;
+    lastClearAtMs = 0;
+  }
+  carryScoreToNextStage = false;
+
   loadBestScore();
   updateScoreUI();
 }
@@ -997,7 +1029,8 @@ function tickTime(dt){
   if(newLevel!==level){
     level=newLevel;
     levelLabel.textContent=`Lv ${level}`;
-    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul:1.0)));
+    const mul = (mode==="first" ? firstSpeedMul : (mode==="normal" ? normalSpeedMul : 1.0));
+    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ mul));
   }
   if(remain<=0) endGame("DOWN…",`時間切れ（Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR}）`);
 }
@@ -1032,6 +1065,7 @@ canvas.addEventListener("pointerup",(e)=>{
 
 retryBtn.addEventListener("click",()=>{
   if(modalNavLocked) return;
+  carryScoreToNextStage = false; // Retry should reset score
   modalNavLocked = true;
   try{ retryBtn.disabled = true; retryBtn.style.pointerEvents="none"; }catch(e){}
   try{ nextBtn.disabled = true; nextBtn.style.pointerEvents="none"; }catch(e){}
@@ -1057,8 +1091,10 @@ nextBtn.addEventListener("click",()=>{
     // Advance stage without full reload (avoids iOS/PWA cache issues)
     if (hasNextStage()) {
       stage = stage + 1;
+      carryScoreToNextStage = true;  // NEXT keeps cumulative score
     } else {
       stage = 1;
+      carryScoreToNextStage = false; // Play again resets score
     }
     // Update URL for sharing/debugging, but keep app state in-place
     const url = `./game.html?mode=${mode}&stage=${stage}`;
@@ -1106,7 +1142,8 @@ function start(){
   assistUsed = 0;
   piece=spawnPiece();
   running=true; ending=false;
-  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/firstSpeedMul)); fallAccMs=0;
+  const mul = (mode==="first" ? firstSpeedMul : (mode==="normal" ? normalSpeedMul : 1.0));
+  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/ mul)); fallAccMs=0;
   progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
