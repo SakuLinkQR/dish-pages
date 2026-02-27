@@ -74,26 +74,22 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 }
 
 
-/* v1.5.8: stabilize viewport sizing (prevent iOS address-bar resize jump) */
-html, body {
-  height: 100%;
-  overscroll-behavior: none;
-  touch-action: none;
-}
-body {
+/* v1.5.8: stabilize viewport sizing (prevent iOS address-bar resize jump)
+   NOTE: These "no scroll" rules must apply ONLY while playing (game page).
+*/
+body.gamePage{
   height: 100svh;
   max-height: 100svh;
   overflow: hidden; /* no page scroll while playing */
+  overscroll-behavior: none;
+  touch-action: none;
 }
-.topbar {
+/* Keep safe area padding for both pages */
+.topbar{
   padding-top: env(safe-area-inset-top);
 }
-/* Keep main area fixed */
-.wrap, .menu-wrap {
-  min-height: 0;
-}
 /* Game page: make the whole layout fit inside 100svh */
-.game-wrap {
+body.gamePage .game-wrap{
   height: calc(100svh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
   overflow: hidden;
   display: flex;
@@ -101,24 +97,22 @@ body {
   flex-direction: column;
 }
 /* Ensure score/header never goes outside */
-.hud {
+body.gamePage .hud{
   flex: 0 0 auto;
 }
 /* Canvas sizes from remaining space; keep aspect ratio stable */
-.game-area {
+body.gamePage .game-area{
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-#game {
+body.gamePage #game{
   max-height: calc(100svh - 210px);
   width: min(100%, calc((100svh - 210px) * 0.625));
   height: auto;
 }
-
-
 /* v1.6.11: center board and reduce "right empty" feeling */
 .wrap, .game-wrap {
   display:flex;
