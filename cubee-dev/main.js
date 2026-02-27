@@ -198,8 +198,8 @@ function readStageFromURL(){
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
   } else {
-    const goals = (Array.isArray(STAGE_GOALS_NORMAL) && STAGE_GOALS_NORMAL.length) ? STAGE_GOALS_NORMAL : [5,6,7,8,9];
-    GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0];
+    const goals = STAGE_GOALS_NORMAL;
+    GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
   }
@@ -208,7 +208,7 @@ function readStageFromURL(){
 
 function hasNextStage(){
   if(mode === "first") return true; // endless (B-6, B-7, ...)
-    const goals = (Array.isArray(STAGE_GOALS_NORMAL) && STAGE_GOALS_NORMAL.length) ? STAGE_GOALS_NORMAL : [5,6,7,8,9];
+  const goals = STAGE_GOALS_NORMAL;
   return stage < goals.length;
 }
 
@@ -555,7 +555,7 @@ function applyLarvaTransforms(placedCells){
 function isClearColor(v){
   // Only finite numeric colors can participate in normal line clear.
   // Treat null/undefined/NaN/strings as empty or invalid.
-  return (typeof v === "number") && Number.isFinite(v) && v !== LARVA_COLOR;
+  return (typeof v === "number") && Number.isFinite(v) && (mode !== "normal" || v !== LARVA_COLOR);
 }
 function isRowClearableStrict(y){
   const row = grid[y];
@@ -627,7 +627,7 @@ function endGame(title,sub,withBee=false){
       if (score > bestScore) { bestScore = score; saveBestScore(); }
       updateScoreUI();
     }
-    timeBonusText = `TIME LEFT ${formatMMSS(remainSec)}  ${tb.rank}  +${tb.bonus}`;
+    timeBonusText = `TIME LEFT ${formatMMSS(remainSec)}  ${tb.rank}  +${tb.bonus}` + (tb.extra ? ` (extra +${tb.extra})` : ``);
   }
 
 
@@ -695,10 +695,9 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
-      addScore(actually, false);
+        // Bee assist is rescue-only: no score is granted
         progress += actually;
-        addScore(actually, true);
-        if (mode === "normal" && actually > 0) {
+if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
         }
@@ -751,6 +750,8 @@ if (cleared === 0) {
       const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
       const shownLines = addLines;
+      // Score: count only normal clears (bee assist is handled separately)
+      addScore(shownLines, false);
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
       if (actually > 0) clearStreak++; else clearStreak = 0;
@@ -804,7 +805,7 @@ if (cleared === 0) {
     
       } catch (e) {
         console.error(e);
-        showToast("ERROR");
+        try{ window.__lastErr = (e && e.message) ? e.message : String(e); }catch(_){}
         // Fail-safe: resume the game even if something went wrong during clear handling
         clearingRows = null;
         clearingUntil = 0;
@@ -975,10 +976,16 @@ function addScore(lines, isBee=false){
 }
 function calcTimeBonus(remainSec){
   // Rank bonus
-  if(remainSec >= 120) return {rank:"GOLD", bonus:3000};
-  if(remainSec >= 60)  return {rank:"SILVER", bonus:1500};
-  if(remainSec >= 1)   return {rank:"BRONZE", bonus:500};
-  return {rank:"NO BONUS", bonus:0};
+  let base;
+  if(remainSec >= 120) base = {rank:"GOLD", bonus:3000};
+  else if(remainSec >= 60) base = {rank:"SILVER", bonus:1500};
+  else if(remainSec >= 1) base = {rank:"BRONZE", bonus:500};
+  else base = {rank:"NO BONUS", bonus:0};
+
+  // Extra time bonus: +10 points per 10 seconds left (e.g. 82s -> +80)
+  const extra = Math.floor(remainSec / 10) * 10;
+
+  return { rank: base.rank, bonus: base.bonus + extra, extra };
 }
 
 function tickTime(dt){
