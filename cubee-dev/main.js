@@ -119,7 +119,6 @@ let GOAL_CLEAR = 3; // stage-dependent
 // Beginner speed tiers (every 5 stages) up to 2.00x
 const FIRST_SPEED_STEPS = [1.00, 1.25, 1.50, 1.75, 2.00];
 let firstSpeedMul = 1.00;
-    normalSpeedMul = 1.0;
 let firstSpeedTier = 0;
 
 const NORMAL_SPEED_STEPS = [1.0, 1.3, 1.6, 2.0];
@@ -202,7 +201,6 @@ function readStageFromURL(){
     // speed tier increases every 5 stages, capped
     firstSpeedTier = Math.min(FIRST_SPEED_STEPS.length-1, Math.floor((stage - 1) / len));
     firstSpeedMul = (FIRST_SPEED_STEPS[firstSpeedTier]!==undefined && FIRST_SPEED_STEPS[firstSpeedTier]!==null) ? FIRST_SPEED_STEPS[firstSpeedTier] : 1.00;
-    normalSpeedMul = 1.0;
   } else if(mode === "time"){
     const len = STAGE_GOALS_FIRST.length;
     const idx = ((stage - 1) % len + len) % len;
@@ -210,7 +208,6 @@ function readStageFromURL(){
     // Time Trial uses a stable speed tier (no surprise speed-ups)
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
-    normalSpeedMul = 1.0;
   } else {
     const goals = STAGE_GOALS_NORMAL;
 
