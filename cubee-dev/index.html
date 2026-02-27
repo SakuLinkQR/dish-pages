@@ -1,14 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
-  <script>(function(){try{var l=(navigator.language||"").toLowerCase();document.documentElement.setAttribute("lang", l.startsWith("ja")?"ja":"en");}catch(e){}})();</script>
-  <title>CuBee Drop v1.6.78</title>
+  <title>CuBee Drop v1.6.77</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./assets/icons/icon-180.png" />
   <link rel="icon" href="./assets/icons/icon-32.png" sizes="32x32" />
-  <link rel="stylesheet" href="./style.css?v=1.6.78" />
+  <link rel="stylesheet" href="./style.css?v=1.6.77" />
 </head>
 <body class="menuPage">
   <div id="devBadge">DEV</div>
@@ -16,7 +15,7 @@
   <header class="topbar">
     <div class="brand">CuBee Drop</div>
     <div class="meta">
-      <span class="badge">v1.6.78</span>
+      <span class="badge">v1.6.77</span>
     </div>
   </header>
 
@@ -31,45 +30,28 @@
         <a class="btn" href="./game.html?mode=first&stage=1">PLAY</a>
         <a class="btn ghost disabled" id="normalBtn" href="./game.html?mode=normal&stage=1" aria-disabled="true">NORMAL (Locked)</a>
         <button class="btn ghost" id="howtoBtn" type="button">HOW TO</button>
-    <a class="menu-btn coming-soon" id="advancedBtn" href="javascript:void(0)">ADVANCED</a>
-    <a class="menu-btn coming-soon" id="expertBtn" href="javascript:void(0)">EXPERT</a>
-</div>
-
-      <div class="bestPanel">
-        <div class="bestBig">BEST (B): <span id="bestB">0</span></div>
-        <div class="bestBig">BEST (N): <span id="bestN">0</span></div>
-        <div class="bestBig">BEST (TT): <span id="bestTT">0</span></div>
+        <a class="btn ghost" href="./policy.html">POLICY</a>
       </div>
-
-      <div class="legalLinks">
-        <a href="./policy.html">POLICY</a>
-        <span>·</span>
-        <a href="./privacy.html">PRIVACY</a>
-        <span>·</span>
-        <a href="./legal.html">LEGAL</a>
-      </div>
-
-</div>
 
       <div class="menu-foot">
         <div class="small">© CuBee Drop Prototype</div>
-        <div class="small">Version 1.6.78</div>
+        <div class="small">Version 1.6.77</div>
       </div>
     </section>
 
     <div id="howtoModal" class="overlay hidden" role="dialog" aria-modal="true" aria-label="How to play">
       <div class="card left">
         <div class="title">HOW TO</div>
-        <div class="sub"><span class="en">Learn in 10 seconds</span><span class="ja">10秒でわかる遊び方</span></div>
+        <div class="sub">10秒でわかる遊び方</div>
 
         <ul class="howto">
-          <li><b><span class="en">Clear a full line of 10 blocks in the same color</span><span class="ja">同じ色で1列そろえる</span></b><span class="en"> to erase that row.</span><span class="ja">と、その列が消えます。</span></li>
-          <li><b><span class="en">Goal:</span><span class="ja">クリア条件：</span></b><span class="en"> Clear rows to fill progress. Clear <b>3</b> rows to win.</span><span class="ja">列消しで進捗が増え、<b>合計3</b>でクリア。</span></li>
-          <li><b><span class="en">Mobile (iPhone/Android):</span><span class="ja">スマホ（iPhone/Android）：</span></b><span class="en"> Tap left = move left / Tap right = move right / Tap center = change color</span><span class="ja">左タップ=左 / 右タップ=右 / 中央タップ=色チェンジ</span></li>
-          <li><b><span class="en">Mobile gestures:</span><span class="ja">スマホ操作：</span></b><span class="en"> Swipe up = rotate / Swipe down = hard drop</span><span class="ja">上フリック=回転 / 下フリック=一気に落とす</span></li>
+          <li><b>同じ色で1列そろえる</b>と、その列が消えます。</li>
+          <li><b>クリア条件：</b>列消しで進捗が増え、<b>合計3</b>でクリア。</li>
+          <li><b>iPhone操作：</b>左タップ=左 / 右タップ=右 / 中央タップ=色チェンジ</li>
+          <li><b>フリック：</b>上=回転 / 下=一気に落とす</li>
         </ul>
 
-        <div class="tip"><span class="en">TIP: Your progress never goes down. Aim for 1 cleared row first to stay safe.</span><span class="ja">TIP：消せない手があっても進捗は減りません。まずは1列消しを狙うと安定します。</span></div>
+        <div class="tip">TIP：消せない手があっても進捗は減りません。まずは1列消しを狙うと安定します。</div>
 
         <button class="btn" id="closeHowto" type="button">OK</button>
       </div>
@@ -77,76 +59,22 @@
   </main>
 
   <script>
-    // basic i18n (EN default, JA for Japanese devices)
-    const isJa = (document.documentElement.getAttribute('lang') || 'en').toLowerCase().startsWith('ja');
-    const T = (k)=>({
-      play: isJa ? 'PLAY' : 'PLAY',
-      normal: isJa ? 'NORMAL' : 'NORMAL',
-      normal_locked: isJa ? 'NORMAL（ロック中）' : 'NORMAL (Locked)',
-      normal_locked_alert: isJa ? 'NORMALはロック中です。初級（B-1〜B-5）をクリアすると解放されます。' : 'NORMAL is locked. Clear Beginner (B-1 to B-5) to unlock.',
-      time_trial: isJa ? 'TIME TRIAL (3:00)' : 'TIME TRIAL (3:00)',
-      howto: isJa ? 'HOW TO' : 'HOW TO',
-      advanced: isJa ? 'ADVANCED（準備中）' : 'ADVANCED (Coming Soon)',
-      expert: isJa ? 'EXPERT（準備中）' : 'EXPERT (Coming Soon)',
-      coming_soon: isJa ? 'COMING SOON（準備中）' : 'COMING SOON'
-    }[k] || k);
-
-    // apply button labels
-    document.querySelectorAll('[data-i18n]').forEach(el=>{
-      const key = el.getAttribute('data-i18n');
-      if(key) el.textContent = T(key);
-    });
-
     const m = document.getElementById('howtoModal');
     document.getElementById('howtoBtn').addEventListener('click', () => m.classList.remove('hidden'));
     document.getElementById('closeHowto').addEventListener('click', () => m.classList.add('hidden'));
     m.addEventListener('click', (e) => { if (e.target === m) m.classList.add('hidden'); });
-
-    // Coming soon buttons
-    const cs = ()=>alert(T('coming_soon'));
-    const adv = document.getElementById('advancedBtn'); if(adv) adv.addEventListener('click', cs);
-    const exp = document.getElementById('expertBtn'); if(exp) exp.addEventListener('click', cs);
-
-    // Unlock Normal after Beginner cleared (B-5 clear)
+    // Unlock Normal after First Stage cleared (stage 5 clear)
     const normalBtn = document.getElementById('normalBtn');
     try{
       const unlocked = localStorage.getItem('firstStageCleared') === '1';
       if(unlocked){
         normalBtn.classList.remove('disabled');
         normalBtn.removeAttribute('aria-disabled');
-        normalBtn.textContent = T('normal');
+        normalBtn.textContent = 'NORMAL';
       }else{
-        normalBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert(T('normal_locked_alert')); });
+        normalBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('NORMAL is locked. Clear First Stage (Stage 1-5) to unlock.'); });
       }
     }catch(e){}
-
-    // Show BEST per mode (B/N/TT)
-    try{
-      const b = Number(localStorage.getItem('cubee_best_first') || 0) || 0;
-      const n = Number(localStorage.getItem('cubee_best_normal') || 0) || 0;
-      const t = Number(localStorage.getItem('cubee_best_time') || 0) || 0;
-      const elB = document.getElementById('bestB'); if(elB) elB.textContent = String(b);
-      const elN = document.getElementById('bestN'); if(elN) elN.textContent = String(n);
-      const elT = document.getElementById('bestTT'); if(elT) elT.textContent = String(t);
-    }catch(e){}
   </script>
-
-  <script>
-    // Coming soon handlers
-    (function(){
-      const a=document.getElementById('advancedBtn');
-      const e=document.getElementById('expertBtn');
-      const toast=document.getElementById('toast');
-      function showToast(msg){
-        if(!toast) return;
-        toast.textContent=msg;
-        toast.classList.remove('hidden');
-        setTimeout(()=>toast.classList.add('hidden'), 1200);
-      }
-      if(a) a.addEventListener('click', ()=>showToast('COMING SOON'));
-      if(e) e.addEventListener('click', ()=>showToast('COMING SOON'));
-    })();
-  </script>
-
 </body>
 </html>
