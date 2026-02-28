@@ -16,7 +16,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .logo-cube{font-size:46px;transform:translateY(2px);opacity:.95}
 .logo-text{font-size:38px;font-weight:1000;letter-spacing:.8px}
 .logo-sub{color:var(--muted);font-weight:700;margin-top:4px;font-size:13px}
-.menu-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.menu-buttons{display:flex;gap:10px;margin-top:16px}
 .menu-buttons .btn{flex:1;text-decoration:none;display:inline-flex;justify-content:center;align-items:center}
 .menu-foot{margin-top:16px;display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
 .small{font-size:12px}
@@ -74,26 +74,22 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 }
 
 
-/* v1.5.8: stabilize viewport sizing (prevent iOS address-bar resize jump) */
-html, body {
-  height: 100%;
-  overscroll-behavior: none;
-  touch-action: none;
-}
-body {
+/* v1.5.8: stabilize viewport sizing (prevent iOS address-bar resize jump)
+   NOTE: These "no scroll" rules must apply ONLY while playing (game page).
+*/
+body.gamePage{
   height: 100svh;
   max-height: 100svh;
   overflow: hidden; /* no page scroll while playing */
+  overscroll-behavior: none;
+  touch-action: none;
 }
-.topbar {
+/* Keep safe area padding for both pages */
+.topbar{
   padding-top: env(safe-area-inset-top);
 }
-/* Keep main area fixed */
-.wrap, .menu-wrap {
-  min-height: 0;
-}
 /* Game page: make the whole layout fit inside 100svh */
-.game-wrap {
+body.gamePage .game-wrap{
   height: calc(100svh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
   overflow: hidden;
   display: flex;
@@ -101,24 +97,22 @@ body {
   flex-direction: column;
 }
 /* Ensure score/header never goes outside */
-.hud {
+body.gamePage .hud{
   flex: 0 0 auto;
 }
 /* Canvas sizes from remaining space; keep aspect ratio stable */
-.game-area {
+body.gamePage .game-area{
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-#game {
+body.gamePage #game{
   max-height: calc(100svh - 210px);
   width: min(100%, calc((100svh - 210px) * 0.625));
   height: auto;
 }
-
-
 /* v1.6.11: center board and reduce "right empty" feeling */
 .wrap, .game-wrap {
   display:flex;
@@ -413,10 +407,66 @@ a.menu-btn:hover{ text-decoration: none !important; }
 /* Coming soon */
 a.menu-btn.coming-soon{ opacity: 0.65; }
 
-.menu-buttons .howto-wide{grid-column:1 / -1}
 
+/* ===== Menu: HOW TO wide button ===== */
+.menu-buttons .howto-wide{
+  grid-column: 1 / -1;
+}
 
-/* --- Menu scroll fix (menu should scroll; game should not) --- */
-html, body { height: auto; }
-body.menuPage { overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; height: auto; }
-body.gamePage { overflow: hidden; touch-action: none; height: 100svh; }
+/* ===== Game: Pause / Menu controls (injected by main.js) ===== */
+.pause-bar{
+  position: fixed;
+  right: 10px;
+  top: calc(env(safe-area-inset-top) + 10px);
+  z-index: 40;
+  display: flex;
+  gap: 10px;
+}
+.pause-btn{
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(27,34,58,.18);
+  background: rgba(255,255,255,.86);
+  color: #1b223a;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: .2px;
+  cursor: pointer;
+}
+.pause-btn:active{ transform: scale(0.98); }
+
+.pause-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.55);
+}
+.pause-overlay.hidden{ display: none; }
+.pause-card{
+  width: min(360px, 92vw);
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+.pause-title{
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+.pause-sub{
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.pause-row{
+  display: flex;
+  gap: 10px;
+}
+.pause-row .btn{
+  flex: 1;
+}
