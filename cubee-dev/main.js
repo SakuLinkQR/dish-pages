@@ -300,18 +300,26 @@ function ensurePauseUI(){
 
   function positionPauseBar(){
     try{
-      const scoreEl = document.getElementById("scoreLabel");
       const vvTop = (window.visualViewport && typeof window.visualViewport.offsetTop === "number") ? window.visualViewport.offsetTop : 0;
-      let top = 10;
-      if(scoreEl){
-        const r = scoreEl.getBoundingClientRect();
-        top = Math.round(r.bottom + 10 + vvTop); // place below SCORE
-      }else{
-        top = 80; // fallback
+
+      const anchors = [
+        document.getElementById("scoreLabel"),
+        document.getElementById("timeLabel"),
+        document.getElementById("levelLabel"),
+        document.getElementById("bestLabel"),
+        document.getElementById("stageLabel")
+      ].filter(Boolean);
+
+      let maxBottom = 0;
+      for(const el of anchors){
+        const r = el.getBoundingClientRect();
+        if(r.bottom > maxBottom) maxBottom = r.bottom;
       }
-      bar.style.top = top + "px";
+      if(maxBottom <= 0) maxBottom = 80;
+
+      bar.style.top = Math.round(maxBottom + 10 + vvTop) + "px"; // place below HUD
     }catch(e){
-      bar.style.top = "80px";
+      bar.style.top = "100px";
     }
   }
 
