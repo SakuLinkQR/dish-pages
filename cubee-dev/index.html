@@ -26,8 +26,9 @@
     </div>
 
     <section class="hero">
-<div class="menu-buttons">
-        <a class="btn" href="./game.html?mode=first&stage=1">BEGINNER</a>
+      <div class="logo-sub">Color Match Drop Puzzle</div>
+      <div class="menu-buttons">
+        <a class="btn" href="./game.html?mode=first&stage=1">PLAY</a>
         <a class="btn ghost disabled" id="normalBtn" href="./game.html?mode=normal&stage=1" aria-disabled="true">NORMAL (Locked)</a>
 
         <a class="btn ghost coming-soon" id="advancedBtn" href="javascript:void(0)">ADVANCED</a>
@@ -131,5 +132,19 @@
       const elT = document.getElementById('bestTT'); if(elT) elT.textContent = String(t);
     }catch(e){}
   </script>
+
+<script>
+(function(){
+  try{
+    var p = location.pathname || "";
+    var isDevPath = (p.indexOf("/cubee-dev") !== -1) || (p.indexOf("cubee-dev") !== -1);
+    if(!isDevPath){
+      var badge = document.getElementById("devBadge");
+      if(badge) badge.style.display = "none";
+    }
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
