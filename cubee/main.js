@@ -121,13 +121,49 @@ const FIRST_SPEED_STEPS = [1.00, 1.25, 1.50, 1.75, 2.00];
 let firstSpeedMul = 1.00;
 let firstSpeedTier = 0;
 
+const NORMAL_SPEED_STEPS = [1.0, 1.3, 1.6, 2.0];
+let normalSpeedMul = 1.0;
+
 // ====== Stage System (First Stage + Normal) ======
 // First Stage: Stage 1..5 with clear goals 3..7
 // Normal: separate mode (more mechanics) - currently Stage 1 only
 const STAGE_GOALS_FIRST = [3,4,5,6,7];
-const STAGE_GOALS_NORMAL = [5,6,7,8,9]; // Normal N-1..N-5 goals // Normal Stage 1..2 goals (Stage2 enables Othello Flip)
-let mode = "first"; // "first" | "normal"
+const STAGE_GOALS_NORMAL = [
+  5,6,7,8,9,   // N-1..N-5
+  9,9,9,9,9,   // N-6..N-10
+  9,9,9,9,9,   // N-11..N-15
+  9,9,9,9,9    // N-16..N-20
+];
+let mode = "first"; // "first" | "normal" | "time"
 let stage = 1;
+// ====== Score System ======
+let score = 0;
+let bestScore = 0;
+let lastClearAtMs = 0;
+let combo = 0;
+
+// Carry score only when moving to NEXT stage (clear chain)
+let carryScoreToNextStage = false;
+
+const SCORE_TABLE = [0, 100, 250, 450, 700]; // 1..4 lines
+function baseScoreForLines(n){
+  if(n <= 4) return SCORE_TABLE[n] || 0;
+  return 700 + (n-4)*200;
+}
+function getBestKey(){
+  return `cubee_best_${mode}`; // simple: best per mode
+}
+function loadBestScore(){
+  try{
+    const v = localStorage.getItem(getBestKey());
+    bestScore = v ? Number(v) : 0;
+    if(!Number.isFinite(bestScore)) bestScore = 0;
+  }catch(e){ bestScore = 0; }
+}
+function saveBestScore(){
+  try{ localStorage.setItem(getBestKey(), String(bestScore)); }catch(e){}
+}
+
 
 // Honey Gauge (Normal mode)
 // Fill by clearing lines; when full, the bee can perform a special "Bee Carry".
@@ -149,7 +185,7 @@ function larvaChance(){ return (mode === "normal" && stage >= 2) ? LARVA_CHANCE_
 function readStageFromURL(){
   const sp = new URLSearchParams(location.search);
   const m = (sp.get("mode") || "first").toLowerCase();
-  mode = (m === "normal") ? "normal" : "first";
+  mode = (m === "normal") ? "normal" : (m === "time") ? "time" : "first";
 
   const n = Number(sp.get("stage") || "1");
   stage = (Number.isFinite(n) && n>=1) ? Math.floor(n) : 1;
@@ -157,16 +193,33 @@ function readStageFromURL(){
   if (typeof level !== "undefined") level = stage;
 
   if(mode === "first"){
+
     const len = STAGE_GOALS_FIRST.length;
     const idx = ((stage - 1) % len + len) % len;
-    GOAL_CLEAR = STAGE_GOALS_FIRST[idx] ?? 3;
+    GOAL_CLEAR = (STAGE_GOALS_FIRST[idx]!==undefined && STAGE_GOALS_FIRST[idx]!==null) ? STAGE_GOALS_FIRST[idx] : 3;
 
     // speed tier increases every 5 stages, capped
     firstSpeedTier = Math.min(FIRST_SPEED_STEPS.length-1, Math.floor((stage - 1) / len));
-    firstSpeedMul = FIRST_SPEED_STEPS[firstSpeedTier] ?? 1.00;
-  }else{
+    firstSpeedMul = (FIRST_SPEED_STEPS[firstSpeedTier]!==undefined && FIRST_SPEED_STEPS[firstSpeedTier]!==null) ? FIRST_SPEED_STEPS[firstSpeedTier] : 1.00;
+  } else if(mode === "time"){
+    const len = STAGE_GOALS_FIRST.length;
+    const idx = ((stage - 1) % len + len) % len;
+    GOAL_CLEAR = (STAGE_GOALS_FIRST[idx]!==undefined && STAGE_GOALS_FIRST[idx]!==null) ? STAGE_GOALS_FIRST[idx] : 3;
+    // Time Trial uses a stable speed tier (no surprise speed-ups)
+    firstSpeedTier = 0;
+    firstSpeedMul = 1.00;
+  } else {
     const goals = STAGE_GOALS_NORMAL;
-    GOAL_CLEAR = goals[Math.min(stage, goals.length)-1] ?? goals[0] ?? 5;
+
+    // Normal is capped at N-20
+    stage = Math.min(stage, 20);
+
+    GOAL_CLEAR = (goals[Math.min(stage, goals.length)-1]!==undefined && goals[Math.min(stage, goals.length)-1]!==null) ? goals[Math.min(stage, goals.length)-1] : (goals[0]||5);
+
+    // Speed up every 5 stages: x1.0 / x1.3 / x1.6 / x2.0
+    const tier = Math.min(NORMAL_SPEED_STEPS.length-1, Math.floor((stage - 1) / 5));
+    normalSpeedMul = (NORMAL_SPEED_STEPS[tier]!==undefined && NORMAL_SPEED_STEPS[tier]!==null) ? NORMAL_SPEED_STEPS[tier] : 1.0;
+
     firstSpeedTier = 0;
     firstSpeedMul = 1.00;
   }
@@ -203,6 +256,9 @@ canvas.addEventListener('touchmove',(e)=>e.preventDefault(),{passive:false});
 const ctx=canvas.getContext("2d");
 const cell=Math.floor(Math.min(canvas.width/COLS, canvas.height/ROWS));
 
+const scoreLabel=document.getElementById("scoreLabel");
+const bestLabel=document.getElementById("bestLabel");
+const overlayBonus=document.getElementById("overlayBonus");
 const timeLabel=document.getElementById("timeLabel");
 const levelLabel=document.getElementById("levelLabel");
 const debugClear=document.getElementById("debugClear");
@@ -216,6 +272,144 @@ const overlayTitle=document.getElementById("overlayTitle");
 const overlaySub=document.getElementById("overlaySub");
 const beeFly=document.getElementById("beeFly");
 const toast=document.getElementById("toast");
+
+// ===== Pause / Menu UI (v1.6.78+) =====
+function isJapaneseDevice(){
+  try{
+    return (((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase().startsWith("ja"));
+  }catch(e){ return false; }
+}
+function tr(en, ja){
+  return isJapaneseDevice() ? ja : en;
+}
+function ensurePauseUI(){
+  // Avoid duplicate insertion
+  if(document.getElementById("pauseBar")) return;
+
+  // Bar (top-right)
+  const bar = document.createElement("div");
+  bar.id = "pauseBar";
+  bar.className = "pause-bar";
+
+  // Inline positioning to avoid overlapping with SCORE on small screens (iPhone)
+  bar.style.position = "fixed";
+  bar.style.right = "10px";
+  bar.style.zIndex = "9999";
+  bar.style.display = "flex";
+  bar.style.gap = "8px";
+
+  function positionPauseBar(){
+    try{
+      const vvTop = (window.visualViewport && typeof window.visualViewport.offsetTop === "number") ? window.visualViewport.offsetTop : 0;
+      const vvH = (window.visualViewport && typeof window.visualViewport.height === "number") ? window.visualViewport.height : window.innerHeight;
+
+      const canvasEl = document.getElementById("game");
+      if(canvasEl){
+        const r = canvasEl.getBoundingClientRect();
+        // Place just below the board (canvas). Clamp so it never goes off-screen.
+        const barH = bar.getBoundingClientRect().height || 44;
+        let top = Math.round(r.bottom + 10 + vvTop);
+
+        const maxTop = Math.round(vvTop + vvH - barH - 8);
+        if(top > maxTop) top = maxTop;
+
+        bar.style.top = top + "px";
+        return;
+      }
+
+      // Fallback: below the top HUD
+      const topbar = document.querySelector("header.topbar");
+      if(topbar){
+        const r = topbar.getBoundingClientRect();
+        bar.style.top = Math.round(r.bottom + 8 + vvTop) + "px";
+        return;
+      }
+
+      bar.style.top = "110px";
+    }catch(e){
+      bar.style.top = "110px";
+    }
+  }
+
+  const pauseBtn = document.createElement("button");
+  pauseBtn.type = "button";
+  pauseBtn.className = "pause-btn";
+  pauseBtn.id = "pauseBtn";
+  pauseBtn.textContent = tr("PAUSE", "一時停止");
+
+  const menuBtn = document.createElement("button");
+  menuBtn.type = "button";
+  menuBtn.className = "pause-btn";
+  menuBtn.id = "menuBtn";
+  menuBtn.textContent = tr("MENU", "メニュー");
+
+  bar.appendChild(pauseBtn);
+  bar.appendChild(menuBtn);
+  document.body.appendChild(bar);
+  // Position after insertion
+  requestAnimationFrame(positionPauseBar);
+  window.addEventListener("resize", positionPauseBar);
+  window.addEventListener("orientationchange", positionPauseBar);
+  if(window.visualViewport){ window.visualViewport.addEventListener("resize", positionPauseBar); }
+
+  // Overlay (pause menu)
+  const ov = document.createElement("div");
+  ov.id = "pauseOverlay";
+  ov.className = "pause-overlay hidden";
+  ov.innerHTML = `
+    <div class="pause-card" role="dialog" aria-modal="true" aria-label="Pause">
+      <div class="pause-title">${tr("PAUSED", "一時停止中")}</div>
+      <div class="pause-sub">${tr("Tap RESUME to continue.", "再開で続きからプレイできます。")}</div>
+      <div class="pause-row">
+        <button class="btn" id="resumeBtn" type="button">${tr("RESUME", "再開")}</button>
+        <button class="btn ghost" id="pauseMenuBtn" type="button">${tr("MENU", "メニュー")}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(ov);
+
+  function goMenu(){
+    // Make sure BEST is not lost on manual exit
+    try{
+      if(score > bestScore){
+        bestScore = score;
+        saveBestScore();
+        updateScoreUI();
+      }
+    }catch(e){}
+    paused = false;
+    running = false;
+    ending = false;
+    try{ location.href = "./index.html"; }catch(e){}
+  }
+
+  function setPaused(on){
+    if(ending) return;
+    paused = !!on;
+    const overlay = document.getElementById("pauseOverlay");
+    const pb = document.getElementById("pauseBtn");
+    if(overlay){
+      overlay.classList.toggle("hidden", !paused);
+    }
+    if(pb){
+      pb.textContent = paused ? tr("RESUME", "再開") : tr("PAUSE", "一時停止");
+    }
+  }
+
+  pauseBtn.addEventListener("click", ()=>{
+    if(ending) return;
+    setPaused(!paused);
+  });
+
+  menuBtn.addEventListener("click", ()=>{
+    setPaused(true);
+  });
+
+  ov.addEventListener("click", (e)=>{ if(e.target === ov) setPaused(false); });
+  ov.querySelector("#resumeBtn").addEventListener("click", ()=> setPaused(false));
+  ov.querySelector("#pauseMenuBtn").addEventListener("click", ()=> goMenu());
+}
+
 
 // Global error trap (helps diagnose "nothing falls" issues on iOS/PC)
 window.addEventListener("error", (ev) => {
@@ -235,6 +429,7 @@ toast.addEventListener("animationend", ()=>{ toast.classList.add("hidden"); toas
 
 
 let grid, piece, running=true, ending=false;
+let paused=false;
 let elapsedMs=0, level=1, fallIntervalMs=FALL_START_MS, fallAccMs=0;
 let progress=0;
 let clearStreak=0; // consecutive turns with >=1 line cleared
@@ -245,13 +440,13 @@ let toastSeq = 0;
 
 // Prevent double-tap / double-click on overlay buttons (iOS can fire twice)
 let modalNavLocked = false;
-const lang = ((document.documentElement.getAttribute("lang") || "en").toLowerCase().startsWith("ja")) ? "ja" : "en";
+const lang = (((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase().startsWith("ja")) ? "ja" : "en";
 
 
 let rainbowUsed=false, rainbowPending=false;
 
 function updateUI(){
-  const code = (mode === "normal") ? `N-${stage}` : `B-${stage}`;
+  const code = (mode === "normal") ? `N-${stage}` : (mode === "time") ? `TT-${stage}` : `B-${stage}`;
   comboLabel.textContent=`${code}  CLEAR ${Math.min(progress,GOAL_CLEAR)} / ${GOAL_CLEAR}`;
   // Honey gauge (Normal mode only)
   if (honeyGauge) {
@@ -519,7 +714,7 @@ function applyLarvaTransforms(placedCells){
 function isClearColor(v){
   // Only finite numeric colors can participate in normal line clear.
   // Treat null/undefined/NaN/strings as empty or invalid.
-  return (typeof v === "number") && Number.isFinite(v) && v !== LARVA_COLOR;
+  return (typeof v === "number") && Number.isFinite(v) && (mode !== "normal" || v !== LARVA_COLOR);
 }
 function isRowClearableStrict(y){
   const row = grid[y];
@@ -579,6 +774,23 @@ function clearCascade(){
 function endGame(title,sub,withBee=false){
   if(ending) return;
   ending=true; running=false;
+  paused=false;
+  try{ const po=document.getElementById("pauseOverlay"); if(po) po.classList.add("hidden"); }catch(e){}
+
+
+  // Time Trial bonus (rank by time left)
+  let timeBonusText = "";
+  if ((title === "CLEAR!" || String(title).startsWith("CLEAR")) && mode === "time") {
+    const remainSec = Math.max(0, MODE_SECONDS - Math.floor((elapsedMs||0)/1000));
+    const tb = calcTimeBonus(remainSec);
+    if (tb.bonus > 0) {
+      score += tb.bonus;
+      if (score > bestScore) { bestScore = score; saveBestScore(); }
+      updateScoreUI();
+    }
+    timeBonusText = `TIME LEFT ${formatMMSS(remainSec)}  ${tb.rank}  +${tb.bonus}` + (tb.extra ? ` (extra +${tb.extra})` : ``);
+  }
+
 
   // Stage clearの場合：NEXTの出し分け
   if (title === "CLEAR!" || String(title).startsWith("CLEAR")) {
@@ -602,6 +814,7 @@ function endGame(title,sub,withBee=false){
     try{ nextBtn.disabled = false; nextBtn.style.pointerEvents="auto"; }catch(e){}
     overlayTitle.textContent=title;
     overlaySub.textContent=sub;
+    if(overlayBonus){ overlayBonus.textContent = timeBonusText; overlayBonus.style.display = timeBonusText ? "block" : "none"; }
     overlay.classList.remove("hidden");
   };
   if(withBee){
@@ -643,8 +856,9 @@ if (cleared === 0) {
       const initialClearedBee = beeCleared;
       if (beeCleared > 0) {
         const actually = clearCascade();
+        // Bee assist is rescue-only: no score is granted
         progress += actually;
-        if (mode === "normal" && actually > 0) {
+if (mode === "normal" && actually > 0) {
           const gain = (actually >= 3 || lastCascadePasses > 1) ? 2 : 1;
           addHoney(gain);
         }
@@ -697,6 +911,8 @@ if (cleared === 0) {
       const addLines = (mode === "first" && stage === 1) ? Math.min(actually, initialCleared) : actually;
       progress += addLines;
       const shownLines = addLines;
+      // Score: count only normal clears (bee assist is handled separately)
+      addScore(shownLines, false);
       // --- First Stage bee "reward" tuning (v1.6.42) ---
       // Track consecutive clear streaks (combo feeling)
       if (actually > 0) clearStreak++; else clearStreak = 0;
@@ -750,7 +966,7 @@ if (cleared === 0) {
     
       } catch (e) {
         console.error(e);
-        showToast("ERROR");
+        try{ window.__lastErr = (e && e.message) ? e.message : String(e); }catch(_){}
         // Fail-safe: resume the game even if something went wrong during clear handling
         clearingRows = null;
         clearingUntil = 0;
@@ -882,6 +1098,66 @@ function formatMMSS(sec){
   const s=String(sec%60).padStart(2,"0");
   return `${m}:${s}`;
 }
+
+function updateScoreUI(){
+  if(scoreLabel) scoreLabel.textContent = `SCORE ${score}`;
+  if(bestLabel) bestLabel.textContent = `BEST ${bestScore}`;
+}
+function resetScoreForStage(){
+  // Keep score when moving to NEXT stage; reset only on retry / new run
+  if(!carryScoreToNextStage){
+    score = 0;
+    combo = 0;
+    lastClearAtMs = 0;
+  }else{
+    // Prevent combo carry-over across stages
+    combo = 0;
+    lastClearAtMs = 0;
+  }
+  carryScoreToNextStage = false;
+
+  loadBestScore();
+  updateScoreUI();
+}
+function addScore(lines, isBee=false){
+  if(lines<=0) return;
+  // Bee clears are rescue: no score (change to 0.5 if you want)
+  if(isBee) return;
+
+  const now = elapsedMs || 0;
+  // simple combo: within 3000ms counts
+  if(now - lastClearAtMs <= 3000){
+    combo = Math.min(combo + 1, 4);
+  }else{
+    combo = 1;
+  }
+  lastClearAtMs = now;
+
+  const base = baseScoreForLines(lines);
+  const comboBonusRate = [0, 0, 0.10, 0.20, 0.30]; // index=combo
+  const rate = comboBonusRate[combo] || 0;
+  const gained = Math.round(base * (1 + rate));
+  score += gained;
+  if(score > bestScore){
+    bestScore = score;
+    saveBestScore();
+  }
+  updateScoreUI();
+}
+function calcTimeBonus(remainSec){
+  // Rank bonus
+  let base;
+  if(remainSec >= 120) base = {rank:"GOLD", bonus:3000};
+  else if(remainSec >= 60) base = {rank:"SILVER", bonus:1500};
+  else if(remainSec >= 1) base = {rank:"BRONZE", bonus:500};
+  else base = {rank:"NO BONUS", bonus:0};
+
+  // Extra time bonus: +10 points per 10 seconds left (e.g. 82s -> +80)
+  const extra = Math.floor(remainSec / 10) * 10;
+
+  return { rank: base.rank, bonus: base.bonus + extra, extra };
+}
+
 function tickTime(dt){
   if(ending) return;
   elapsedMs+=dt;
@@ -891,14 +1167,15 @@ function tickTime(dt){
   if(newLevel!==level){
     level=newLevel;
     levelLabel.textContent=`Lv ${level}`;
-    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ (mode==="first"? firstSpeedMul:1.0)));
+    const mul = (mode==="first" ? firstSpeedMul : (mode==="normal" ? normalSpeedMul : 1.0));
+    fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor((FALL_START_MS*Math.pow(0.90,level-1))/ mul));
   }
   if(remain<=0) endGame("DOWN…",`時間切れ（Stage ${stage}  CLEAR ${progress}/${GOAL_CLEAR}）`);
 }
 
 // Keyboard
 window.addEventListener("keydown",(e)=>{
-  if(!running||ending) return;
+  if(!running||ending||paused) return;
   if(e.key==="ArrowLeft"){e.preventDefault();move(-1,0);}
   if(e.key==="ArrowRight"){e.preventDefault();move(1,0);}
   if(e.key==="ArrowDown"){e.preventDefault();softDrop();}
@@ -909,9 +1186,9 @@ window.addEventListener("keydown",(e)=>{
 
 // Touch
 let touchStart=null;
-canvas.addEventListener("pointerdown",(e)=>{ if(!running||ending) return; touchStart={x:e.clientX,y:e.clientY}; });
+canvas.addEventListener("pointerdown",(e)=>{ if(!running||ending||paused) return; touchStart={x:e.clientX,y:e.clientY}; });
 canvas.addEventListener("pointerup",(e)=>{
-  if(!running||ending||!touchStart) return;
+  if(!running||ending||paused||!touchStart) return;
   const dx=e.clientX-touchStart.x, dy=e.clientY-touchStart.y;
   const dist=Math.hypot(dx,dy);
   if(dist>40 && dy>30){ hardDrop(); touchStart=null; return; }
@@ -926,6 +1203,7 @@ canvas.addEventListener("pointerup",(e)=>{
 
 retryBtn.addEventListener("click",()=>{
   if(modalNavLocked) return;
+  carryScoreToNextStage = false; // Retry should reset score
   modalNavLocked = true;
   try{ retryBtn.disabled = true; retryBtn.style.pointerEvents="none"; }catch(e){}
   try{ nextBtn.disabled = true; nextBtn.style.pointerEvents="none"; }catch(e){}
@@ -951,8 +1229,10 @@ nextBtn.addEventListener("click",()=>{
     // Advance stage without full reload (avoids iOS/PWA cache issues)
     if (hasNextStage()) {
       stage = stage + 1;
+      carryScoreToNextStage = true;  // NEXT keeps cumulative score
     } else {
       stage = 1;
+      carryScoreToNextStage = false; // Play again resets score
     }
     // Update URL for sharing/debugging, but keep app state in-place
     const url = `./game.html?mode=${mode}&stage=${stage}`;
@@ -970,7 +1250,7 @@ nextBtn.addEventListener("click",()=>{
 let last=performance.now();
 function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
-  if(running && !ending){
+  if(running && !ending && !paused){
     tickTime(dt);
     tickBeeCarry();
     fallAccMs+=dt;
@@ -988,7 +1268,10 @@ function loop(now){
 }
 
 function start(){
+  paused = false;
+  ensurePauseUI();
   readStageFromURL();
+  resetScoreForStage();
   overlay.classList.add("hidden");
   if (nextBtn) nextBtn.style.display = "none";
   if(endTimerId){ clearTimeout(endTimerId); endTimerId=null; }
@@ -999,11 +1282,17 @@ function start(){
   assistUsed = 0;
   piece=spawnPiece();
   running=true; ending=false;
-  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/firstSpeedMul)); fallAccMs=0;
+  const mul = (mode==="first" ? firstSpeedMul : (mode==="normal" ? normalSpeedMul : 1.0));
+  elapsedMs=0; level=1; fallIntervalMs=Math.max(FALL_MIN_MS, Math.floor(FALL_START_MS/ mul)); fallAccMs=0;
   progress=0; clearStreak=0; stageBeeBonusUsed=0; stbAssistUsed=0; updateUI();
   // Speed-up notice at the beginning of each new 5-stage block (B-6, B-11, ...)
   if(mode==="first" && firstSpeedTier>0 && ((stage-1)%STAGE_GOALS_FIRST.length)===0){
     showToast((lang==="ja"?`スピードアップ！ ×${firstSpeedMul.toFixed(2)}`:`SPEED UP! ×${firstSpeedMul.toFixed(2)}`));
+  }
+
+  // Normal speed-up notice at N-6 / N-11 / N-16
+  if(mode==="normal" && (stage===6 || stage===11 || stage===16)){
+    showToast((lang==="ja"?`スピードアップ！ ×${normalSpeedMul.toFixed(1)}`:`SPEED UP! ×${normalSpeedMul.toFixed(1)}`));
   }
   if(debugClear) debugClear.textContent = "+0";
   beeMark = null;

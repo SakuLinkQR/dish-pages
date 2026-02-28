@@ -74,26 +74,22 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 }
 
 
-/* v1.5.8: stabilize viewport sizing (prevent iOS address-bar resize jump) */
-html, body {
-  height: 100%;
-  overscroll-behavior: none;
-  touch-action: none;
-}
-body {
+/* v1.5.8: stabilize viewport sizing (prevent iOS address-bar resize jump)
+   NOTE: These "no scroll" rules must apply ONLY while playing (game page).
+*/
+body.gamePage{
   height: 100svh;
   max-height: 100svh;
   overflow: hidden; /* no page scroll while playing */
+  overscroll-behavior: none;
+  touch-action: none;
 }
-.topbar {
+/* Keep safe area padding for both pages */
+.topbar{
   padding-top: env(safe-area-inset-top);
 }
-/* Keep main area fixed */
-.wrap, .menu-wrap {
-  min-height: 0;
-}
 /* Game page: make the whole layout fit inside 100svh */
-.game-wrap {
+body.gamePage .game-wrap{
   height: calc(100svh - (env(safe-area-inset-top) + env(safe-area-inset-bottom)));
   overflow: hidden;
   display: flex;
@@ -101,24 +97,22 @@ body {
   flex-direction: column;
 }
 /* Ensure score/header never goes outside */
-.hud {
+body.gamePage .hud{
   flex: 0 0 auto;
 }
 /* Canvas sizes from remaining space; keep aspect ratio stable */
-.game-area {
+body.gamePage .game-area{
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-#game {
+body.gamePage #game{
   max-height: calc(100svh - 210px);
   width: min(100%, calc((100svh - 210px) * 0.625));
   height: auto;
 }
-
-
 /* v1.6.11: center board and reduce "right empty" feeling */
 .wrap, .game-wrap {
   display:flex;
@@ -185,4 +179,294 @@ a, button, #game {
   0%{transform:scale(1);}
   50%{transform:scale(1.08);}
   100%{transform:scale(1);}
+}
+
+/* DEV overlay badge (no assets change) */
+#devBadge{
+  position: fixed;
+  left: 50%;
+  top: 18%;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  z-index: 9999;
+
+  font-size: 72px;
+  font-weight: 900;
+  letter-spacing: 4px;
+
+  padding: 14px 22px;
+  border-radius: 16px;
+
+  color: #111;
+  background: rgba(255, 230, 0, 0.88);
+  border: 4px solid rgba(0,0,0,0.75);
+
+  box-shadow: 0 14px 30px rgba(0,0,0,0.4);
+}
+
+
+/* ===== Menu layout: 2 columns + scroll (DEV) ===== */
+body{ overflow-y: auto; }
+
+.menu-buttons{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 560px;
+  margin: 0 auto;
+  align-items: stretch;
+}
+
+.menu-buttons .btn,
+.menu-buttons a.btn,
+.menu-buttons button.btn{
+  min-height: 56px;
+  padding: 14px 12px;
+  line-height: 1.1;
+  white-space: normal;
+}
+
+/* BEST big panel under game buttons */
+.bestPanel{
+  max-width: 560px;
+  margin: 14px auto 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.bestBig{
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-align: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.25);
+}
+
+/* Policy links at bottom */
+.legalLinks{
+  max-width: 560px;
+  margin: 18px auto 24px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.75;
+}
+.legalLinks a{ text-decoration: none; }
+
+
+/* Language helpers */
+html[lang="ja"] .en{display:none !important;}
+html:not([lang="ja"]) .ja{display:none !important;}
+
+
+/* ===== iOS scroll fix (menu page) =====
+   Some iPhone/PWA setups end up with body locked (overflow:hidden) by earlier styles.
+   These overrides ensure the page can scroll when content is taller than the viewport.
+*/
+html, body{
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* If any wrapper is forcing fixed viewport height, relax it */
+#app, .app, .wrap, .container, .root{
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow: visible !important;
+}
+
+/* If the page uses fixed positioning on a main panel, allow it to size naturally */
+.panel, .menu-panel, .card{
+  position: relative !important;
+}
+
+
+/* Coming soon buttons */
+.coming-soon{
+  opacity: 0.6;
+}
+.coming-soon:hover{
+  opacity: 0.85;
+}
+
+
+/* ===== menuPage scroll override (iPhone/PWA friendly) ===== */
+html, body.menuPage{
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+body.menuPage .background,
+body.menuPage .center-wrap,
+body.menuPage .card{
+  height: auto !important;
+  max-height: none !important;
+}
+body.menuPage .coming-soon{ opacity: 0.6; }
+body.menuPage .coming-soon:active{ opacity: 0.85; }
+
+
+/* ===== Strong iOS scroll fix (menu page) ===== */
+html{
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+body.menuPage{
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* If a fixed background layer is blocking touches, disable pointer events */
+body.menuPage .background{
+  pointer-events: none !important;
+}
+
+/* If some wrapper forces viewport height, relax it */
+body.menuPage .center-wrap,
+body.menuPage .wrap,
+body.menuPage .container,
+body.menuPage .card,
+body.menuPage .panel{
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* ===== Ensure anchor buttons look like buttons ===== */
+.menu-buttons a.menu-btn,
+.menuButtons a.menu-btn,
+a.menu-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
+}
+
+a.menu-btn:visited{ color: inherit; }
+a.menu-btn:hover{ text-decoration: none !important; }
+
+/* Coming soon buttons (still clickable, but looks disabled) */
+a.menu-btn.coming-soon{
+  opacity: 0.65;
+}
+
+
+/* ===== Scroll & viewport rules (menu vs game) ===== */
+/* Default: allow scrolling */
+html, body{
+  height: auto;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Game page only: lock the viewport */
+body.gamePage{
+  height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* Menu page: must be scrollable (iPhone/PWA friendly) */
+body.menuPage{
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure menu anchor buttons render like buttons */
+.menu-buttons a.menu-btn, a.menu-btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
+}
+a.menu-btn:visited{ color: inherit; }
+a.menu-btn:hover{ text-decoration: none !important; }
+
+/* Coming soon */
+a.menu-btn.coming-soon{ opacity: 0.65; }
+
+
+/* ===== Menu: HOW TO wide button ===== */
+.menu-buttons .howto-wide{
+  grid-column: 1 / -1;
+}
+
+/* ===== Game: Pause / Menu controls (injected by main.js) ===== */
+.pause-bar{
+  position: fixed;
+  right: 10px;
+  top: calc(env(safe-area-inset-top) + 10px);
+  z-index: 40;
+  display: flex;
+  gap: 10px;
+}
+.pause-btn{
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(27,34,58,.18);
+  background: rgba(255,255,255,.86);
+  color: #1b223a;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: .2px;
+  cursor: pointer;
+}
+.pause-btn:active{ transform: scale(0.98); }
+
+.pause-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.55);
+}
+.pause-overlay.hidden{ display: none; }
+.pause-card{
+  width: min(360px, 92vw);
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+.pause-title{
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+.pause-sub{
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.pause-row{
+  display: flex;
+  gap: 10px;
+}
+.pause-row .btn{
+  flex: 1;
 }

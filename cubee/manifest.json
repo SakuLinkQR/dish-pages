@@ -1,7 +1,7 @@
 {
   "name": "CuBee Drop",
   "short_name": "CuBeeDrop",
-  "start_url": "./index.html?v=1.6.38",
+  "start_url": "./index.html?v=1.6.78",
   "display": "standalone",
   "background_color": "#f6f8ff",
   "theme_color": "#f6f8ff",
