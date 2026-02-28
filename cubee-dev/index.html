@@ -30,12 +30,10 @@
       <div class="menu-buttons">
         <a class="btn" href="./game.html?mode=first&stage=1">PLAY</a>
         <a class="btn ghost disabled" id="normalBtn" href="./game.html?mode=normal&stage=1" aria-disabled="true">NORMAL (Locked)</a>
-
-        <a class="btn ghost coming-soon" id="advancedBtn" href="javascript:void(0)">ADVANCED</a>
-        <a class="btn ghost coming-soon" id="expertBtn" href="javascript:void(0)">EXPERT</a>
-
-        <button class="btn howto-wide" id="howtoBtn" type="button">HOW TO</button>
-      </div>
+        <button class="btn ghost" id="howtoBtn" type="button">HOW TO</button>
+    <a class="menu-btn coming-soon" id="advancedBtn" href="javascript:void(0)">ADVANCED</a>
+    <a class="menu-btn coming-soon" id="expertBtn" href="javascript:void(0)">EXPERT</a>
+</div>
 
       <div class="bestPanel">
         <div class="bestBig">BEST (B): <span id="bestB">0</span></div>
@@ -66,9 +64,10 @@
 
         <ul class="howto">
           <li><b><span class="en">Clear a full line of 10 blocks in the same color</span><span class="ja">同じ色で1列そろえる</span></b><span class="en"> to erase that row.</span><span class="ja">と、その列が消えます。</span></li>
-          <li><b><span class="en">Goal:</span><span class="ja">クリア条件：</span></b><span class="en"> Clear rows to fill progress. Clear <b>3</b> rows to win.</span><span class="ja">列消しで進捗が増え、<b>合計3</b>でクリア。</span></li>
-          <li><b><span class="en">Mobile (iPhone/Android):</span><span class="ja">スマホ（iPhone/Android）：</span></b><span class="en"> Tap left = move left / Tap right = move right / Tap center = change color</span><span class="ja">左タップ=左 / 右タップ=右 / 中央タップ=色チェンジ</span></li>
-          <li><b><span class="en">Mobile gestures:</span><span class="ja">スマホ操作：</span></b><span class="en"> Swipe up = rotate / Swipe down = hard drop</span><span class="ja">上フリック=回転 / 下フリック=一気に落とす</span></li>
+          <li><b><span class="en">Goal:</span><span class="ja">クリア条件：</span></b><span class="en"> Clear the required number of rows to win (the goal changes by stage).</span><span class="ja">指定された行数を消すとクリア（ステージごとに目標が変わります）。</span></li>
+          <li><b><span class="en">Mobile (iPhone/Android):</span><span class="ja">スマホ（iPhone/Android）：</span></b><span class="en"> Tap left = move left / tap right = move right / tap center = change color.</span><span class="ja">左タップ＝左 / 右タップ＝右 / 画面中央タップ＝色チェンジ</span></li>
+          <li><b><span class="en">Mobile gestures:</span><span class="ja">スマホ操作：</span></b><span class="en"> Swipe up = rotate / Swipe down = hard drop</span><span class="ja">上フリック=回転 / 下フリック=一気に落とす</span>          <li><b><span class="en">Score:</span><span class="ja">得点：</span></b><span class="en"> Clear more rows at once for higher points. Combos also boost your score.</span><span class="ja">同時に多く消すほど高得点。コンボ（連続消し）でも得点アップ。</span></li>
+</li>
         </ul>
 
         <div class="tip"><span class="en">TIP: Your progress never goes down. Aim for 1 cleared row first to stay safe.</span><span class="ja">TIP：消せない手があっても進捗は減りません。まずは1列消しを狙うと安定します。</span></div>
@@ -132,5 +131,23 @@
       const elT = document.getElementById('bestTT'); if(elT) elT.textContent = String(t);
     }catch(e){}
   </script>
+
+  <script>
+    // Coming soon handlers
+    (function(){
+      const a=document.getElementById('advancedBtn');
+      const e=document.getElementById('expertBtn');
+      const toast=document.getElementById('toast');
+      function showToast(msg){
+        if(!toast) return;
+        toast.textContent=msg;
+        toast.classList.remove('hidden');
+        setTimeout(()=>toast.classList.add('hidden'), 1200);
+      }
+      if(a) a.addEventListener('click', ()=>showToast('COMING SOON'));
+      if(e) e.addEventListener('click', ()=>showToast('COMING SOON'));
+    })();
+  </script>
+
 </body>
 </html>
