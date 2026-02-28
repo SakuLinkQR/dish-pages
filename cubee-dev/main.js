@@ -302,24 +302,33 @@ function ensurePauseUI(){
     try{
       const vvTop = (window.visualViewport && typeof window.visualViewport.offsetTop === "number") ? window.visualViewport.offsetTop : 0;
 
+      // Prefer placing the buttons below the entire top HUD (to avoid overlapping SCORE/TIME etc.)
+      const topbar = document.querySelector("header.topbar");
+      if(topbar){
+        const r = topbar.getBoundingClientRect();
+        bar.style.top = Math.round(r.bottom + 8 + vvTop) + "px";
+        return;
+      }
+
+      // Fallback: place below the lowest HUD element
       const anchors = [
+        document.getElementById("comboLabel"),
         document.getElementById("scoreLabel"),
-        document.getElementById("timeLabel"),
-        document.getElementById("levelLabel"),
         document.getElementById("bestLabel"),
-        document.getElementById("stageLabel")
+        document.getElementById("timeLabel"),
+        document.getElementById("levelLabel")
       ].filter(Boolean);
 
       let maxBottom = 0;
       for(const el of anchors){
-        const r = el.getBoundingClientRect();
-        if(r.bottom > maxBottom) maxBottom = r.bottom;
+        const rr = el.getBoundingClientRect();
+        if(rr.bottom > maxBottom) maxBottom = rr.bottom;
       }
-      if(maxBottom <= 0) maxBottom = 80;
+      if(maxBottom <= 0) maxBottom = 90;
 
-      bar.style.top = Math.round(maxBottom + 10 + vvTop) + "px"; // place below HUD
+      bar.style.top = Math.round(maxBottom + 8 + vvTop) + "px";
     }catch(e){
-      bar.style.top = "100px";
+      bar.style.top = "110px";
     }
   }
 
