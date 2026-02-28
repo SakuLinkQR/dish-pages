@@ -413,8 +413,6 @@ a.menu-btn:hover{ text-decoration: none !important; }
 /* Coming soon */
 a.menu-btn.coming-soon{ opacity: 0.65; }
 
-
-/* Menu layout */
 .menu-buttons .howto-wide{grid-column:1 / -1}
 
 
