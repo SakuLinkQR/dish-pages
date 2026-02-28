@@ -292,11 +292,23 @@ function ensurePauseUI(){
   bar.className = "pause-bar";
 
   // Inline positioning to avoid overlapping with SCORE on small screens (iPhone)
-  bar.style.position = "static";
-  bar.style.margin = "6px 10px 0 auto";
+  bar.style.position = "fixed";
+  bar.style.right = "10px";
+  bar.style.zIndex = "9999";
   bar.style.display = "flex";
-  bar.style.justifyContent = "flex-end";
   bar.style.gap = "8px";
+
+  function positionPauseBar(){
+    try{
+      const vvTop = (window.visualViewport && typeof window.visualViewport.offsetTop === "number") ? window.visualViewport.offsetTop : 0;
+
+      // Prefer placing the buttons below the entire top HUD (to avoid overlapping SCORE/TIME etc.)
+      const topbar = document.querySelector("header.topbar");
+      if(topbar){
+        const r = topbar.getBoundingClientRect();
+        bar.style.top = Math.round(r.bottom + 8 + vvTop) + "px";
+        return;
+      }
 
       // Fallback: place below the lowest HUD element
       const anchors = [
@@ -334,8 +346,13 @@ function ensurePauseUI(){
 
   bar.appendChild(pauseBtn);
   bar.appendChild(menuBtn);
-  const topbar = document.querySelector("header.topbar");
-  (topbar || document.body).appendChild(bar);
+  document.body.appendChild(bar);
+  // Position after insertion
+  requestAnimationFrame(positionPauseBar);
+  window.addEventListener("resize", positionPauseBar);
+  window.addEventListener("orientationchange", positionPauseBar);
+  if(window.visualViewport){ window.visualViewport.addEventListener("resize", positionPauseBar); }
+
   // Overlay (pause menu)
   const ov = document.createElement("div");
   ov.id = "pauseOverlay";
