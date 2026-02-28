@@ -30,10 +30,12 @@
       <div class="menu-buttons">
         <a class="btn" href="./game.html?mode=first&stage=1">PLAY</a>
         <a class="btn ghost disabled" id="normalBtn" href="./game.html?mode=normal&stage=1" aria-disabled="true">NORMAL (Locked)</a>
-        <button class="btn ghost" id="howtoBtn" type="button">HOW TO</button>
-    <a class="menu-btn coming-soon" id="advancedBtn" href="javascript:void(0)">ADVANCED</a>
-    <a class="menu-btn coming-soon" id="expertBtn" href="javascript:void(0)">EXPERT</a>
-</div>
+
+        <a class="btn ghost coming-soon" id="advancedBtn" href="javascript:void(0)">ADVANCED</a>
+        <a class="btn ghost coming-soon" id="expertBtn" href="javascript:void(0)">EXPERT</a>
+
+        <button class="btn howto-wide" id="howtoBtn" type="button">HOW TO</button>
+      </div>
 
       <div class="bestPanel">
         <div class="bestBig">BEST (B): <span id="bestB">0</span></div>
@@ -130,23 +132,5 @@
       const elT = document.getElementById('bestTT'); if(elT) elT.textContent = String(t);
     }catch(e){}
   </script>
-
-  <script>
-    // Coming soon handlers
-    (function(){
-      const a=document.getElementById('advancedBtn');
-      const e=document.getElementById('expertBtn');
-      const toast=document.getElementById('toast');
-      function showToast(msg){
-        if(!toast) return;
-        toast.textContent=msg;
-        toast.classList.remove('hidden');
-        setTimeout(()=>toast.classList.add('hidden'), 1200);
-      }
-      if(a) a.addEventListener('click', ()=>showToast('COMING SOON'));
-      if(e) e.addEventListener('click', ()=>showToast('COMING SOON'));
-    })();
-  </script>
-
 </body>
 </html>

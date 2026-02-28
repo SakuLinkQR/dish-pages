@@ -273,6 +273,99 @@ const overlaySub=document.getElementById("overlaySub");
 const beeFly=document.getElementById("beeFly");
 const toast=document.getElementById("toast");
 
+// ===== Pause / Menu UI (v1.6.78+) =====
+function isJapaneseDevice(){
+  try{
+    return (((navigator.languages && navigator.languages[0]) || navigator.language || "en").toLowerCase().startsWith("ja"));
+  }catch(e){ return false; }
+}
+function tr(en, ja){
+  return isJapaneseDevice() ? ja : en;
+}
+function ensurePauseUI(){
+  // Avoid duplicate insertion
+  if(document.getElementById("pauseBar")) return;
+
+  // Bar (top-right)
+  const bar = document.createElement("div");
+  bar.id = "pauseBar";
+  bar.className = "pause-bar";
+
+  const pauseBtn = document.createElement("button");
+  pauseBtn.type = "button";
+  pauseBtn.className = "pause-btn";
+  pauseBtn.id = "pauseBtn";
+  pauseBtn.textContent = tr("PAUSE", "一時停止");
+
+  const menuBtn = document.createElement("button");
+  menuBtn.type = "button";
+  menuBtn.className = "pause-btn";
+  menuBtn.id = "menuBtn";
+  menuBtn.textContent = tr("MENU", "メニュー");
+
+  bar.appendChild(pauseBtn);
+  bar.appendChild(menuBtn);
+  document.body.appendChild(bar);
+
+  // Overlay (pause menu)
+  const ov = document.createElement("div");
+  ov.id = "pauseOverlay";
+  ov.className = "pause-overlay hidden";
+  ov.innerHTML = `
+    <div class="pause-card" role="dialog" aria-modal="true" aria-label="Pause">
+      <div class="pause-title">${tr("PAUSED", "一時停止中")}</div>
+      <div class="pause-sub">${tr("Tap RESUME to continue.", "再開で続きからプレイできます。")}</div>
+      <div class="pause-row">
+        <button class="btn" id="resumeBtn" type="button">${tr("RESUME", "再開")}</button>
+        <button class="btn ghost" id="pauseMenuBtn" type="button">${tr("MENU", "メニュー")}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(ov);
+
+  function goMenu(){
+    // Make sure BEST is not lost on manual exit
+    try{
+      if(score > bestScore){
+        bestScore = score;
+        saveBestScore();
+        updateScoreUI();
+      }
+    }catch(e){}
+    paused = false;
+    running = false;
+    ending = false;
+    try{ location.href = "./index.html"; }catch(e){}
+  }
+
+  function setPaused(on){
+    if(ending) return;
+    paused = !!on;
+    const overlay = document.getElementById("pauseOverlay");
+    const pb = document.getElementById("pauseBtn");
+    if(overlay){
+      overlay.classList.toggle("hidden", !paused);
+    }
+    if(pb){
+      pb.textContent = paused ? tr("RESUME", "再開") : tr("PAUSE", "一時停止");
+    }
+  }
+
+  pauseBtn.addEventListener("click", ()=>{
+    if(ending) return;
+    setPaused(!paused);
+  });
+
+  menuBtn.addEventListener("click", ()=>{
+    setPaused(true);
+  });
+
+  ov.addEventListener("click", (e)=>{ if(e.target === ov) setPaused(false); });
+  ov.querySelector("#resumeBtn").addEventListener("click", ()=> setPaused(false));
+  ov.querySelector("#pauseMenuBtn").addEventListener("click", ()=> goMenu());
+}
+
+
 // Global error trap (helps diagnose "nothing falls" issues on iOS/PC)
 window.addEventListener("error", (ev) => {
   try {
@@ -291,6 +384,7 @@ toast.addEventListener("animationend", ()=>{ toast.classList.add("hidden"); toas
 
 
 let grid, piece, running=true, ending=false;
+let paused=false;
 let elapsedMs=0, level=1, fallIntervalMs=FALL_START_MS, fallAccMs=0;
 let progress=0;
 let clearStreak=0; // consecutive turns with >=1 line cleared
@@ -635,6 +729,8 @@ function clearCascade(){
 function endGame(title,sub,withBee=false){
   if(ending) return;
   ending=true; running=false;
+  paused=false;
+  try{ const po=document.getElementById("pauseOverlay"); if(po) po.classList.add("hidden"); }catch(e){}
 
 
   // Time Trial bonus (rank by time left)
@@ -1034,7 +1130,7 @@ function tickTime(dt){
 
 // Keyboard
 window.addEventListener("keydown",(e)=>{
-  if(!running||ending) return;
+  if(!running||ending||paused) return;
   if(e.key==="ArrowLeft"){e.preventDefault();move(-1,0);}
   if(e.key==="ArrowRight"){e.preventDefault();move(1,0);}
   if(e.key==="ArrowDown"){e.preventDefault();softDrop();}
@@ -1045,9 +1141,9 @@ window.addEventListener("keydown",(e)=>{
 
 // Touch
 let touchStart=null;
-canvas.addEventListener("pointerdown",(e)=>{ if(!running||ending) return; touchStart={x:e.clientX,y:e.clientY}; });
+canvas.addEventListener("pointerdown",(e)=>{ if(!running||ending||paused) return; touchStart={x:e.clientX,y:e.clientY}; });
 canvas.addEventListener("pointerup",(e)=>{
-  if(!running||ending||!touchStart) return;
+  if(!running||ending||paused||!touchStart) return;
   const dx=e.clientX-touchStart.x, dy=e.clientY-touchStart.y;
   const dist=Math.hypot(dx,dy);
   if(dist>40 && dy>30){ hardDrop(); touchStart=null; return; }
@@ -1109,7 +1205,7 @@ nextBtn.addEventListener("click",()=>{
 let last=performance.now();
 function loop(now){
   let dt=now-last; last=now; if(dt>100) dt=100;
-  if(running && !ending){
+  if(running && !ending && !paused){
     tickTime(dt);
     tickBeeCarry();
     fallAccMs+=dt;
@@ -1127,6 +1223,8 @@ function loop(now){
 }
 
 function start(){
+  paused = false;
+  ensurePauseUI();
   readStageFromURL();
   resetScoreForStage();
   overlay.classList.add("hidden");

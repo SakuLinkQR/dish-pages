@@ -406,3 +406,67 @@ a.menu-btn:hover{ text-decoration: none !important; }
 
 /* Coming soon */
 a.menu-btn.coming-soon{ opacity: 0.65; }
+
+
+/* ===== Menu: HOW TO wide button ===== */
+.menu-buttons .howto-wide{
+  grid-column: 1 / -1;
+}
+
+/* ===== Game: Pause / Menu controls (injected by main.js) ===== */
+.pause-bar{
+  position: fixed;
+  right: 10px;
+  top: calc(env(safe-area-inset-top) + 10px);
+  z-index: 40;
+  display: flex;
+  gap: 10px;
+}
+.pause-btn{
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(27,34,58,.18);
+  background: rgba(255,255,255,.86);
+  color: #1b223a;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: .2px;
+  cursor: pointer;
+}
+.pause-btn:active{ transform: scale(0.98); }
+
+.pause-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.55);
+}
+.pause-overlay.hidden{ display: none; }
+.pause-card{
+  width: min(360px, 92vw);
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+.pause-title{
+  font-size: 26px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+.pause-sub{
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.pause-row{
+  display: flex;
+  gap: 10px;
+}
+.pause-row .btn{
+  flex: 1;
+}
