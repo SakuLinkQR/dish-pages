@@ -416,3 +416,9 @@ a.menu-btn.coming-soon{ opacity: 0.65; }
 
 /* Menu layout */
 .menu-buttons .howto-wide{grid-column:1 / -1}
+
+
+/* --- Menu scroll fix (menu should scroll; game should not) --- */
+html, body { height: auto; }
+body.menuPage { overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; height: auto; }
+body.gamePage { overflow: hidden; touch-action: none; height: 100svh; }
