@@ -301,8 +301,23 @@ function ensurePauseUI(){
   function positionPauseBar(){
     try{
       const vvTop = (window.visualViewport && typeof window.visualViewport.offsetTop === "number") ? window.visualViewport.offsetTop : 0;
+      const vvH = (window.visualViewport && typeof window.visualViewport.height === "number") ? window.visualViewport.height : window.innerHeight;
 
-      // Prefer placing the buttons below the entire top HUD (to avoid overlapping SCORE/TIME etc.)
+      const canvasEl = document.getElementById("game");
+      if(canvasEl){
+        const r = canvasEl.getBoundingClientRect();
+        // Place just below the board (canvas). Clamp so it never goes off-screen.
+        const barH = bar.getBoundingClientRect().height || 44;
+        let top = Math.round(r.bottom + 10 + vvTop);
+
+        const maxTop = Math.round(vvTop + vvH - barH - 8);
+        if(top > maxTop) top = maxTop;
+
+        bar.style.top = top + "px";
+        return;
+      }
+
+      // Fallback: below the top HUD
       const topbar = document.querySelector("header.topbar");
       if(topbar){
         const r = topbar.getBoundingClientRect();
@@ -310,23 +325,7 @@ function ensurePauseUI(){
         return;
       }
 
-      // Fallback: place below the lowest HUD element
-      const anchors = [
-        document.getElementById("comboLabel"),
-        document.getElementById("scoreLabel"),
-        document.getElementById("bestLabel"),
-        document.getElementById("timeLabel"),
-        document.getElementById("levelLabel")
-      ].filter(Boolean);
-
-      let maxBottom = 0;
-      for(const el of anchors){
-        const rr = el.getBoundingClientRect();
-        if(rr.bottom > maxBottom) maxBottom = rr.bottom;
-      }
-      if(maxBottom <= 0) maxBottom = 90;
-
-      bar.style.top = Math.round(maxBottom + 8 + vvTop) + "px";
+      bar.style.top = "110px";
     }catch(e){
       bar.style.top = "110px";
     }
