@@ -291,6 +291,30 @@ function ensurePauseUI(){
   bar.id = "pauseBar";
   bar.className = "pause-bar";
 
+  // Inline positioning to avoid overlapping with SCORE on small screens (iPhone)
+  bar.style.position = "fixed";
+  bar.style.right = "10px";
+  bar.style.zIndex = "9999";
+  bar.style.display = "flex";
+  bar.style.gap = "8px";
+
+  function positionPauseBar(){
+    try{
+      const scoreEl = document.getElementById("scoreLabel");
+      const vvTop = (window.visualViewport && typeof window.visualViewport.offsetTop === "number") ? window.visualViewport.offsetTop : 0;
+      let top = 10;
+      if(scoreEl){
+        const r = scoreEl.getBoundingClientRect();
+        top = Math.round(r.bottom + 10 + vvTop); // place below SCORE
+      }else{
+        top = 80; // fallback
+      }
+      bar.style.top = top + "px";
+    }catch(e){
+      bar.style.top = "80px";
+    }
+  }
+
   const pauseBtn = document.createElement("button");
   pauseBtn.type = "button";
   pauseBtn.className = "pause-btn";
@@ -306,6 +330,11 @@ function ensurePauseUI(){
   bar.appendChild(pauseBtn);
   bar.appendChild(menuBtn);
   document.body.appendChild(bar);
+  // Position after insertion
+  requestAnimationFrame(positionPauseBar);
+  window.addEventListener("resize", positionPauseBar);
+  window.addEventListener("orientationchange", positionPauseBar);
+  if(window.visualViewport){ window.visualViewport.addEventListener("resize", positionPauseBar); }
 
   // Overlay (pause menu)
   const ov = document.createElement("div");
