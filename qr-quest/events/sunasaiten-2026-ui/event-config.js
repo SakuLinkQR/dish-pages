@@ -18,7 +18,8 @@ window.QRQUEST_EVENT = {
   formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSetPLYoIMFeyzEy3LPUMQesEOYbh8LmkYuuJIbEjer-vyUiaA/viewform?usp=header",
   // 9/9完成後の最終クイズ（後で差し替え可能）
     finalQuiz: {
-    question: "最後のクイズじゃ。写真は南さつま市笠沙町の野間池みなと広場にある、南薩地域特産のタカエビのモニュメントじゃ。さて、これをデザインしたのは？\nヒント：最近双子ちゃんを出産しました",
+    question: "さいごの くいずじゃ。おたからは みなみさつまし かささちょう のまいけ みなとひろば にある、なんさつちいき とくさん の たかえび の もにゅめんと じゃ。さて、これを でざいん したのは？
+ひんと：さいきん ふたごちゃんを しゅっさん しました",
     choices: ["中川翔子さん（タレント：愛称しょこたん）","通りすがりのおじさん","市役所の人"],
     answerIndex: 0
   },

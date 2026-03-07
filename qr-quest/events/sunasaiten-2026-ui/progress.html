@@ -245,13 +245,13 @@ if (quizWrap) {
         <div id="quizChoices" style="display:grid;gap:8px;"></div>
         <div id="quizMsg" style="margin-top:10px;font-weight:900;"></div>
         <button id="downloadBtn" style="display:block;margin-top:12px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#111827;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
-          📷 完成した写真をダウンロード
+          🧩 おたからを ほぞん
         </button>
         <button id="formBtn" style="display:none;margin-top:12px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#38b000;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
-          📩 抽選会へ応募（メール登録）
+          📩 応募（おうぼ）フォームへすすむ
         </button>
         <div id="applyNote" style="display:none;margin-top:10px;font-size:0.95em;color:#555;line-height:1.6;">
-          フォームの送信が終わったら、この画面に戻って「応募完了」を押してください。
+          【注意（ちゅうい）】送信（そうしん）すると、あとから訂正（ていせい）できません。まちがいがないか確認（かくにん）してから送信してください。<br><br>フォームの送信が終わったら、この画面に戻って「応募完了」を押してください。
         </div>
         <button id="applyDoneBtn" style="display:none;margin-top:10px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#ff4081;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
           ✅ 応募完了（もう応募しない）
@@ -314,7 +314,7 @@ if (quizWrap) {
       } finally {
         if (downloadBtn) {
           downloadBtn.disabled = false;
-          downloadBtn.textContent = '📷 完成した写真をダウンロード';
+          downloadBtn.textContent = '🧩 おたからを ほぞん';
           downloadBtn.style.opacity = '1';
         }
       }

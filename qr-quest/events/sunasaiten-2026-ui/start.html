@@ -74,13 +74,13 @@
 </head>
 <body>
 
-  <h1>QRクエスト</h1>
-  <div class="sub">（写真 9分割）</div>
+  <h1>QRくえすと</h1>
+  <div class="sub">（おたから 9ぶんわり）</div>
 
   <div class="button-group" id="btnGroup">
-    <button onclick="location.href='scanner/qr-scanner.html?return=../scan_success.html'">SCAN</button>
-    <button onclick="location.href='progress.html'">写真確認</button>
-    <button onclick="location.href='index.html'">ホーム画面に戻る</button>
+    <button onclick="location.href='scanner/qr-scanner.html?return=../scan_success.html'">QRよみとり</button>
+    <button onclick="location.href='progress.html'">おたから　かくにん</button>
+    <button onclick="location.href='index.html'">ほーむへ　もどる</button>
   </div>
 
 
@@ -90,7 +90,7 @@
       location.replace('need_start.html');
     }
 
-    // --- SCAN結果の反映（保険：scan_success.htmlで反映済みでもOK） ---
+    // --- QRよみとり結果の反映（保険：scan_success.htmlで反映済みでもOK） ---
     (function(){
       const raw = (localStorage.getItem('scan_text') || '').trim();
       if(!raw) return;
