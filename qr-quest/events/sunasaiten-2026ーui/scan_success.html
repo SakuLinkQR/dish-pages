@@ -59,13 +59,6 @@
   const s = raw.toLowerCase();
   if(!raw){
     msg.textContent = '読み取り結果がありません。もう一度SCANしてください。';
-  try{
-    if(window.QRQUEST_LOG){
-      const p = (typeof pieceNum !== 'undefined') ? String(pieceNum) : '';
-      const a = (typeof areaId !== 'undefined') ? String(areaId) : '';
-      window.QRQUEST_LOG.send({ page:'scan_success', area:a, qr_id:'spot', result:'spot_ok', piece:p });
-    }
-  }catch(e){}
   } else if(s.includes('reward')){
     msg.textContent = 'これは参加賞QRです。参加賞画面から読み取ってください。';
   } else {
@@ -82,6 +75,20 @@
         if(pid==='shiyakusho') localStorage.setItem('area_shiyakusho','true');
         if(pid.startsWith('honmachi')) localStorage.setItem('area_honmachi','true');
         if(pid.startsWith('fumoto')) localStorage.setItem('area_fumoto','true');
+      }catch(e){}
+
+      // 回遊ログ（ポイント獲得）
+      try{
+        if(window.QRQUEST_LOG){
+          const short = (raw || '').toString().slice(0, 120);
+          window.QRQUEST_LOG.send({
+            page: 'scan_success.html',
+            area: pid,
+            qr_id: short,
+            result: 'spot_ok',
+            piece: String(piece)
+          });
+        }
       }catch(e){}
 
       msg.textContent = `「${pid}」をゲット！ ピース ${piece}/9 を追加したぞ。`;

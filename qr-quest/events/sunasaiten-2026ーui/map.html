@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>マップ | QRクエスト in すなのさいてん2026</title>
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#f7fbff;color:#222}
+    header{padding:14px 14px 10px;text-align:center}
+    h1{font-size:18px;margin:6px 0 4px}
+    p{margin:0 0 10px;font-size:13px;color:#444;line-height:1.6}
+    .wrap{max-width:980px;margin:0 auto;padding:0 12px 88px}
+    .card{background:#fff;border:1px solid #e6eef7;border-radius:16px;padding:10px;margin:10px 0}
+    img{width:100%;height:auto;border-radius:12px;display:block}
+    .hint{font-size:12px;color:#555;margin-top:8px;line-height:1.6}
+    .btns{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);backdrop-filter: blur(6px);border-top:1px solid #e6eef7;padding:10px 12px}
+    .row{max-width:980px;margin:0 auto;display:flex;gap:10px}
+    a.btn{flex:1;display:block;text-align:center;padding:14px 12px;border-radius:14px;text-decoration:none;font-weight:800;border:1px solid #1e88e5;background:#1e88e5;color:#fff}
+    a.btn.sub{background:#fff;color:#1e88e5}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>マップ</h1>
+    <p>かみのスタンプラリーと おなじマップを のせます。<br>※ピンチ（2本ゆび）で かくだいできます。</p>
+  </header>
+
+  <div class="wrap">
+    <div class="card">
+      <!--
+        ▼ここに、市役所のマップ画像を置いてください
+        例：images/map_2026.jpg
+      -->
+      <img src="images/map_2026.jpg" alt="エリアマップ" onerror="this.style.display='none'; document.getElementById('noimg').style.display='block';" />
+      <div id="noimg" class="hint" style="display:none;">
+        マップ画像が まだ ありません。<br>
+        市役所のマップ（PDFや写真）を <strong>images/map_2026.jpg</strong> として ここに 置くと、表示されます。
+      </div>
+      <div class="hint">いまいる ばしょは じぶんで たしかめてね。こまったら うけつけの ひとに きいてね。</div>
+    </div>
+  </div>
+
+  <div class="btns">
+    <div class="row">
+      <a class="btn sub" href="index.html">🏠 ホームへ</a>
+      <a class="btn" href="quest_go.html">🧩 QRクエストへ</a>
+    </div>
+  </div>
+</body>
+</html>

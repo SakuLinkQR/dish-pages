@@ -11,11 +11,11 @@
 // events/sunasaiten-2026/event-config.js
 // このイベント固有の設定（イベントごとにここだけ変更すればOK）
 window.QRQUEST_EVENT = {
-  id: "SUNASAITEN_2026_TEST",
-  prefix: "sun26t__",
-  name: "砂の祭典 2026（TEST)",
+  id: "SUNASAITEN_2026",
+  prefix: "sun26__",
+  name: "砂の祭典 2026",
   // 抽選会応募フォーム（Googleフォーム等）URL：ここを後で差し替え
-  formUrl: "",
+  formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSetPLYoIMFeyzEy3LPUMQesEOYbh8LmkYuuJIbEjer-vyUiaA/viewform?usp=header",
   // 9/9完成後の最終クイズ（後で差し替え可能）
     finalQuiz: {
     question: "最後のクイズじゃ。写真は南さつま市笠沙町の野間池みなと広場にある、南薩地域特産のタカエビのモニュメントじゃ。さて、これをデザインしたのは？\nヒント：最近双子ちゃんを出産しました",

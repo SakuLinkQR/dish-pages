@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>砂の祭典2026 - ホーム画面に追加</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+
+  <style>
+    body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#fff7fa;text-align:center;padding:40px 20px;max-width:680px;margin:auto;color:#333}
+    h1{font-size:1.8em;color:#ff4081;margin-bottom:12px}
+    p{font-size:1.05em;margin-bottom:14px;line-height:1.7}
+    .instruction{background:#fff3f8;padding:18px;border-radius:10px;margin:18px 0;text-align:left}
+    .note{margin:0 0 18px;font-size:.95em;color:#555;line-height:1.6;text-align:left;background:#fff;border:1px solid #ffe0ec;padding:14px;border-radius:10px}
+    .badge{display:inline-block;padding:6px 12px;border-radius:999px;background:#fff3f8;color:#c2185b;font-size:.95em;margin:6px 0 14px}
+    .loading{font-size:1.0em;color:#555;margin:18px 0}
+    .powered{margin-top:26px;font-size:12px;color:#888}
+  </style>
+</head>
+<body>
+  <h1>QRクエスト in 砂の祭典2026</h1>
+
+  <div id="loading" class="loading" style="display:none;">起動中…</div>
+  <div id="badge" class="badge" style="display:none;"></div>
+
+  <div id="instructions">
+    <p>
+      受付QRを読み取りました。<br>
+      次は <strong>「ホーム画面に追加」</strong> をして、できた <strong>アイコンから開始</strong> してください。<br>
+      （この画面からゲームは開始できません）
+    </p>
+
+    <div class="instruction">
+      <p><strong>📱 iPhone（Safari）</strong><br>
+        画面下の <strong>共有</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
+      </p>
+      <p><strong>📱 iPhone（Chrome）</strong><br>
+        画面の <strong>共有</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
+      </p>
+      <p><strong>📱 Android（Chrome）</strong><br>
+        右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>（または「アプリをインストール」）
+      </p>
+    </div>
+
+    <div class="note">
+      <strong>スマホ操作が難しい方へ：</strong><br>
+      ホーム画面への追加が難しい場合は、紙のスタンプラリーをご利用ください。<br>
+      それでもスマホで参加したい方は、係員が「ホーム画面に追加」をお手伝いします。
+    </div>
+
+    <p style="font-size:0.95em;color:#555;">
+      追加できたら、この画面を閉じて、<br>
+      <strong>ホーム画面にできたアイコン</strong>をタップしてスタートしてください。
+    </p>
+  </div>
+
+  <div class="powered">Powered by SakuLink</div>
+
+<script>
+(function(){
+  const params = new URLSearchParams(location.search);
+  const start = (params.get("start") || "").trim(); // shiyakusho / honmachi / fumoto
+
+  // PWA判定（iOS/他）
+  const isStandalone =
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+    (window.navigator && window.navigator.standalone === true);
+
+  function isStarted(){
+    try{ return localStorage.getItem("started") === "true"; }catch(e){ return false; }
+  }
+
+  function setStartFlags(){
+    // 受付完了フラグ（quest_go.html が started を見ています）
+    localStorage.setItem("started","true");
+    localStorage.setItem("qrquest_started","true");
+    localStorage.setItem("setup_done","true");
+
+    // 開始地点
+    if(start){ localStorage.setItem("start_area", start); }
+
+    // 初期ピース：1と9（互換多め）
+    localStorage.setItem("piece_1","true");
+    localStorage.setItem("piece_9","true");
+    localStorage.setItem("c_piece1","true");
+    localStorage.setItem("c_piece9","true");
+    localStorage.setItem("q_piece1","true");
+    localStorage.setItem("q_piece9","true");
+
+    if(!localStorage.getItem("start_at")){
+      localStorage.setItem("start_at", new Date().toISOString());
+    }
+  }
+
+  // 表示（受付地点バッジ）
+  if(start){
+    const badge = document.getElementById("badge");
+    badge.style.display="inline-block";
+    badge.textContent="受付地点： " + start;
+  }
+
+  // ★重要：アイコン起動（PWA）では、必ずここを通る（manifest start_url が add_to_home）
+  if(isStandalone){
+    // すでに開始済みなら即ホームへ（無限ループ防止）
+    if(isStarted()){
+      document.getElementById("instructions").style.display="none";
+      document.getElementById("loading").style.display="block";
+      location.replace("./index.html");
+      return;
+    }
+
+    // 初回：start= が付いていれば開始フラグを確定→ホームへ
+    if(start){
+      document.getElementById("instructions").style.display="none";
+      document.getElementById("loading").style.display="block";
+      setStartFlags();
+      location.replace("./index.html");
+      return;
+    }
+
+    // もし start が無い状態でアイコン起動してしまった場合
+    // （誤ったページから追加した等）→ 受付QRを読み直してもらうしかない
+    // この場合は案内を出したままにする
+  }
+
+  // Safari/Chrome（通常ブラウザ）で開いたときは start_area だけ保存（記録用）
+  // ※iOSではPWAと分離する可能性があるので、開始フラグはPWA側で確定させる
+  if(!isStandalone && start){
+    try{ localStorage.setItem("start_area", start); }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
