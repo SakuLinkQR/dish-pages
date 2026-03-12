@@ -18,7 +18,18 @@
     .badge{display:inline-block;padding:6px 12px;border-radius:999px;background:#fff3f8;color:#c2185b;font-size:.95em;margin:6px 0 14px}
     .loading{font-size:1.0em;color:#555;margin:18px 0}
     .powered{margin-top:26px;font-size:12px;color:#888}
-  </style>
+  
+    .warn{
+      background:#fff0f0;
+      border:1px solid #ffd0d0;
+      color:#b00020;
+      padding:12px 14px;
+      border-radius:10px;
+      margin:12px 0;
+      text-align:left;
+      line-height:1.7;
+    }
+    </style>
 </head>
 <body>
   <h1>QRクエスト in 砂の祭典2026</h1>
@@ -27,6 +38,14 @@
   <div id="badge" class="badge" style="display:none;"></div>
 
   <div id="instructions">
+
+    <div id="invalidStart" class="warn" style="display:none;">
+      <strong>このQRでは開始できません。</strong><br>
+      市役所（しやくしょ）・本町（ほんまち）・麓（ふもと）の <strong>インフォメーション</strong>にある
+      <strong>スタートQR</strong>を読み取ってください。<br>
+      <span style="font-size:0.95em;">※係員（かかりいん）に声（こえ）をかけてください。</span>
+    </div>
+
     <p>
       受付QRを読み取りました。<br>
       次は <strong>「ホーム画面に追加」</strong> をして、できた <strong>アイコンから開始</strong> してください。<br>
@@ -62,7 +81,10 @@
 <script>
 (function(){
   const params = new URLSearchParams(location.search);
-  const start = (params.get("start") || "").trim(); // shiyakusho / honmachi / fumoto
+  const startRaw = (params.get("start") || "").trim(); // shiyakusho / honmachi / fumoto / ui
+  const ALLOWED = new Set(["shiyakusho","honmachi","fumoto","ui"]); 
+  const start = startRaw; 
+  const isAllowedStart = ALLOWED.has(start);
 
   // PWA判定（iOS/他）
   const isStandalone =
@@ -96,7 +118,7 @@
   }
 
   // 表示（受付地点バッジ）
-  if(start){
+  if(start && isAllowedStart){
     const badge = document.getElementById("badge");
     badge.style.display="inline-block";
     badge.textContent="受付地点： " + start;
@@ -112,14 +134,17 @@
       return;
     }
 
-    // 初回：start= が付いていれば開始フラグを確定→ホームへ
-    if(start){
+    // 初回：許可された start= が付いていれば開始フラグを確定→ホームへ
+    if(start && isAllowedStart){
       document.getElementById("instructions").style.display="none";
       document.getElementById("loading").style.display="block";
       setStartFlags();
       location.replace("./index.html");
       return;
     }
+
+    // start が無い / 許可されていない場合は開始させない
+    document.getElementById("invalidStart").style.display="block";
 
     // もし start が無い状態でアイコン起動してしまった場合
     // （誤ったページから追加した等）→ 受付QRを読み直してもらうしかない
@@ -128,7 +153,7 @@
 
   // Safari/Chrome（通常ブラウザ）で開いたときは start_area だけ保存（記録用）
   // ※iOSではPWAと分離する可能性があるので、開始フラグはPWA側で確定させる
-  if(!isStandalone && start){
+  if(!isStandalone && start && isAllowedStart){
     try{ localStorage.setItem("start_area", start); }catch(e){}
   }
 })();
