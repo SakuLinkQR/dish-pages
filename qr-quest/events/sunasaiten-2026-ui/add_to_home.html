@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>砂の祭典2026 - ホーム画面に追加</title>
+  <title>QRクエスト in 2026吹上浜砂の祭典 - ホーム画面に追加</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -32,7 +32,8 @@
     </style>
 </head>
 <body>
-  <h1>QRクエスト in 砂の祭典2026</h1>
+  <h1>QRクエスト in 2026吹上浜砂の祭典</h1>
+  <p style="margin-top:-4px;margin-bottom:18px;font-size:1.05em;color:#c2185b;"><strong>砂さんぽ～砂でつくる城物語～</strong></p>
 
   <div id="loading" class="loading" style="display:none;">起動中…</div>
   <div id="badge" class="badge" style="display:none;"></div>
@@ -46,6 +47,8 @@
       <span style="font-size:0.95em;">※係員（かかりいん）に声（こえ）をかけてください。</span>
     </div>
 
+    <div id="installGuide">
+
     <p>
       受付QRを読み取りました。<br>
       次は <strong>「ホーム画面に追加」</strong> をして、できた <strong>アイコンから開始</strong> してください。<br>
@@ -54,10 +57,10 @@
 
     <div class="instruction">
       <p><strong>📱 iPhone（Safari）</strong><br>
-        画面下の <strong>共有</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
+        画面下の <strong>共有</strong>（<span class="shareIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.3a1 1 0 1 1 1.4 1.42l-4.01 4.0a1 1 0 0 1-1.38 0l-4.01-4.0a1 1 0 1 1 1.4-1.42L11 12.59V4a1 1 0 0 1 1-1zM6 14a1 1 0 0 1 1 1v4h10v-4a1 1 0 1 1 2 0v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1z"/></svg></span>）→ <strong>「ホーム画面に追加」</strong>
       </p>
       <p><strong>📱 iPhone（Chrome）</strong><br>
-        画面の <strong>共有</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
+        画面の <strong>共有</strong>（<span class="shareIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.3a1 1 0 1 1 1.4 1.42l-4.01 4.0a1 1 0 0 1-1.38 0l-4.01-4.0a1 1 0 1 1 1.4-1.42L11 12.59V4a1 1 0 0 1 1-1zM6 14a1 1 0 0 1 1 1v4h10v-4a1 1 0 1 1 2 0v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1z"/></svg></span>）→ <strong>「ホーム画面に追加」</strong>
       </p>
       <p><strong>📱 Android（Chrome）</strong><br>
         右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>（または「アプリをインストール」）
@@ -66,14 +69,15 @@
 
     <div class="note">
       <strong>スマホ操作が難しい方へ：</strong><br>
-      ホーム画面への追加が難しい場合は、紙のスタンプラリーをご利用ください。<br>
-      それでもスマホで参加したい方は、係員が「ホーム画面に追加」をお手伝いします。
+      ホーム画面への追加が難しい場合は、紙のスタンプラリーをご利用いいただくか、係員に使用方法をおたずねください。<br>
+      係員が「ホーム画面に追加」をお手伝いします。
     </div>
 
     <p style="font-size:0.95em;color:#555;">
       追加できたら、この画面を閉じて、<br>
       <strong>ホーム画面にできたアイコン</strong>をタップしてスタートしてください。
     </p>
+    </div>
   </div>
 
   <div class="powered">Powered by SakuLink</div>
@@ -95,14 +99,14 @@
     try{ return localStorage.getItem("started") === "true"; }catch(e){ return false; }
   }
 
-  function setStartFlags(){
+  function setStartFlags(area){
     // 受付完了フラグ（quest_go.html が started を見ています）
     localStorage.setItem("started","true");
     localStorage.setItem("qrquest_started","true");
     localStorage.setItem("setup_done","true");
 
     // 開始地点
-    if(start){ localStorage.setItem("start_area", start); }
+    if(area){ localStorage.setItem("start_area", area); }
 
     // 初期ピース：1と9（互換多め）
     localStorage.setItem("piece_1","true");
@@ -138,13 +142,25 @@
     if(start && isAllowedStart){
       document.getElementById("instructions").style.display="none";
       document.getElementById("loading").style.display="block";
-      setStartFlags();
+      setStartFlags(start);
+      location.replace("./index.html");
+      return;
+    }
+
+    // start が無い / 許可されていない場合でも、直前に「正しいスタートQR」を開いていた場合は救済する
+    const pending = (localStorage.getItem("pending_start") || "").trim();
+    if(pending && ALLOWED.has(pending)){
+      document.getElementById("instructions").style.display="none";
+      document.getElementById("loading").style.display="block";
+      try{ localStorage.removeItem("pending_start"); }catch(e){}
+      setStartFlags(pending);
       location.replace("./index.html");
       return;
     }
 
     // start が無い / 許可されていない場合は開始させない
     document.getElementById("invalidStart").style.display="block";
+    const g = document.getElementById("installGuide"); if(g) g.style.display = "none";
 
     // もし start が無い状態でアイコン起動してしまった場合
     // （誤ったページから追加した等）→ 受付QRを読み直してもらうしかない
@@ -154,7 +170,11 @@
   // Safari/Chrome（通常ブラウザ）で開いたときは start_area だけ保存（記録用）
   // ※iOSではPWAと分離する可能性があるので、開始フラグはPWA側で確定させる
   if(!isStandalone && start && isAllowedStart){
-    try{ localStorage.setItem("start_area", start); }catch(e){}
+    try{ 
+      localStorage.setItem("start_area", start);
+      // インストール後（アイコン起動）に引き継ぐための仮スタート
+      localStorage.setItem("pending_start", start);
+    }catch(e){}
   }
 })();
 </script>
