@@ -2,14 +2,128 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>砂の祭典2026 - 受付</title>
+  <title>砂の祭典2026 - 受付（ホーム画面に追加）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="refresh" content="0;url=./add_to_home.html" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background-color: #fff7fa;
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 680px;
+      margin: auto;
+      color: #333;
+    }
+    h1 { font-size: 1.8em; color: #ff4081; margin-bottom: 12px; }
+    p  { font-size: 1.05em; margin-bottom: 14px; line-height: 1.7; }
+    .instruction {
+      background-color:#fff3f8; padding:18px; border-radius:10px; margin:18px 0; text-align:left;
+    }
+    .badge {
+      display:inline-block; padding:6px 12px; border-radius:999px; background:#fff3f8;
+      color:#c2185b; font-size:0.95em; margin: 6px 0 14px;
+    }
+    .onlyPWA {
+      display:none;
+      margin-top: 14px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #ffe0ec;
+      color: #555;
+      line-height: 1.7;
+      text-align: left;
+    }
+    .btn {
+      display:inline-block;
+      margin-top: 10px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      background:#ff4081;
+      color:#fff;
+      text-decoration:none;
+      font-size: 1.05em;
+    }
+    .powered{ margin-top:26px; font-size:12px; color:#888; }
+  </style>
 </head>
 <body>
+  <h1>QRクエスト in 砂の祭典2026</h1>
+  <div id="badge" class="badge" style="display:none;"></div>
+
+  <p id="msg">
+    受付QRを読み取りました。<br>
+    次は <strong>「ホーム画面に追加」</strong> をして、できた <strong>アイコンから開始</strong> してください。<br>
+    （この画面からゲームは開始できません）
+  </p>
+
+  <div class="instruction" id="howto">
+    <p><strong>📱 iPhone（Safari）</strong><br>
+      画面下の <strong>共有ボタン</strong>（□↑）→ <strong>「ホーム画面に追加」</strong>
+    </p>
+
+    <p><strong>📱 iPhone（Chrome）</strong><br>
+      画面右上の <strong>共有</strong>（□↑）→ <strong>「ホーム画面に追加」</strong><br>
+      <span style="font-size:0.95em; color:#666;">※見つからない時は、下へスクロールして探してください</span>
+    </p>
+
+    <p><strong>📱 Android（Chrome）</strong><br>
+      右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>
+    </p>
+  </div>
+
+  <div id="pwaBox" class="onlyPWA">
+    <strong>起動中…</strong><br>
+    受付情報を確認して、ホーム画面へ移動します。<br>
+    もし移動しない場合は、下のボタンを押してください。<br>
+    <a class="btn" href="./index.html" id="goHomeBtn">ホームへ進む</a>
+  </div>
+
+  <div class="powered">Powered by SakuLink</div>
+
 <script>
-  // 旧URL互換：entry.html は今後 add_to_home.html に統一します
-  location.replace("./add_to_home.html" + location.search);
+(function () {
+  const params = new URLSearchParams(location.search);
+  const start = (params.get("start") || "").trim(); // shiyakusho / honmachi / fumoto
+  const isStandalone =
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+    (window.navigator && window.navigator.standalone === true) ||
+    (params.get("pwa") === "1"); // start_url から来た場合の保険
+
+  // 受付地点表示
+  if (start) {
+    localStorage.setItem("start_area", start);
+    const badge = document.getElementById("badge");
+    badge.style.display = "inline-block";
+    badge.textContent = "受付地点： " + start;
+  }
+
+  if (isStandalone) {
+    // PWA側localStorageに「受付済み」を確定
+    localStorage.setItem("started", "true");
+    localStorage.setItem("qrquest_started", "true");
+    localStorage.setItem("setup_done", "true");
+    // 初期ピース（1 & 9）互換多め
+    ["piece_1","piece_9","c_piece1","c_piece9","q_piece1","q_piece9"].forEach(k => localStorage.setItem(k,"true"));
+    if (!localStorage.getItem("start_at")) {
+      localStorage.setItem("start_at", new Date().toISOString());
+    }
+
+    // PWAでは案内文を「起動中」に切り替えて、自動でホームへ
+    document.getElementById("howto").style.display = "none";
+    document.getElementById("msg").innerHTML = "受付情報を確認中です…<br>このあと自動でホーム画面へ移動します。";
+    const pwaBox = document.getElementById("pwaBox");
+    pwaBox.style.display = "block";
+
+    // 自動遷移（少し待ってから）
+    setTimeout(() => {
+      location.replace("./index.html");
+    }, 300);
+  }
+})();
 </script>
 </body>
 </html>
