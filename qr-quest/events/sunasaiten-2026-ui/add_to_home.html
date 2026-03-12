@@ -44,10 +44,41 @@
       margin: 0 2px;
     }
 
+  
+    /* UI調整：タイトルを3行固定（スマホでの中途半端改行防止） */
+    .mainTitle{ margin: 0 0 10px; color:#ff4081; line-height:1.25; }
+    .mainTitle .t1{ display:inline-block; font-size: clamp(1.6rem, 5.4vw, 2.2rem); font-weight: 800; }
+    .mainTitle .t2{ display:inline-block; font-size: clamp(1.25rem, 4.6vw, 1.9rem); font-weight: 800; white-space: nowrap; }
+    .mainTitle .t3{ display:inline-block; font-size: clamp(1.05rem, 3.8vw, 1.35rem); font-weight: 700; margin-top: 2px; }
+
+  
+    /* UI調整：アプリアイコン見本 */
+    .iconPreview{
+      margin: 0 0 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #ffe0ec;
+    }
+    .iconPreviewRow{ display:flex; gap:12px; align-items:center; }
+    .appIconImg{
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      border: 1px solid #f2c6d8;
+      background:#fff;
+    }
+    .iconPreviewText{ text-align:left; line-height:1.6; color:#555; font-size:0.98em; }
+
   </style>
 </head>
 <body>
-  <h1>QRクエスト in 2026吹上浜砂の祭典</h1>
+  
+  <h1 class="mainTitle">
+    <span class="t1">QRクエスト</span><br>
+    <span class="t2">2026吹上浜砂の祭典</span><br>
+    <span class="t3">砂さんぽ～砂でつくる城物語～</span>
+  </h1>
+
   <p style="margin-top:-4px;margin-bottom:18px;font-size:1.05em;color:#c2185b;"><strong>砂さんぽ～砂でつくる城物語～</strong></p>
 
   <div id="loading" class="loading" style="display:none;">起動中…</div>
@@ -75,7 +106,7 @@
         画面下の <strong>共有</strong>（<span class="shareIcon" aria-hidden="true"><img src="images/ios-share.png" alt="共有" class="shareIconImg" /></span>）→ <strong>「ホーム画面に追加」</strong>
       </p>
       <p><strong>📱 iPhone（Chrome）</strong><br>
-        画面の <strong>共有</strong>（<span class="shareIcon" aria-hidden="true"><img src="images/ios-share.png" alt="共有" class="shareIconImg" /></span>）→ <strong>「ホーム画面に追加」</strong>
+        画面の <strong>共有</strong>（<span class="shareIcon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.3a1 1 0 1 1 1.4 1.42l-4.01 4.0a1 1 0 0 1-1.38 0l-4.01-4.0a1 1 0 1 1 1.4-1.42L11 12.59V4a1 1 0 0 1 1-1zM6 14a1 1 0 0 1 1 1v4h10v-4a1 1 0 1 1 2 0v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1z"/></svg></span>）→ <strong>「ホーム画面に追加」</strong>
       </p>
       <p><strong>📱 Android（Chrome）</strong><br>
         右上の <strong>⋮ メニュー</strong> → <strong>「ホーム画面に追加」</strong>（または「アプリをインストール」）
@@ -83,9 +114,10 @@
     </div>
 
     <div class="note">
-      <strong>スマホ操作が難しい方へ：<br>
-ホーム画面への追加が難しい場合は、紙のスタンプラリーをご利用いいただくか、係員に使用方法をおたずねください。<br>
-係員が「ホーム画面に追加」をお手伝いします。</div>
+      <strong>スマホ操作が難しい方へ：</strong><br>
+      ホーム画面への追加が難しい場合は、紙のスタンプラリーをご利用いいただくか、係員に使用方法をおたずねください。<br>
+      係員が「ホーム画面に追加」をお手伝いします。
+    </div>
 
     <p style="font-size:0.95em;color:#555;">
       追加できたら、この画面を閉じて、<br>
