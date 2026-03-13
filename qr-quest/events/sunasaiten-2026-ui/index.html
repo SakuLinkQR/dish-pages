@@ -14,8 +14,25 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
       text-align: center;
       padding: 70px 20px 110px;
-      background-color: #f0f8ff;
       margin: 0;
+
+      /* 背景画像（砂漠＋砂のお城） */
+      background-image: url("images/bg_desert_castle.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed; /* 重いと感じたらこの1行は消してOK */
+    }
+
+    /* 背景の上でも読みやすくする半透明ボックス */
+    .contentBox{
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 18px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(255, 192, 215, 0.55);
+      backdrop-filter: blur(2px);
     }
 
     /* タイトル3行固定 */
@@ -23,6 +40,7 @@
       font-size: 1.8rem;
       margin: 10px 0 14px;
       line-height: 1.25;
+      color: #ff4081;
     }
     .titleLine1 { display:block; font-size: 1.85rem; font-weight: 900; }
     .titleLine2 { display:block; font-size: 1.35rem; font-weight: 900; white-space: nowrap; }
@@ -75,25 +93,39 @@
       margin-top: 14px;
       opacity: 0.9;
     }
+
+    #qrquest-start-warning{
+      display:none;
+      margin:12px auto;
+      max-width:520px;
+      padding:10px 12px;
+      border:1px solid #f0c36d;
+      background:#fff8e1;
+      border-radius:10px;
+      font-size:0.95rem;
+      line-height:1.5;
+    }
   </style>
 </head>
 
 <body>
+  <div class="contentBox">
 <h1>
-    <span class="titleLine1">QRクエスト</span>
-    <span class="titleLine2">in 2026吹上浜砂の祭典</span>
-    <span class="titleLine3">砂さんぽ～砂でつくる城物語～</span>
-  </h1>
+      <span class="titleLine1">QRクエスト</span>
+      <span class="titleLine2">in 2026吹上浜砂の祭典</span>
+      <span class="titleLine3">砂さんぽ～砂でつくる城物語～</span>
+    </h1>
 
-  <!-- ここから下：必要ボタンのみ -->
-  <a class="btn sub" href="howto.html">📘 遊び方（あそびかた）</a>
-  <a class="btn sub" href="map.html">🗺️ 地図（ちず）をみる</a>
-  <a class="btn" id="btnQuestGo" href="quest_go.html">🧩 QRクエストへGO！</a>
+    <!-- ここから下：必要ボタンのみ -->
+    <a class="btn sub" href="howto.html">📘 遊び方（あそびかた）</a>
+    <a class="btn sub" href="map.html">🗺️ 地図（ちず）をみる</a>
+    <a class="btn" id="btnQuestGo" href="quest_go.html">🧩 QRクエストへGO！</a>
 
-  <p class="muted">Powered by SakuLink</p>
+    <p class="muted">Powered by SakuLink</p>
 
-  <div id="qrquest-start-warning" style="display:none; margin:12px auto; max-width:520px; padding:10px 12px; border:1px solid #f0c36d; background:#fff8e1; border-radius:10px; font-size:0.95rem; line-height:1.5;">
-    まだ受付スタートが完了していません。受付でスタートQRを読み込んでから「QRクエストへGO！」を押してください。
+    <div id="qrquest-start-warning">
+      まだ受付スタートが完了していません。受付でスタートQRを読み込んでから「QRクエストへGO！」を押してください。
+    </div>
   </div>
 
 <script>
