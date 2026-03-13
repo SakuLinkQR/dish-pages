@@ -118,6 +118,21 @@
       color:var(--muted);
       margin-top:8px;
     }
+  
+    /* 視覚的にわかりやすい表示（遊び方） */
+    .steps{ display:grid; gap:10px; margin:12px 0 6px; }
+    .step{ display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:16px; background:#fff; border:1px solid var(--line); text-align:left; }
+    .stepNo{ width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; background:#eef6ff; color:#1e5aa8; flex:0 0 auto; }
+    .stepTitle{ font-weight:800; margin-bottom:2px; font-size:14px; }
+    .stepText{ line-height:1.6; font-size:13px; color:#333; }
+    .scannerHint{ margin-top:10px; padding:12px 14px; border-radius:16px; background:#fff8e1; border:1px solid #f0c36d; text-align:left; }
+    .scannerHintTitle{ font-weight:900; margin-bottom:8px; font-size:14px; }
+    .fakeBtn{ display:inline-block; padding:10px 14px; border-radius:14px; background:var(--brand); color:#fff; font-weight:900; font-size:14px; }
+    .scannerHintNote{ margin-top:8px; line-height:1.6; font-size:13px; color:#333; }
+    .areaCount{ margin-top:10px; padding:12px 14px; border-radius:16px; background:#eef7ff; border:1px solid #b9dbff; text-align:left; }
+    .areaCountTitle{ font-weight:900; margin-bottom:6px; font-size:14px; }
+    .areaCount ul{ margin:0; padding-left:18px; line-height:1.8; font-size:14px; }
+
   </style>
 </head>
 <body>
@@ -135,10 +150,52 @@
     ホーム画面の「QRクエストへGO！」を押すと、クエストがスタートします。
     会場にあるQRコードを見つけて、アプリの「QRよみとり」から読み取ってください。
   </p>
-  <div class="note">
+
+  <div class="steps">
+    <div class="step">
+      <div class="stepNo">①</div>
+      <div>
+        <div class="stepTitle">スタート</div>
+        <div class="stepText">インフォメーションで <strong>スタートQR</strong> をよみとる</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="stepNo">②</div>
+      <div>
+        <div class="stepTitle">QRよみとり</div>
+        <div class="stepText">アプリの <strong>「QRよみとり」</strong> から、現地のQRをよむ</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="stepNo">③</div>
+      <div>
+        <div class="stepTitle">すすみぐあい</div>
+        <div class="stepText">よみとれたら、<strong>すすみぐあい</strong> がふえる</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scannerHint">
+    <div class="scannerHintTitle">このボタンが「QRよみとり」だよ</div>
+    <div class="fakeBtn">QRよみとり</div>
+    <div class="scannerHintNote">
+      ※スマホのカメラ（スキャナー）ではなく、<strong>アプリの「QRよみとり」</strong>で読んでね。
+    </div>
+  </div>
+
+<div class="note">
     <strong>たいせつ：</strong>スマホのカメラ（スキャナー）で読むと、うまく進まないことがあります。<br/>
     かならず <strong>このアプリの「QRよみとり」</strong> で読み取ってね。
   </div>
+  <div class="areaCount">
+    <div class="areaCountTitle">QRコードの数（かず）</div>
+    <ul>
+      <li><strong>市役所エリア</strong>：1こ</li>
+      <li><strong>本町エリア</strong>：2こ</li>
+      <li><strong>麓エリア</strong>：4こ</li>
+    </ul>
+  </div>
+
 </div>
 
 <div class="card">
