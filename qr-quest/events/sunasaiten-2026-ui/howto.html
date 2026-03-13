@@ -118,7 +118,7 @@
       color:var(--muted);
       margin-top:8px;
     }
-  
+
     /* 視覚的にわかりやすい表示（遊び方） */
     .steps{ display:grid; gap:10px; margin:12px 0 6px; }
     .step{ display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:16px; background:#fff; border:1px solid var(--line); text-align:left; }
@@ -133,7 +133,6 @@
     .areaCountTitle{ font-weight:900; margin-bottom:6px; font-size:14px; }
     .areaCount ul{ margin:0; padding-left:18px; line-height:1.8; font-size:14px; }
 
-  
     .areaHint{
       margin-top: 8px;
       padding: 10px 12px;
@@ -146,7 +145,28 @@
       line-height: 1.6;
     }
 
-  </style>
+    /* ===== 印刷（PDF）用：下固定ボタンを一番下へ回す ===== */
+    @media print{
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      /* 固定ボタンのための下余白は不要 */
+      .wrap{ padding-bottom: 16px !important; }
+
+      /* 下固定ボタンを“固定解除”して本文の最後に表示 */
+      .btns{
+        position: static !important;
+        left:auto !important; right:auto !important; bottom:auto !important;
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        border-top: 1px solid var(--line) !important;
+        margin-top: 14px !important;
+        padding: 10px 0 !important;
+      }
+
+      /* 改ページでボタンだけが変な位置にいかないように */
+      .btnRow{ page-break-inside: avoid; break-inside: avoid; }
+    }
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -165,7 +185,7 @@
   </p>
 
   <div class="steps">
-<div class="step">
+    <div class="step">
       <div class="stepNo">①</div>
       <div>
         <div class="stepTitle">QRよみとり</div>
@@ -189,10 +209,11 @@
     </div>
   </div>
 
-<div class="note">
+  <div class="note">
     <strong>たいせつ：</strong>スマホのカメラ（スキャナー）で読むと、うまく進まないことがあります。<br/>
     かならず <strong>このアプリの「QRよみとり」</strong> で読み取ってね。
   </div>
+
   <div class="areaCount">
     <div class="areaCountTitle">QRコードの数（かず）</div>
     <ul>
@@ -203,9 +224,7 @@
     <div class="areaHint">
       ヒント：紙のスタンプラリーと同じ場所にあるよ（ﾅｲｼｮ）
     </div>
-
   </div>
-
 </div>
 
 <div class="card">
@@ -239,17 +258,20 @@
 </div>
 
 <p class="small">Powered by SakuLink</p>
-</div></div>
+</div>
+
 <!-- 下固定ボタン（スマホ向け） -->
-<div class="btns">
-<div class="btnRow">
-<a class="btn sub" href="./index.html">🏠 ホームへ</a>
-<a class="btn" href="./quest_go.html" id="btnQuestGoHowto">🧩 QRクエストへGO！</a>
+<div class="btns" id="bottomNav">
+  <div class="btnRow">
+    <a class="btn sub" href="./index.html">🏠 ホームへ</a>
+    <a class="btn" href="./quest_go.html" id="btnQuestGoHowto">🧩 QRクエストへGO！</a>
+  </div>
 </div>
-</div>
+
 <div id="qrquest-start-warning-howto" style="display:none; margin:12px auto; max-width:520px; padding:10px 12px; border:1px solid #f0c36d; background:#fff8e1; border-radius:10px; font-size:0.95rem; line-height:1.5;">
   まだ受付スタートが完了していません。受付でスタートQRを読み込んでからクエストを開始してください。
 </div>
+
 <script>
 (function(){
   function getStarted(){
