@@ -4,7 +4,7 @@
   <script src="event-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QRクエスト in 砂の祭典2026（ホーム）</title>
+  <title>QRクエスト in 2026吹上浜砂の祭典（ホーム）</title>
 
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -17,16 +17,23 @@
       background-color: #f0f8ff;
       margin: 0;
     }
+
+    /* タイトル3行固定 */
     h1 {
       font-size: 1.8rem;
       margin: 10px 0 14px;
       line-height: 1.25;
     }
+    .titleLine1 { display:block; font-size: 1.85rem; font-weight: 900; }
+    .titleLine2 { display:block; font-size: 1.35rem; font-weight: 900; white-space: nowrap; }
+    .titleLine3 { display:block; font-size: 1.12rem; font-weight: 800; margin-top: 2px; }
+
     p {
       font-size: 1.05rem;
       margin: 0 0 22px;
       line-height: 1.6;
     }
+
     .btn {
       display: block;
       width: 86%;
@@ -40,6 +47,7 @@
       color: white;
       cursor: pointer;
       font-weight: 800;
+      text-decoration: none;
     }
     .btn:hover { background-color: #1e88e5; }
 
@@ -73,25 +81,23 @@
 <body>
   <div class="tag">QRクエスト</div>
 
-  <h1>QRクエスト<br>in すなのさいてん2026</h1>
+  <h1>
+    <span class="titleLine1">QRクエスト</span>
+    <span class="titleLine2">in 2026吹上浜砂の祭典</span>
+    <span class="titleLine3">砂さんぽ～砂でつくる城物語～</span>
+  </h1>
 
-  <p>
-    受付（うけつけ）で <strong>スタートQR</strong>を よみこんでから、はじめてね。<br>
-    下（した）のボタンから えらんでください。
-  </p>
-
+  <!-- ここから下：必要ボタンのみ -->
   <a class="btn sub" href="howto.html">📘 遊び方（あそびかた）</a>
   <a class="btn sub" href="map.html">🗺️ 地図（ちず）をみる</a>
   <a class="btn" id="btnQuestGo" href="quest_go.html">🧩 QRクエストへGO！（くえすとへごー）</a>
-  <a class="btn sub" href="https://sakulink.com/cubee" target="_blank" rel="noopener noreferrer">🎮 待ち時間遊び（まちじかん あそび）CuBee Drop</a>
-
-  <p class="muted">※「待ち時間遊び」は クエストとは べつのゲームです。</p>
 
   <p class="muted">Powered by SakuLink</p>
 
-<div id="qrquest-start-warning" style="display:none; margin:12px auto; max-width:520px; padding:10px 12px; border:1px solid #f0c36d; background:#fff8e1; border-radius:10px; font-size:0.95rem; line-height:1.5;">
-  まだ受付スタートが完了していません。受付でスタートQRを読み込んでから「QRクエストへGO！」を押してください。
-</div>
+  <div id="qrquest-start-warning" style="display:none; margin:12px auto; max-width:520px; padding:10px 12px; border:1px solid #f0c36d; background:#fff8e1; border-radius:10px; font-size:0.95rem; line-height:1.5;">
+    まだ受付スタートが完了していません。受付でスタートQRを読み込んでから「QRクエストへGO！」を押してください。
+  </div>
+
 <script>
 (function(){
   function getStarted(){
