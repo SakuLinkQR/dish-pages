@@ -120,13 +120,21 @@
       .contentBox{
         background: #ffffff !important;
         border: 1px solid #dddddd !important;
+
+        /* 改ページをまたいでも背景が続くようにする（背景だけ短い問題の対策） */
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+
+        /* 分割を許可（avoidだと背景が途中で止まることがある） */
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+
+        /* 印刷用の安定化 */
         border-radius: 0 !important;
         backdrop-filter: none !important;
         overflow: visible !important;
         height: auto !important;
         margin: 0 auto !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
       }
 
       /* ボタンの色が消えないように固定 */
