@@ -1,3 +1,13 @@
+// QRQUEST_CANONICAL_HOST
+(function(){
+  try{
+    var canonical = "www.sakulink.com";
+    if(location.hostname === "sakulink.com"){
+      location.replace(location.protocol + "//" + canonical + location.pathname + location.search + location.hash);
+    }
+  }catch(e){}
+})();
+
 // events/sunasaiten-2026/event-config.js
 // このイベント固有の設定（イベントごとにここだけ変更すればOK）
 window.QRQUEST_EVENT = {
@@ -8,8 +18,7 @@ window.QRQUEST_EVENT = {
   formUrl: "https://docs.google.com/forms/d/e/1FAIpQLSetPLYoIMFeyzEy3LPUMQesEOYbh8LmkYuuJIbEjer-vyUiaA/viewform?usp=header",
   // 9/9完成後の最終クイズ（後で差し替え可能）
     finalQuiz: {
-    question: "さいごの くいずじゃ。おたからは みなみさつまし かささちょう のまいけ みなとひろば にある、なんさつちいき とくさん の たかえび の もにゅめんと じゃ。さて、これを でざいん したのは？
-ひんと：さいきん ふたごちゃんを しゅっさん しました",
+    question: "さいごの くいずじゃ。おたからは みなみさつまし かささちょう のまいけ みなとひろば にある、なんさつちいき とくさん の たかえび の もにゅめんと じゃ。さて、これを でざいん したのは？\nひんと：さいきん ふたごちゃんを しゅっさん しました",
     choices: ["タレント：中川翔子（なかがわしょうこ）さん（愛称しょこたん）","通りすがりのおじさん","市役所の人"],
     answerIndex: 0
   },

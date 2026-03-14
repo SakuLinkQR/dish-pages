@@ -123,30 +123,14 @@
   <div class="grid" id="grid" aria-label="puzzle grid"></div>
 
   <div class="row">
-    <a class="btn btn-sub" id="backBtn" href="start.html">🏠 メニューに戻る</a>
+    <button class="btn btn-sub" id="backBtn">🏠 メニューに戻る</button>
 </div>
 
   <div id="rewardWrap" style="max-width:560px;margin:16px auto 0;"></div>
   <div id="quizWrap" style="max-width:560px;margin:12px auto 0;"></div>
 
   <script>
-  function renderError(msg){
-  try{
-    const box=document.getElementById("quizBox")||document.body;
-    const d=document.createElement("div");
-    d.style.margin="12px auto";
-    d.style.maxWidth="520px";
-    d.style.padding="12px 14px";
-    d.style.border="1px solid #f0c36d";
-    d.style.background="#fff8e1";
-    d.style.borderRadius="12px";
-    d.style.lineHeight="1.7";
-    d.textContent=msg;
-    box.prepend(d);
-  }catch(e){ alert(msg); }
-}
-
-(function(){
+  (function(){
     const started = (localStorage.getItem('started') === 'true');
     if(!started) {
       location.replace('need_start.html');
@@ -183,6 +167,8 @@
       const subEl = document.getElementById('sub');
       const grid = document.getElementById('grid');
       const backBtn = document.getElementById('backBtn');
+
+      if(backBtn) backBtn.addEventListener('click', () => location.href = 'start.html');
 
       if(titleEl) titleEl.textContent = '🧩 QRクエスト：9分割の進行状況';
 
@@ -246,10 +232,10 @@ const isComplete = (found >= 9);
 if (quizWrap) {
   quizWrap.innerHTML = '';
   if (isComplete) {
-    const quiz = {
-      question: "さいごの くいずじゃ。おたからは みなみさつまし かささちょう のまいけ みなとひろば にある、なんさつちいき とくさん の たかえび の もにゅめんと じゃ。さて、これを でざいん したのは？
-ひんと：さいきん ふたごちゃんを しゅっさん しました",
-      choices: ["タレント：中川翔子（なかがわしょうこ）さん（愛称しょこたん）", "通りすがりのおじさん", "市役所の人"],
+    const ev = (window.QRQUEST_EVENT || {});
+    const quiz = ev.finalQuiz || {
+      question: '最終クイズじゃ！　「砂の祭典」が開催される市はどこ？',
+      choices: ['南さつま市', '鹿児島市', '指宿市'],
       answerIndex: 0
     };
     quizWrap.innerHTML = `
