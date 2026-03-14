@@ -1,7 +1,7 @@
 {
-  "name": "QRクエスト 砂の祭典2026",
+  "name": "QRクエスト in 2026吹上浜砂の祭典 砂さんぽ～砂でつくる城物語～",
   "short_name": "QRクエスト",
-  "start_url": "./entry.html?pwa=1&v=20260217",
+  "start_url": "./add_to_home.html?pwa=1&v=20260314",
   "scope": "./",
   "display": "standalone",
   "background_color": "#fff7fa",
@@ -17,5 +17,6 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "description": "2026吹上浜砂の祭典「砂さんぽ～砂でつくる城物語～」のQRクエスト（デジタルスタンプラリー）"
 }
