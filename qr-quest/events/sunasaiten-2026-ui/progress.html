@@ -248,12 +248,14 @@ const isComplete = (found >= 9);
 if (quizWrap) {
   quizWrap.innerHTML = '';
   if (isComplete) {
+    const ev = (window.QRQUEST_EVENT || window.EVENT_CONFIG || {});
     const quiz = {
     question: "さいごの くいずじゃ。おたからは みなみさつまし かささちょう のまいけ みなとひろば にある、なんさつちいき とくさん の たかえび の もにゅめんと じゃ。さて、これを でざいん したのは？
 ひんと：さいきん ふたごちゃんを しゅっさん しました",
     choices: ["タレント：中川翔子（なかがわしょうこ）さん（愛称しょこたん）", "通りすがりのおじさん", "市役所の人"],
     answerIndex: 0
   };
+  }
     quizWrap.innerHTML = `
       <div style="background:#fff;border:1px solid #eadfcf;border-radius:16px;padding:14px;text-align:left;">
         <div style="font-weight:900;margin-bottom:8px;">🧠 最終クイズじゃ！</div>
