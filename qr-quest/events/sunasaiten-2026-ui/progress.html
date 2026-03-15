@@ -326,30 +326,11 @@ if (quizWrap) {
     }
 
     if (downloadBtn) downloadBtn.addEventListener('click', downloadComposite);
-
-    // ✅ かんせい がぞう（goal.png）をひらく（iPhoneは長押し保存）
-    const goalSaveBtn = document.getElementById('goalSaveBtn');
-    if (goalSaveBtn) {
-      goalSaveBtn.addEventListener('click', () => {
-        const goalUrl = 'images/challenge/goal.png';
-        const w = window.open(goalUrl, '_blank');
-        if (!w) {
-          // ポップアップがブロックされた場合
-          location.href = goalUrl;
-        } else {
-          // iOS向けに案内（不要なら削除OK）
-          setTimeout(() => {
-            try { alert('保存したい場合：開いた画像を長押しして「画像を保存」を選んでください。'); } catch(e){}
-          }, 200);
-        }
-      });
-    }
-
     if (cc) {
       quiz.choices.forEach((label, idx) => {
         const b = document.createElement('button');
         b.textContent = label;
-        b.style.cssText = 'width:100%;padding:14px 16px;border:1px solid #ddd;border-radius:14px;background:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;';
+        b.style.cssText = 'width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:12px;background:#fff;font-weight:800;cursor:pointer;';
         b.addEventListener('click', () => {
           if (idx === quiz.answerIndex) {
             msg.textContent = '✅ 正解じゃ！応募フォームへ進めるぞ。';
