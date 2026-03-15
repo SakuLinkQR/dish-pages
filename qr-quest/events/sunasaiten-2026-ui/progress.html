@@ -4,7 +4,7 @@
   <script src="event-config.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>お宝進行状況</title>
+  <title>おたから　いまなんこ？</title>
   <style>
     body {
       font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
@@ -117,7 +117,7 @@
 </head>
 <body>
 
-  <h1 id="title">🧭 みつけた お宝ピース！</h1>
+  <h1 id="title">🧭 みつけた おたからピース！</h1>
   <p class="sub" id="sub">0 / 9</p>
 
   <div class="grid" id="grid" aria-label="puzzle grid"></div>
@@ -170,7 +170,7 @@
 
       if(backBtn) backBtn.addEventListener('click', () => location.href = 'start.html');
 
-      if(titleEl) titleEl.textContent = '🧩 QRクエスト：9分割の進行状況';
+      if(titleEl) titleEl.textContent = '🧩 みつけた おたからじゃ';
 
       // Build grid
       grid.innerHTML = '';
@@ -247,11 +247,6 @@ if (quizWrap) {
         <button id="downloadBtn" style="display:block;margin-top:12px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#111827;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
           🧩 おたからを ほぞん
         </button>
-
-        <button id="goalSaveBtn" style="display:block;margin-top:10px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#2563eb;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;" onclick="location.href='goal_view.html'">
-          🖼️ かんせい がぞうを ほぞん
-        </button>
-
         <button id="formBtn" style="display:none;margin-top:12px;width:100%;padding:14px 16px;border:none;border-radius:14px;background:#38b000;color:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;">
           📩 応募（おうぼ）フォームへすすむ
         </button>
@@ -330,7 +325,7 @@ if (quizWrap) {
       quiz.choices.forEach((label, idx) => {
         const b = document.createElement('button');
         b.textContent = label;
-        b.style.cssText = 'width:100%;padding:14px 16px;border:1px solid #ddd;border-radius:14px;background:#fff;font-weight:900;font-size:1.05rem;cursor:pointer;';
+        b.style.cssText = 'width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:12px;background:#fff;font-weight:800;cursor:pointer;';
         b.addEventListener('click', () => {
           if (idx === quiz.answerIndex) {
             msg.textContent = '✅ 正解じゃ！応募フォームへ進めるぞ。';
