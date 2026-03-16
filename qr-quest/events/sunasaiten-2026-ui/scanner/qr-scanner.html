@@ -152,6 +152,27 @@
     if (hasRedirected) return;
     hasRedirected = true;
 
+
+    // ✅ 2回目以降は記録しない（すでにSCAN済み判定）
+    // - 同じQRを再度読むと「ゲットずみです☝️」と表示して、ログ送信もしない
+    try{
+      const t = (decodedText || '').trim();
+      // 文字列そのままだと長いので、ハッシュで保存
+      const hash = (function(s){
+        let h=0; for(let i=0;i<s.length;i++){ h=((h<<5)-h)+s.charCodeAt(i); h|=0; }
+        return String(h);
+      })(t);
+      const seenKey = 'seen_qr_' + hash;
+      if(localStorage.getItem(seenKey) === 'true'){
+        alert('ゲットずみです☝️');
+        hasRedirected = false;
+        setTimeout(()=>rescan(), 120);
+        return;
+      }
+      // まだ未取得なら、あとで保存する（下の location.href 直前で true にする）
+      window.__SEEN_KEY__ = seenKey;
+    }catch(e){}
+
     // rewardモードなら、参加賞用QRだけ通す（'reward'を含む想定）
     if(mode === 'reward'){
       const ok = decodedText && (decodedText.includes('reward') || decodedText.includes('REWARD'));
@@ -196,6 +217,8 @@
       }
       }
     }catch(e){}
+    // ✅ ここまで来たら初回スキャンとして記録（次回以降はスキップ）
+    try{ if(window.__SEEN_KEY__) localStorage.setItem(window.__SEEN_KEY__,'true'); }catch(e){}
     location.href = returnTarget;
   }
 
