@@ -5,38 +5,157 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>マップ | QRクエスト in 2026吹上浜砂の祭典</title>
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#f7fbff;color:#222}
-    header{padding:14px 14px 10px;text-align:center}
-    h1{font-size:18px;margin:6px 0 4px}
-    p{margin:0 0 10px;font-size:13px;color:#444;line-height:1.6}
-    .wrap{max-width:980px;margin:0 auto;padding:0 12px 88px}
-    .card{background:#fff;border:1px solid #e6eef7;border-radius:16px;padding:10px;margin:10px 0}
-    img{width:100%;height:auto;border-radius:12px;display:block}
-    .hint{font-size:12px;color:#555;margin-top:8px;line-height:1.6}
-    .btns{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);backdrop-filter: blur(6px);border-top:1px solid #e6eef7;padding:10px 12px}
-    .row{max-width:980px;margin:0 auto;display:flex;gap:10px}
-    a.btn{flex:1;display:block;text-align:center;padding:14px 12px;border-radius:14px;text-decoration:none;font-weight:800;border:1px solid #1e88e5;background:#1e88e5;color:#fff}
-    a.btn.sub{background:#fff;color:#1e88e5}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+      background:#f7fbff;
+      color:#222;
+    }
+    header{
+      padding:14px 14px 10px;
+      text-align:center;
+    }
+    h1{
+      font-size:18px;
+      margin:6px 0 4px;
+    }
+    p{
+      margin:0 0 10px;
+      font-size:13px;
+      color:#444;
+      line-height:1.6;
+    }
+    .wrap{
+      max-width:980px;
+      margin:0 auto;
+      padding:0 12px 100px;
+    }
+    .switches{
+      display:flex;
+      gap:8px;
+      margin:10px 0 12px;
+      flex-wrap:wrap;
+    }
+    .switch-btn{
+      appearance:none;
+      border:1px solid #b8d7f3;
+      background:#fff;
+      color:#1e4f7a;
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .switch-btn.active{
+      background:#1e88e5;
+      border-color:#1e88e5;
+      color:#fff;
+    }
+    .card{
+      background:#fff;
+      border:1px solid #e6eef7;
+      border-radius:16px;
+      padding:10px;
+      margin:10px 0;
+      box-shadow:0 1px 6px rgba(0,0,0,.03);
+    }
+    .panel{
+      display:none;
+    }
+    .panel.active{
+      display:block;
+    }
+    .panel-title{
+      font-size:15px;
+      font-weight:800;
+      margin:2px 0 10px;
+      color:#1d3557;
+    }
+    img{
+      width:100%;
+      height:auto;
+      border-radius:12px;
+      display:block;
+    }
+    .hint{
+      font-size:12px;
+      color:#555;
+      margin-top:8px;
+      line-height:1.7;
+    }
+    .btns{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(6px);
+      border-top:1px solid #e6eef7;
+      padding:10px 12px;
+    }
+    .row{
+      max-width:980px;
+      margin:0 auto;
+      display:flex;
+      gap:10px;
+    }
+    a.btn{
+      flex:1;
+      display:block;
+      text-align:center;
+      padding:14px 12px;
+      border-radius:14px;
+      text-decoration:none;
+      font-weight:800;
+      border:1px solid #1e88e5;
+      background:#1e88e5;
+      color:#fff;
+    }
+    a.btn.sub{
+      background:#fff;
+      color:#1e88e5;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>マップ</h1>
-    <p>かみのスタンプラリーと おなじマップを のせます。<br>※ピンチ（2本ゆび）で かくだいできます。</p>
+    <p>会場全体のエリアマップです。<br>※ピンチ（2本指）で拡大できます。</p>
   </header>
 
   <div class="wrap">
-    <div class="card">
-      <!--
-        ▼ここに、市役所のマップ画像を置いてください
-        例：images/map_2026.jpg
-      -->
-      <img src="images/map_2026.jpg" alt="エリアマップ" onerror="this.style.display='none'; document.getElementById('noimg').style.display='block';" />
-      <div id="noimg" class="hint" style="display:none;">
-        マップ画像が まだ ありません。<br>
-        市役所のマップ（PDFや写真）を <strong>images/map_2026.jpg</strong> として ここに 置くと、表示されます。
+    <div class="switches">
+      <button type="button" class="switch-btn active" data-target="overviewPanel">全体マップ</button>
+      <button type="button" class="switch-btn" data-target="paperPanel">紙版マップ</button>
+    </div>
+
+    <div id="overviewPanel" class="card panel active">
+      <div class="panel-title">全体マップ</div>
+      <img
+        src="images/map_overview_3areas.png"
+        alt="3エリア全体図"
+        onerror="this.style.display='none'; document.getElementById('noimg-overview').style.display='block';"
+      />
+      <div id="noimg-overview" class="hint" style="display:none;">
+        全体マップ画像がまだありません。<br>
+        <strong>images/map_overview_3areas.png</strong> を置くと表示されます。
       </div>
-      <div class="hint">いまいる ばしょは じぶんで たしかめてね。こまったら うけつけの ひとに きいてね。</div>
+      <div class="hint">現在地はご自身でご確認ください。困ったときは受付の係員におたずねください。</div>
+    </div>
+
+    <div id="paperPanel" class="card panel">
+      <div class="panel-title">紙版マップ</div>
+      <img
+        src="images/map_paper_stamp_rally.png"
+        alt="紙のスタンプラリー版マップ"
+        onerror="this.style.display='none'; document.getElementById('noimg-paper').style.display='block';"
+      />
+      <div id="noimg-paper" class="hint" style="display:block;">
+        紙版マップは現在準備中です。<br>
+        後から <strong>images/map_paper_stamp_rally.png</strong> を置けば、この画面のまま追加できます。
+      </div>
+      <div class="hint">紙のスタンプラリーと同じ内容を掲載したい場合は、この欄に追加してください。</div>
     </div>
   </div>
 
@@ -46,5 +165,22 @@
       <a class="btn" href="quest_go.html">🧩 QRクエストへ</a>
     </div>
   </div>
+
+  <script>
+    const switchButtons = document.querySelectorAll('.switch-btn');
+    const panels = document.querySelectorAll('.panel');
+
+    switchButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetId = button.dataset.target;
+
+        switchButtons.forEach(btn => btn.classList.remove('active'));
+        panels.forEach(panel => panel.classList.remove('active'));
+
+        button.classList.add('active');
+        document.getElementById(targetId).classList.add('active');
+      });
+    });
+  </script>
 </body>
 </html>
