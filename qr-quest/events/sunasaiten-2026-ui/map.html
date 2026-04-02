@@ -28,29 +28,69 @@
     .wrap{
       max-width:980px;
       margin:0 auto;
-      padding:0 12px 100px;
+      padding:0 12px 96px;
     }
-    .switches{
+    .tabs{
       display:flex;
       gap:8px;
       margin:10px 0 12px;
       flex-wrap:wrap;
     }
-    .switch-btn{
+    .tab-btn{
       appearance:none;
-      border:1px solid #b8d7f3;
+      border:1px solid #1e88e5;
       background:#fff;
-      color:#1e4f7a;
+      color:#1e88e5;
       border-radius:999px;
       padding:10px 14px;
       font-size:14px;
       font-weight:700;
       cursor:pointer;
     }
-    .switch-btn.active{
+    .tab-btn.active{
       background:#1e88e5;
-      border-color:#1e88e5;
       color:#fff;
+    }
+    .map-note{
+      background:#f0f7ff;
+      border:1px solid #d7e8fb;
+      color:#234;
+      border-radius:14px;
+      padding:12px 14px;
+      margin:0 0 12px;
+      font-size:14px;
+      line-height:1.8;
+    }
+    .area-guide{
+      background:#fff;
+      border:1px solid #e6eef7;
+      border-radius:16px;
+      padding:14px;
+      margin:0 0 12px;
+    }
+    .area-guide h2{
+      font-size:16px;
+      margin:0 0 10px;
+      color:#1b5eaa;
+    }
+    .area-item{
+      padding:10px 0;
+      border-top:1px solid #edf3fa;
+    }
+    .area-item:first-of-type{
+      border-top:none;
+      padding-top:0;
+    }
+    .area-item h3{
+      font-size:15px;
+      margin:0 0 6px;
+      color:#203040;
+    }
+    .area-item p{
+      margin:0;
+      font-size:14px;
+      color:#333;
+      line-height:1.8;
     }
     .card{
       background:#fff;
@@ -58,20 +98,9 @@
       border-radius:16px;
       padding:10px;
       margin:10px 0;
-      box-shadow:0 1px 6px rgba(0,0,0,.03);
     }
-    .panel{
-      display:none;
-    }
-    .panel.active{
-      display:block;
-    }
-    .panel-title{
-      font-size:15px;
-      font-weight:800;
-      margin:2px 0 10px;
-      color:#1d3557;
-    }
+    .map-panel{display:none;}
+    .map-panel.active{display:block;}
     img{
       width:100%;
       height:auto;
@@ -125,37 +154,62 @@
   </header>
 
   <div class="wrap">
-    <div class="switches">
-      <button type="button" class="switch-btn active" data-target="overviewPanel">全体マップ</button>
-      <button type="button" class="switch-btn" data-target="paperPanel">紙版マップ</button>
+    <div class="tabs">
+      <button class="tab-btn active" type="button" data-target="overviewMap">全体マップ</button>
+      <button class="tab-btn" type="button" data-target="paperMap">紙のスタンプラリー版</button>
     </div>
 
-    <div id="overviewPanel" class="card panel active">
-      <div class="panel-title">全体マップ</div>
-      <img
-        src="images/map_overview_3areas.png"
-        alt="3エリア全体図"
-        onerror="this.style.display='none'; document.getElementById('noimg-overview').style.display='block';"
-      />
-      <div id="noimg-overview" class="hint" style="display:none;">
-        全体マップ画像がまだありません。<br>
-        <strong>images/map_overview_3areas.png</strong> を置くと表示されます。
-      </div>
-      <div class="hint">現在地はご自身でご確認ください。困ったときは受付の係員におたずねください。</div>
+    <div class="map-note">
+      各エリアの位置や見どころを確認して、会場内の移動にお役立てください。紙のスタンプラリー版マップは、準備ができしだい追加できます。
     </div>
 
-    <div id="paperPanel" class="card panel">
-      <div class="panel-title">紙版マップ</div>
-      <img
-        src="images/map_paper_stamp_rally.png"
-        alt="紙のスタンプラリー版マップ"
-        onerror="this.style.display='none'; document.getElementById('noimg-paper').style.display='block';"
-      />
-      <div id="noimg-paper" class="hint" style="display:block;">
-        紙版マップは現在準備中です。<br>
-        後から <strong>images/map_paper_stamp_rally.png</strong> を置けば、この画面のまま追加できます。
+    <section class="area-guide" aria-label="各エリアの説明">
+      <h2>各エリアのご案内</h2>
+
+      <div class="area-item">
+        <h3>1　市役所エリア</h3>
+        <p>砂の祭典のメイン会場です。砂像だけでなく、舞台を使用したさまざまなイベントや、おもしろ自転車などが行われます。</p>
       </div>
-      <div class="hint">紙のスタンプラリーと同じ内容を掲載したい場合は、この欄に追加してください。</div>
+
+      <div class="area-item">
+        <h3>2　本町（ほんまち）エリア</h3>
+        <p>「ゆめぴか本町通り」を中心としたエリアです。砂像の展示や本町通りを使った路上パフォーマンスなどのほか、飲食店もあります。また、南さつま市観光協会「きやったもんせ」では、地元特産品の販売などを行っています。</p>
+      </div>
+
+      <div class="area-item">
+        <h3>3　麓（ふもと）エリア</h3>
+        <p>ゆめぴか本町通りから竹田神社へ向かって南へ下る道は、かつてあった別府城の城下町の名残であり、現存する武家屋敷群などを散策できるルートです。このエリアでは、砂像の展示のほか、旧家や公民館において、各所で体験コーナーや書道、フラワーアレンジメントなど、たくさんの種類の展示が行われています。ゆっくりと竹田神社まで歩いてみませんか。</p>
+      </div>
+    </section>
+
+    <div id="overviewMap" class="map-panel active">
+      <div class="card">
+        <img
+          src="images/map_overview_3areas.png"
+          alt="3エリア全体図"
+          onerror="this.style.display='none'; document.getElementById('noimg-overview').style.display='block';"
+        />
+        <div id="noimg-overview" class="hint" style="display:none;">
+          マップ画像がまだありません。<br>
+          <strong>images/map_overview_3areas.png</strong> をここに置くと表示されます。
+        </div>
+        <div class="hint">現在地はご自身でご確認ください。困ったときは受付の係員におたずねください。</div>
+      </div>
+    </div>
+
+    <div id="paperMap" class="map-panel">
+      <div class="card">
+        <img
+          src="images/map_paper_stamp_rally.png"
+          alt="紙のスタンプラリー版マップ"
+          onerror="this.style.display='none'; document.getElementById('noimg-paper').style.display='block';"
+        />
+        <div id="noimg-paper" class="hint" style="display:none;">
+          紙のスタンプラリー版マップは、現在準備中です。<br>
+          後から <strong>images/map_paper_stamp_rally.png</strong> を置くと表示できます。
+        </div>
+        <div class="hint">紙のスタンプラリー版が完成したら、この画面から切り替えて確認できます。</div>
+      </div>
     </div>
   </div>
 
@@ -167,18 +221,18 @@
   </div>
 
   <script>
-    const switchButtons = document.querySelectorAll('.switch-btn');
-    const panels = document.querySelectorAll('.panel');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.map-panel');
 
-    switchButtons.forEach(button => {
+    tabButtons.forEach(button => {
       button.addEventListener('click', () => {
-        const targetId = button.dataset.target;
+        const target = button.dataset.target;
 
-        switchButtons.forEach(btn => btn.classList.remove('active'));
+        tabButtons.forEach(btn => btn.classList.remove('active'));
         panels.forEach(panel => panel.classList.remove('active'));
 
         button.classList.add('active');
-        document.getElementById(targetId).classList.add('active');
+        document.getElementById(target).classList.add('active');
       });
     });
   </script>
