@@ -97,7 +97,7 @@
       border:1px solid #e6eef7;
       border-radius:16px;
       padding:10px;
-      margin:10px 0;
+      margin:10px 0 12px;
     }
     .map-panel{display:none;}
     .map-panel.active{display:block;}
@@ -160,8 +160,10 @@
     </div>
 
     <div class="map-note">
-      各エリアの位置や見どころを確認して、会場内の移動にお役立てください。各エリアの位置や見どころを確認して、会場内の移動にお役立てください。紙のスタンプラリー版も、この画面から切り替えて確認できます。
-    </div><div id="overviewMap" class="map-panel active">
+      各エリアの位置や見どころを確認して、会場内の移動にお役立てください。
+    </div>
+
+    <div id="overviewMap" class="map-panel active">
       <div class="card">
         <img
           src="images/map_overview_3areas.png"
@@ -184,9 +186,11 @@
           onerror="this.style.display='none'; document.getElementById('noimg-paper').style.display='block';"
         />
         <div id="noimg-paper" class="hint" style="display:none;">
-          紙のスタンプラリー版マップは、現在準備中です。<br>
-          後から <strong>images/map_stamp_rally.jpeg</strong> を置くと表示できます。
+          紙のスタンプラリー版マップ画像がまだありません。<br>
+          <strong>images/map_stamp_rally.jpeg</strong> をここに置くと表示されます。
         </div>
+      </div>
+    </div>
 
     <section class="area-guide" aria-label="各エリアの説明">
       <h2>各エリアのご案内</h2>
@@ -206,9 +210,6 @@
         <p>ゆめぴか本町通りから竹田神社へ向かって南へ下る道は、かつてあった別府城の城下町の名残であり、現存する武家屋敷群などを散策できるルートです。このエリアでは、砂像の展示のほか、旧家や公民館において、各所で体験コーナーや書道、フラワーアレンジメントなど、たくさんの種類の展示が行われています。ゆっくりと竹田神社まで歩いてみませんか。</p>
       </div>
     </section>
-        <div class="hint">紙のスタンプラリー版が完成したら、この画面から切り替えて確認できます。</div>
-      </div>
-    </div>
   </div>
 
   <div class="btns">
