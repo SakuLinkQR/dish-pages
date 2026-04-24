@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="utf-8"/>
@@ -119,6 +118,10 @@
       margin-top:8px;
     }
 
+    .topGuideBtn{
+      margin:10px 0 14px;
+    }
+
     /* 視覚的にわかりやすい表示（遊び方） */
     .steps{ display:grid; gap:10px; margin:12px 0 6px; }
     .step{ display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:16px; background:#fff; border:1px solid var(--line); text-align:left; }
@@ -148,11 +151,7 @@
     /* ===== 印刷（PDF）用：下固定ボタンを一番下へ回す ===== */
     @media print{
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-      /* 固定ボタンのための下余白は不要 */
       .wrap{ padding-bottom: 16px !important; }
-
-      /* 下固定ボタンを“固定解除”して本文の最後に表示 */
       .btns{
         position: static !important;
         left:auto !important; right:auto !important; bottom:auto !important;
@@ -162,8 +161,6 @@
         margin-top: 14px !important;
         padding: 10px 0 !important;
       }
-
-      /* 改ページでボタンだけが変な位置にいかないように */
       .btnRow{ page-break-inside: avoid; break-inside: avoid; }
     }
 </style>
@@ -178,6 +175,10 @@
   なお、このアプリがつかえるのは、5月3日から5月5日までです。
   これを過ぎると、参加賞の受け取りや、抽選会の申し込みはできなくなります。
 </p>
+
+<div class="topGuideBtn">
+  <a class="btn pink" href="./guide.html">📄 開催要項を見る</a>
+</div>
 
 <div class="card">
   <h2>① 遊び方</h2>
@@ -238,7 +239,7 @@
   </p>
   <ul>
     <li>ボタンが出たら、各エリアのインフォメーションセンターへ行ってください。</li>
-    <li>参加賞と交換できるのは、</strong>5月3日から5月5日午前9：30から午後4：00</strong>です。</li>
+    <li>参加賞と交換できるのは、5月3日から5月5日午前9：30から午後4：00です。</li>
     <li>※各日の時間を過ぎると、参加賞は受け取れません</li>
     <li>係員の案内に従って、<strong>受け取り用のQRコード</strong>を読み込みます。</li>
     <li>出てきた画面を、インフォメーションの係員に見せてください。</li>
@@ -266,7 +267,6 @@
 <p class="small">Powered by SakuLink</p>
 </div>
 
-<!-- 下固定ボタン（スマホ向け） -->
 <div class="btns" id="bottomNav">
   <div class="btnRow">
     <a class="btn sub" href="./index.html">🏠 ホームへ</a>
