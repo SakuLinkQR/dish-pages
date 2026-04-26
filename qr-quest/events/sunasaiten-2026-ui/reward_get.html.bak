@@ -28,27 +28,6 @@
     location.replace('need_start.html'); return;
   }
 
-  function pickRewardPlace(raw){
-    const s = (raw || '').toLowerCase();
-    if(!s) return '';
-    if(!(s.includes('reward') || s.includes('参加賞'))) return '';
-    if(s.includes('shiyakusho') || s.includes('市役所')) return 'shiyakusho';
-    if(s.includes('honmachi') || s.includes('本町')) return 'honmachi';
-    if(s.includes('fumoto') || s.includes('麓')) return 'fumoto';
-    if(s.includes('suna2026')) return 'common';
-    return 'common';
-  }
-
-  function rewardPlaceLabel(place){
-    const map = {
-      shiyakusho: '市役所',
-      honmachi: '本町',
-      fumoto: '麓',
-      common: '会場'
-    };
-    return map[place] || '会場';
-  }
-
   // scannerが保存したテキスト
   const t =
     localStorage.getItem('reward_scan_text') ||
@@ -57,38 +36,18 @@
     '';
 
   // 参加賞用QRかどうか（reward を含む想定）
-  const ok = (t && (t.includes('reward') || t.includes('REWARD') || t.includes('参加賞')));
+  const ok = (t && (t.includes('reward') || t.includes('REWARD')));
 
   if(!ok){
     msg.textContent = '参加賞ゲット用QRが読み取れていません。もう一度お試しください。';
     return;
   }
 
-  const rewardPlace = pickRewardPlace(t);
-  const rewardPlaceText = rewardPlaceLabel(rewardPlace);
-
   // 確定（二重交付防止）
   localStorage.setItem('reward_claimed','true');
   localStorage.setItem('reward_claimed_at', String(Date.now()));
-  localStorage.setItem('reward_claimed_place', rewardPlace);
-  localStorage.setItem('reward_claimed_text', t);
-
-  // 受取場所ログ
-  try{
-    if(window.QRQUEST_LOG){
-      const short = (t || '').toString().slice(0, 120);
-      window.QRQUEST_LOG.send({
-        page: 'reward_get.html',
-        area: rewardPlace === 'common' ? '' : rewardPlace,
-        qr_id: short,
-        result: 'reward_claimed',
-        piece: ''
-      });
-    }
-  }catch(e){}
-
-  msg.textContent = `✅ ${rewardPlaceText}エリアで参加賞受取済みにしました！係員に確認してもらってください。`;
-  setTimeout(()=>{ location.replace('reward_ok.html'); }, 250);
+  msg.textContent = '✅ 参加賞ゲット済みにしました！係員に確認してもらってください。';
+    setTimeout(()=>{ location.replace('reward_ok.html'); }, 250);
 
 })();
 </script>
