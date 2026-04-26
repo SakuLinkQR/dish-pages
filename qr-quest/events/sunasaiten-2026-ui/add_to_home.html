@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <script src="event-config.js"></script>
   <title>QRクエスト in 2026吹上浜砂の祭典 - ホーム画面に追加</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -214,6 +215,36 @@
     }
   }
 
+  function hasStartLog(area){
+    try{
+      const k = "start_logged_" + (area || "");
+      return localStorage.getItem(k) === "true" || getCookie(k) === "true";
+    }catch(e){ return false; }
+  }
+
+  function markStartLog(area){
+    try{
+      const k = "start_logged_" + (area || "");
+      localStorage.setItem(k, "true");
+      setCookie(k, "true");
+    }catch(e){}
+  }
+
+  function sendStartLogOnce(area, pageName){
+    try{
+      if(!area || !window.QRQUEST_LOG) return;
+      if(hasStartLog(area)) return;
+      window.QRQUEST_LOG.send({
+        page: pageName || 'add_to_home.html',
+        area: area,
+        qr_id: 'start',
+        result: 'start_ok',
+        piece: ''
+      });
+      markStartLog(area);
+    }catch(e){}
+  }
+
   // 表示（受付地点バッジ）
   if(start && isAllowedStart){
     const badge = document.getElementById("badge");
@@ -236,6 +267,7 @@
       document.getElementById("instructions").style.display="none";
       document.getElementById("loading").style.display="block";
       setStartFlags(start);
+      sendStartLogOnce(start, "add_to_home_standalone");
       location.replace("./index.html");
       return;
     }
@@ -249,6 +281,7 @@
       try{ localStorage.removeItem("pending_start"); }catch(e){}
       clearCookie("pending_start");
       setStartFlags(pending);
+      sendStartLogOnce(pending, "add_to_home_pending");
       location.replace("./index.html");
       return;
     }
@@ -267,6 +300,8 @@
   if(!isStandalone && start && isAllowedStart){
     try{ 
       localStorage.setItem("start_area", start);
+      // 受付QRを読んだ時点で受付場所を1回だけ記録
+      sendStartLogOnce(start, "add_to_home_browser");
       // インストール後（アイコン起動）に引き継ぐための仮スタート
       localStorage.setItem("pending_start", start);
       setCookie("pending_start", start);
