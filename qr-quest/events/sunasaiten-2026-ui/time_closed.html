@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRクエスト in 砂の祭典2026</title>
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;background:#fff7fa;color:#333;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:24px;box-sizing:border-box}
+    .card{max-width:720px;width:100%;background:#fff;border:1px solid #ffd6e6;border-radius:20px;padding:28px 22px;box-shadow:0 6px 24px rgba(0,0,0,.05);text-align:center}
+    h1{font-size:1.9rem;color:#ff4081;margin:0 0 14px;line-height:1.35}
+    .sub{font-size:1.1rem;color:#555;line-height:1.8;margin:0}
+    .en{margin-top:12px;font-size:1rem;color:#888;font-weight:700;letter-spacing:.04em}
+    .small{margin-top:18px;font-size:.92rem;color:#777;line-height:1.7}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="mainMessage">開催までしばらくお待ちください</h1>
+    <p class="sub" id="subMessage">QRクエスト in 砂の祭典2026 は、開催時間になるとご利用いただけます。</p>
+    <div class="en" id="enMessage">Coming soon</div>
+    <div class="small">利用時間：日本時間 5月3日 8:30 ～ 5月5日 17:00<br>※本日 12:00 ～ 13:00 は事前テスト用に公開します。</div>
+  </div>
+<script>
+(function(){
+  var p = new URLSearchParams(location.search);
+  var status = p.get('status') || 'before';
+  var main = document.getElementById('mainMessage');
+  var sub = document.getElementById('subMessage');
+  var en = document.getElementById('enMessage');
+  if(status === 'after'){
+    main.textContent = 'QRクエスト in 砂の祭典2026 は終了しました。';
+    sub.textContent = 'ご参加ありがとうございました。来年また遊んでね。';
+    en.textContent = 'Thank you for playing';
+  } else {
+    main.textContent = '開催までしばらくお待ちください';
+    sub.textContent = 'QRクエスト in 砂の祭典2026 は、開催時間になるとご利用いただけます。';
+    en.textContent = 'Coming soon';
+  }
+})();
+</script>
+</body>
+</html>
